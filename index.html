@@ -3,425 +3,625 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Livex Africa - Connecting Influencers & Brands</title>
+    <title>LiveX Kenya | Next-Gen Influencer Marketing</title>
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        primary: '#09324a',
-                        secondary: '#FFB303',
-                        tertiary: '#1A936F',
-                    },
-                    fontFamily: {
-                        'poppins': ['Poppins', 'sans-serif'],
-                    },
-                }
-            }
-        }
-    </script>
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Custom Styles -->
     <style>
-        html {
-            scroll-behavior: smooth;
+        :root {
+            --dark-azure: #0b3046;
+            --light-azure: #d2e4ee;
+            --dull-orange: #e67e22;
+            --electric-blue: #00a8ff;
+            --neon-pink: #ff2e63;
         }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Poppins', sans-serif;
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
             overflow-x: hidden;
         }
+        
         .gradient-bg {
-            background: linear-gradient(135deg, #09324a 0%, #1a4a6e 100%);
+            background: linear-gradient(135deg, #0b3046 0%, #1a5278 50%, #0b3046 100%);
         }
-        .hero-section {
-            background: linear-gradient(rgba(9, 50, 74, 0.8), rgba(9, 50, 74, 0.9)), url('https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80');
-            background-size: cover;
-            background-position: center;
+        
+        .hero-gradient {
+            background: linear-gradient(120deg, #0b3046 0%, #1a5278 50%, #00a8ff 100%);
         }
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-        .dashboard-card {
+        
+        .glass-effect {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease;
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
         }
-        .counter {
-            font-variant-numeric: tabular-nums;
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--electric-blue);
+            color: var(--electric-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 168, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--dull-orange);
+            border-radius: 2px;
+        }
+        
+        .dashboard-preview {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .dashboard-preview:hover {
+            transform: perspective(1000px) rotateY(0) rotateX(0);
+        }
+        
+        .tier-card {
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .tier-card:hover {
+            transform: translateY(-10px);
+            border-top: 4px solid var(--electric-blue);
+        }
+        
+        .platform-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .platform-icon:hover {
+            transform: scale(1.2);
+            color: var(--electric-blue);
+        }
+        
+        .stats-counter {
+            font-weight: 700;
+            background: linear-gradient(90deg, var(--dark-azure), var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .scroll-indicator {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 30px;
+            height: 50px;
+            border: 2px solid white;
+            border-radius: 15px;
+        }
+        
+        .scroll-indicator::before {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 10px;
+            background: white;
+            border-radius: 2px;
+            animation: scroll 2s infinite;
+        }
+        
+        @keyframes scroll {
+            0% { transform: translateX(-50%) translateY(0); opacity: 1; }
+            100% { transform: translateX(-50%) translateY(20px); opacity: 0; }
+        }
+        
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
         }
     </style>
 </head>
-<body class="bg-gray-50 font-poppins">
-    <!-- Navigation -->
-    <nav class="fixed w-full bg-white shadow-lg z-50">
-        <div class="container mx-auto px-6 py-4">
-            <div class="flex justify-between items-center">
-                <div class="flex items-center">
-                    <img src="logo.jpg" alt="Livex Africa" class="h-10">
-                    <span class="ml-2 text-xl font-bold text-primary">Livex Africa</span>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-white">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="w-10 h-10 rounded-full bg-white flex items-center justify-center mr-3">
+                    <span class="text-xl font-bold text-blue-600">LX</span>
                 </div>
-                <div class="hidden md:flex space-x-8">
-                    <a href="#features" class="text-gray-700 hover:text-secondary transition-colors">Features</a>
-                    <a href="#how-it-works" class="text-gray-700 hover:text-secondary transition-colors">How It Works</a>
-                    <a href="#pricing" class="text-gray-700 hover:text-secondary transition-colors">Pricing</a>
-                    <a href="#contact" class="text-gray-700 hover:text-secondary transition-colors">Contact</a>
+                <span class="text-xl font-bold">LiveX <span class="text-orange-400">Kenya</span></span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#influencers" class="nav-link">For Influencers</a>
+                <a href="#brands" class="nav-link">For Brands</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <button class="px-6 py-2 rounded-full btn-secondary">Login</button>
+                <button class="px-6 py-2 rounded-full btn-primary">Get Started</button>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-white">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
+                    <span class="text-lg font-bold text-blue-600">LX</span>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <button class="px-4 py-2 text-primary font-medium">Log In</button>
-                    <button class="px-6 py-2 bg-secondary text-white rounded-lg font-medium hover:bg-yellow-500 transition-colors">Sign Up</button>
-                </div>
+                <span class="text-lg font-bold">LiveX Kenya</span>
+            </div>
+            <button id="close-menu" class="text-white">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="#how-it-works" class="text-white text-lg py-2 border-b border-gray-700">How It Works</a>
+            <a href="#influencers" class="text-white text-lg py-2 border-b border-gray-700">For Influencers</a>
+            <a href="#brands" class="text-white text-lg py-2 border-b border-gray-700">For Brands</a>
+            <a href="#pricing" class="text-white text-lg py-2 border-b border-gray-700">Pricing</a>
+            <div class="pt-4">
+                <button class="w-full mb-3 px-4 py-3 rounded-full btn-secondary">Login</button>
+                <button class="w-full px-4 py-3 rounded-full btn-primary">Get Started</button>
             </div>
         </div>
-    </nav>
+    </div>
 
     <!-- Hero Section -->
-    <section class="hero-section pt-24 pb-32 text-white">
-        <div class="container mx-auto px-6">
-            <div class="flex flex-col md:flex-row items-center">
-                <div class="md:w-1/2 mb-10 md:mb-0">
-                    <h1 class="text-4xl md:text-6xl font-bold leading-tight mb-6">Connecting <span class="text-secondary">Creators</span> & <span class="text-tertiary">Brands</span> in Africa</h1>
-                    <p class="text-xl mb-8">The premier marketplace for influencer marketing in Kenya and Somalia. Helping creators grow and brands drive sales.</p>
-                    <div class="flex space-x-4">
-                        <button class="px-8 py-3 bg-secondary text-white rounded-lg font-medium hover:bg-yellow-500 transition-colors">Join as Influencer</button>
-                        <button class="px-8 py-3 bg-tertiary text-white rounded-lg font-medium hover:bg-green-600 transition-colors">Join as Brand</button>
+    <section class="hero-gradient text-white pt-32 pb-20 relative overflow-hidden">
+        <!-- Animated Background Elements -->
+        <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
+            <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-white opacity-10 floating"></div>
+            <div class="absolute top-1/4 -left-20 w-60 h-60 rounded-full bg-orange-400 opacity-10 floating" style="animation-delay: 1s;"></div>
+            <div class="absolute bottom-20 right-1/4 w-40 h-40 rounded-full bg-blue-400 opacity-10 floating" style="animation-delay: 2s;"></div>
+        </div>
+        
+        <div class="container mx-auto px-6 relative z-10">
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        The Future of <span class="gradient-text">Influencer Marketing</span> is Here
+                    </h1>
+                    <p class="text-xl mb-10 opacity-90">
+                        Connect with Kenya's most authentic creators or find your perfect brand partners. All in one powerful platform.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <button class="px-8 py-4 rounded-full btn-primary text-lg font-semibold pulse">
+                            Join as Influencer
+                        </button>
+                        <button class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold hover:bg-gray-100 transition-all text-lg">
+                            Join as Brand
+                        </button>
                     </div>
                 </div>
-                <div class="md:w-1/2 flex justify-center">
-                    <div class="relative w-full max-w-md">
-                        <div class="absolute -top-10 -left-10 w-72 h-72 bg-secondary opacity-20 rounded-full blur-xl"></div>
-                        <div class="absolute -bottom-10 -right-10 w-72 h-72 bg-tertiary opacity-20 rounded-full blur-xl"></div>
-                        <div class="relative bg-white rounded-2xl shadow-2xl p-6 dashboard-card">
-                            <div class="flex items-center mb-6">
-                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Influencer" class="w-16 h-16 rounded-full border-4 border-secondary">
-                                <div class="ml-4">
-                                    <h3 class="text-lg font-bold text-gray-800">@CreativeSoul</h3>
-                                    <p class="text-gray-600">Lifestyle & Fashion</p>
-                                </div>
+                <div class="lg:w-1/2 flex justify-center">
+                    <div class="dashboard-preview w-full max-w-lg">
+                        <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
+                            <div class="flex-1 text-center text-white text-sm">LiveX Dashboard</div>
+                        </div>
+                        <div class="bg-white p-6">
                             <div class="grid grid-cols-3 gap-4 mb-6">
-                                <div class="bg-gray-100 rounded-lg p-3 text-center">
-                                    <i class="fab fa-instagram text-pink-500 text-xl mb-2"></i>
-                                    <p class="text-sm text-gray-600">Followers</p>
-                                    <p class="font-bold text-gray-800">15.2K</p>
-                                    <p class="text-xs text-green-500">4.2% Engagement</p>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <i class="fab fa-instagram text-2xl text-pink-600 mb-2"></i>
+                                    <p class="text-xs text-gray-600">Instagram</p>
+                                    <p class="font-bold">24.5K</p>
                                 </div>
-                                <div class="bg-gray-100 rounded-lg p-3 text-center">
-                                    <i class="fab fa-facebook text-blue-600 text-xl mb-2"></i>
-                                    <p class="text-sm text-gray-600">Followers</p>
-                                    <p class="font-bold text-gray-800">8.7K</p>
-                                    <p class="text-xs text-green-500">3.8% Engagement</p>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <i class="fab fa-tiktok text-2xl text-black mb-2"></i>
+                                    <p class="text-xs text-gray-600">TikTok</p>
+                                    <p class="font-bold">18.2K</p>
                                 </div>
-                                <div class="bg-gray-100 rounded-lg p-3 text-center">
-                                    <i class="fab fa-tiktok text-gray-800 text-xl mb-2"></i>
-                                    <p class="text-sm text-gray-600">Followers</p>
-                                    <p class="font-bold text-gray-800">22.4K</p>
-                                    <p class="text-xs text-green-500">5.1% Engagement</p>
+                                <div class="bg-blue-50 p-4 rounded-lg text-center">
+                                    <i class="fab fa-facebook text-2xl text-blue-600 mb-2"></i>
+                                    <p class="text-xs text-gray-600">Facebook</p>
+                                    <p class="font-bold">12.7K</p>
                                 </div>
                             </div>
-                            <div class="mb-4">
-                                <h4 class="font-bold text-gray-800 mb-2">Available Campaigns</h4>
-                                <div class="bg-gray-100 rounded-lg p-3 mb-2">
-                                    <div class="flex items-center">
-                                        <img src="https://via.placeholder.com/40" alt="Brand Logo" class="w-10 h-10 rounded-full">
-                                        <div class="ml-3">
-                                            <p class="font-medium text-gray-800">Nairobi Fashion Week</p>
-                                            <p class="text-xs text-gray-600">Instagram & TikTok posts</p>
+                            <div class="mb-6">
+                                <h3 class="font-bold mb-2">Available Campaigns</h3>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Tech Gadget Review</p>
+                                            <p class="text-xs text-gray-500">Technology • 3 days left</p>
                                         </div>
+                                        <span class="text-green-600 font-semibold">$320</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
+                                        <div>
+                                            <p class="font-medium">Fitness App Promotion</p>
+                                            <p class="text-xs text-gray-500">Fitness • 5 days left</p>
+                                        </div>
+                                        <span class="text-green-600 font-semibold">$280</span>
                                     </div>
                                 </div>
-                                <div class="bg-gray-100 rounded-lg p-3">
-                                    <div class="flex items-center">
-                                        <img src="https://via.placeholder.com/40" alt="Brand Logo" class="w-10 h-10 rounded-full">
-                                        <div class="ml-3">
-                                            <p class="font-medium text-gray-800">Safari Beauty</p>
-                                            <p class="text-xs text-gray-600">Product shoot at store</p>
-                                        </div>
-                                    </div>
-                                </div>
+                            </div>
+                            <div class="bg-blue-600 text-white p-3 rounded-lg text-center">
+                                <p class="font-semibold">Your Earnings This Week: $1,240</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+        
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator"></div>
     </section>
 
     <!-- Stats Section -->
     <section class="py-16 bg-white">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-                <div class="fade-in">
-                    <h3 class="text-4xl font-bold text-primary counter" data-target="1250">0</h3>
-                    <p class="text-gray-600 mt-2">Active Influencers</p>
+                <div>
+                    <p class="stats-counter text-4xl md:text-5xl mb-2">500+</p>
+                    <p class="text-gray-600">Verified Influencers</p>
                 </div>
-                <div class="fade-in">
-                    <h3 class="text-4xl font-bold text-primary counter" data-target="320">0</h3>
-                    <p class="text-gray-600 mt-2">Partner Brands</p>
+                <div>
+                    <p class="stats-counter text-4xl md:text-5xl mb-2">150+</p>
+                    <p class="text-gray-600">Partner Brands</p>
                 </div>
-                <div class="fade-in">
-                    <h3 class="text-4xl font-bold text-primary counter" data-target="580">0</h3>
-                    <p class="text-gray-600 mt-2">Successful Campaigns</p>
+                <div>
+                    <p class="stats-counter text-4xl md:text-5xl mb-2">$250K+</p>
+                    <p class="text-gray-600">Paid to Influencers</p>
                 </div>
-                <div class="fade-in">
-                    <h3 class="text-4xl font-bold text-primary counter" data-target="96">0</h3>
-                    <p class="text-gray-600 mt-2">Satisfaction Rate</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Section -->
-    <section id="features" class="py-16 bg-gray-50">
-        <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Powerful Features for Both Sides</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Livex Africa provides specialized tools for both influencers and brands to maximize their collaboration potential.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
-                <!-- Influencer Features -->
-                <div class="fade-in">
-                    <h3 class="text-2xl font-bold text-primary mb-6 flex items-center">
-                        <i class="fas fa-user-circle text-secondary mr-3"></i> For Influencers
-                    </h3>
-                    <div class="space-y-6">
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-secondary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-chart-line text-secondary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">Growth Analytics</h4>
-                                    <p class="text-gray-600 mt-2">Track your performance across Instagram, Facebook, and TikTok with detailed engagement metrics.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-secondary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-bullseye text-secondary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">Targeted Campaigns</h4>
-                                    <p class="text-gray-600 mt-2">Get matched with campaigns that fit your niche and audience demographics.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-secondary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-wallet text-secondary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">Secure Payments</h4>
-                                    <p class="text-gray-600 mt-2">Get paid promptly through our secure payment system after completing campaigns.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Brand Features -->
-                <div class="fade-in">
-                    <h3 class="text-2xl font-bold text-primary mb-6 flex items-center">
-                        <i class="fas fa-building text-tertiary mr-3"></i> For Brands
-                    </h3>
-                    <div class="space-y-6">
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-tertiary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-search text-tertiary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">Influencer Discovery</h4>
-                                    <p class="text-gray-600 mt-2">Find the perfect influencers for your campaign based on niche, audience, and performance metrics.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-tertiary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-sliders-h text-tertiary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">Campaign Management</h4>
-                                    <p class="text-gray-600 mt-2">Easily create, manage, and track all your influencer campaigns from one dashboard.</p>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="bg-white rounded-xl p-6 shadow-lg card-hover">
-                            <div class="flex items-start">
-                                <div class="bg-tertiary bg-opacity-10 p-3 rounded-lg mr-4">
-                                    <i class="fas fa-chart-pie text-tertiary text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-lg text-gray-800">ROI Tracking</h4>
-                                    <p class="text-gray-600 mt-2">Measure the impact of your campaigns with detailed analytics and performance reports.</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div>
+                    <p class="stats-counter text-4xl md:text-5xl mb-2">98%</p>
+                    <p class="text-gray-600">Campaign Success</p>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- How It Works Section -->
-    <section id="how-it-works" class="py-16 bg-white">
+    <section id="how-it-works" class="py-20 bg-gray-50">
         <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">How Livex Africa Works</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">A simple 3-step process to connect influencers with brands for successful campaigns.</p>
-            </div>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="text-center fade-in">
-                    <div class="bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-primary">1</span>
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 section-title">How It Works</h2>
+            <p class="text-gray-600 text-center mb-16 max-w-2xl mx-auto">
+                Our streamlined process makes influencer marketing simple and effective for both brands and creators.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+                <!-- Step 1 -->
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-20 h-20 rounded-full bg-blue-100 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-2xl font-bold text-blue-600">1</span>
                     </div>
-                    <h3 class="text-xl font-bold text-primary mb-4">Sign Up & Create Profile</h3>
-                    <p class="text-gray-600">Influencers and brands create detailed profiles showcasing their specialties, audience, and campaign preferences.</p>
+                    <h3 class="text-xl font-bold mb-4">Sign Up & Get Verified</h3>
+                    <p class="text-gray-600">Create your account and get verified based on your social media presence across platforms.</p>
                 </div>
-                <div class="text-center fade-in">
-                    <div class="bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-primary">2</span>
+                
+                <!-- Step 2 -->
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-20 h-20 rounded-full bg-orange-100 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-2xl font-bold text-orange-600">2</span>
                     </div>
-                    <h3 class="text-xl font-bold text-primary mb-4">Discover & Connect</h3>
-                    <p class="text-gray-600">Brands browse our influencer marketplace or launch campaigns. Influencers receive matched opportunities.</p>
+                    <h3 class="text-xl font-bold mb-4">Connect & Collaborate</h3>
+                    <p class="text-gray-600">Brands post campaigns, influencers apply. Our platform makes collaboration seamless.</p>
                 </div>
-                <div class="text-center fade-in">
-                    <div class="bg-primary bg-opacity-10 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <span class="text-3xl font-bold text-primary">3</span>
+                
+                <!-- Step 3 -->
+                <div class="card-hover bg-white p-8 rounded-2xl shadow-lg text-center">
+                    <div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center mb-6 mx-auto">
+                        <span class="text-2xl font-bold text-green-600">3</span>
                     </div>
-                    <h3 class="text-xl font-bold text-primary mb-4">Collaborate & Succeed</h3>
-                    <p class="text-gray-600">Execute campaigns, track performance, and achieve marketing goals through our managed platform.</p>
+                    <h3 class="text-xl font-bold mb-4">Create & Get Paid</h3>
+                    <p class="text-gray-600">Influencers create content, brands track performance. Payments processed every Friday.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Influencer Marketplace Preview -->
-    <section class="py-16 bg-gray-50">
+    <!-- For Influencers Section -->
+    <section id="influencers" class="py-20 bg-white">
         <div class="container mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Influencer Marketplace</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Browse our curated selection of influencers across different tiers and categories.</p>
-            </div>
-            
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div class="p-6 border-b border-gray-200">
-                    <div class="flex flex-wrap justify-between items-center">
-                        <h3 class="text-xl font-bold text-primary">Available Influencers</h3>
-                        <div class="flex space-x-4 mt-4 md:mt-0">
-                            <select class="bg-gray-100 border-0 rounded-lg px-4 py-2 text-gray-700">
-                                <option>All Categories</option>
-                                <option>Fashion & Beauty</option>
-                                <option>Lifestyle</option>
-                                <option>Travel</option>
-                                <option>Food</option>
-                                <option>Technology</option>
-                            </select>
-                            <select class="bg-gray-100 border-0 rounded-lg px-4 py-2 text-gray-700">
-                                <option>All Tiers</option>
-                                <option>Nano</option>
-                                <option>Micro</option>
-                                <option>Macro</option>
-                                <option>Mega</option>
-                            </select>
+            <div class="flex flex-col lg:flex-row items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 section-title">For Influencers</h2>
+                    <p class="text-gray-600 mb-6">Monetize your influence with authentic brand partnerships. Focus on creating great content while we handle the business side.</p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Get paid every Friday without delays</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Access premium brand campaigns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>User-friendly dashboard to manage campaigns</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Grow your personal brand with resources</span>
+                        </li>
+                    </ul>
+                    <button class="px-6 py-3 rounded-full btn-primary">Join as Influencer</button>
+                </div>
+                <div class="lg:w-1/2 flex justify-center">
+                    <div class="relative">
+                        <div class="dashboard-preview max-w-md">
+                            <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
+                                <div class="flex space-x-2">
+                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                                </div>
+                                <div class="flex-1 text-center text-white text-sm">Influencer Dashboard</div>
+                            </div>
+                            <div class="bg-white p-6">
+                                <div class="flex items-center mb-6">
+                                    <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mr-4">
+                                        <i class="fas fa-user text-blue-600 text-2xl"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold">Sarah M.</h3>
+                                        <p class="text-gray-600 text-sm">Micro Influencer • Fitness</p>
+                                    </div>
+                                </div>
+                                <div class="grid grid-cols-3 gap-4 mb-6">
+                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                        <p class="text-xs text-gray-600">Instagram</p>
+                                        <p class="font-bold">15.2K</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                        <p class="text-xs text-gray-600">TikTok</p>
+                                        <p class="font-bold">8.7K</p>
+                                    </div>
+                                    <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                        <p class="text-xs text-gray-600">Facebook</p>
+                                        <p class="font-bold">5.1K</p>
+                                    </div>
+                                </div>
+                                <div class="mb-4">
+                                    <h4 class="font-semibold mb-2">Available Campaigns</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                            <span>Fitness App Launch</span>
+                                            <span class="text-green-600 font-semibold">$250</span>
+                                        </div>
+                                        <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                            <span>Beauty Product Review</span>
+                                            <span class="text-green-600 font-semibold">$180</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-lg text-center">
+                                    <p class="text-green-700 font-semibold">Next Payout: $1,240 (Friday)</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-                
-                <div class="p-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <!-- Influencer Card 1 -->
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
-                            <div class="flex items-center mb-4">
-                                <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
-                                <div class="ml-3">
-                                    <h4 class="font-bold text-gray-800">@StyleByZara</h4>
-                                    <span class="inline-block bg-secondary bg-opacity-20 text-secondary text-xs px-2 py-1 rounded-full">Fashion</span>
-                                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- For Brands Section -->
+    <section id="brands" class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="flex flex-col lg:flex-row-reverse items-center">
+                <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <h2 class="text-3xl md:text-4xl font-bold mb-6 section-title">For Brands</h2>
+                    <p class="text-gray-600 mb-6">Find the perfect influencers for your campaigns. Our verified talent pool ensures authentic connections with your target audience.</p>
+                    <ul class="space-y-4 mb-8">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Access to vetted influencers across all tiers</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Streamlined campaign management</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Detailed analytics and performance tracking</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
+                            <span>Customizable brand dashboard</span>
+                        </li>
+                    </ul>
+                    <button class="px-6 py-3 rounded-full btn-primary">Join as Brand</button>
+                </div>
+                <div class="lg:w-1/2 flex justify-center">
+                    <div class="dashboard-preview max-w-md">
+                        <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
                             </div>
-                            <div class="flex justify-between text-sm text-gray-600 mb-4">
-                                <div>
-                                    <p class="font-medium">Followers</p>
-                                    <p class="text-gray-800 font-bold">8.5K</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Engagement</p>
-                                    <p class="text-gray-800 font-bold">4.8%</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Tier</p>
-                                    <p class="text-gray-800 font-bold">Nano</p>
-                                </div>
-                            </div>
-                            <button class="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition-colors">View Profile</button>
+                            <div class="flex-1 text-center text-white text-sm">Brand Dashboard</div>
                         </div>
-                        
-                        <!-- Influencer Card 2 -->
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
-                            <div class="flex items-center mb-4">
-                                <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
-                                <div class="ml-3">
-                                    <h4 class="font-bold text-gray-800">@TechWithTom</h4>
-                                    <span class="inline-block bg-blue-500 bg-opacity-20 text-blue-500 text-xs px-2 py-1 rounded-full">Technology</span>
+                        <div class="bg-white p-6">
+                            <div class="flex items-center mb-6">
+                                <div class="w-16 h-16 rounded-full bg-orange-100 flex items-center justify-center mr-4">
+                                    <i class="fas fa-building text-orange-600 text-2xl"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold">Nairobi Tech Co.</h3>
+                                    <p class="text-gray-600 text-sm">Technology • Active Campaigns: 3</p>
                                 </div>
                             </div>
-                            <div class="flex justify-between text-sm text-gray-600 mb-4">
-                                <div>
-                                    <p class="font-medium">Followers</p>
-                                    <p class="text-gray-800 font-bold">45.2K</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Engagement</p>
-                                    <p class="text-gray-800 font-bold">3.9%</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Tier</p>
-                                    <p class="text-gray-800 font-bold">Micro</p>
-                                </div>
-                            </div>
-                            <button class="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition-colors">View Profile</button>
-                        </div>
-                        
-                        <!-- Influencer Card 3 -->
-                        <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
-                            <div class="flex items-center mb-4">
-                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
-                                <div class="ml-3">
-                                    <h4 class="font-bold text-gray-800">@TravelWithJoy</h4>
-                                    <span class="inline-block bg-green-500 bg-opacity-20 text-green-500 text-xs px-2 py-1 rounded-full">Travel</span>
+                            <div class="mb-4">
+                                <h4 class="font-semibold mb-2">Active Campaigns</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center p-2 bg-blue-50 rounded">
+                                        <span>Summer Collection Launch</span>
+                                        <span class="text-blue-600 font-semibold">Active</span>
+                                    </div>
+                                    <div class="flex justify-between items-center p-2 bg-blue-50 rounded">
+                                        <span>Product Awareness</span>
+                                        <span class="text-blue-600 font-semibold">Active</span>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="flex justify-between text-sm text-gray-600 mb-4">
-                                <div>
-                                    <p class="font-medium">Followers</p>
-                                    <p class="text-gray-800 font-bold">125.7K</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Engagement</p>
-                                    <p class="text-gray-800 font-bold">5.2%</p>
-                                </div>
-                                <div>
-                                    <p class="font-medium">Tier</p>
-                                    <p class="text-gray-800 font-bold">Macro</p>
+                            <div class="mb-6">
+                                <h4 class="font-semibold mb-2">Influencer Marketplace</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                        <div>
+                                            <p class="font-medium">Sarah M.</p>
+                                            <p class="text-xs text-gray-500">Fitness • Micro Influencer</p>
+                                        </div>
+                                        <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">View</button>
+                                    </div>
+                                    <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
+                                        <div>
+                                            <p class="font-medium">Tech Guru</p>
+                                            <p class="text-xs text-gray-500">Technology • Macro Influencer</p>
+                                        </div>
+                                        <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">View</button>
+                                    </div>
                                 </div>
                             </div>
-                            <button class="w-full bg-primary text-white py-2 rounded-lg font-medium hover:bg-blue-800 transition-colors">View Profile</button>
+                            <div class="bg-blue-50 p-3 rounded-lg text-center">
+                                <p class="text-blue-700 font-semibold">Campaign ROI: 312%</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -430,208 +630,152 @@
     </section>
 
     <!-- Pricing Section -->
-    <section id="pricing" class="py-16 bg-white">
+    <section id="pricing" class="py-20 bg-white">
         <div class="container mx-auto px-6">
-            <div class="text-center mb-16">
-                <h2 class="text-3xl md:text-4xl font-bold text-primary mb-4">Flexible Pricing Tiers</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto">Choose the influencer tier that matches your campaign goals and budget.</p>
-            </div>
+            <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 section-title">Influencer Tiers & Pricing</h2>
+            <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+                Choose the right influencer tier for your campaign goals. All packages include 10 influencers for 1 week.
+            </p>
             
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Nano Tier -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover">
-                    <div class="bg-primary text-white py-6 text-center">
-                        <h3 class="text-2xl font-bold">Nano</h3>
-                        <p class="opacity-90">1K - 10K Followers</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <span class="text-4xl font-bold text-primary">$500</span>
-                            <span class="text-gray-600">/ week for 10 influencers</span>
-                        </div>
-                        <ul class="space-y-4 mb-8">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>High engagement rates</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Niche-specific audiences</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Authentic content</span>
-                            </li>
-                        </ul>
-                        <button class="w-full bg-secondary text-white py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors">Select Plan</button>
-                    </div>
+                <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-2">Nano</h3>
+                    <p class="text-gray-600 mb-6">1K - 10K followers</p>
+                    <div class="text-4xl font-bold mb-6">$500</div>
+                    <ul class="space-y-3 mb-8">
+                        <li>High engagement rates</li>
+                        <li>Niche audiences</li>
+                        <li>Authentic content</li>
+                        <li>Cost-effective</li>
+                    </ul>
+                    <button class="w-full py-3 rounded-full btn-secondary">Select Tier</button>
                 </div>
                 
                 <!-- Micro Tier -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover transform scale-105 relative">
-                    <div class="absolute top-0 right-0 bg-secondary text-white px-4 py-1 rounded-bl-lg text-sm font-medium">Most Popular</div>
-                    <div class="bg-primary text-white py-6 text-center">
-                        <h3 class="text-2xl font-bold">Micro</h3>
-                        <p class="opacity-90">10K+ - 100K Followers</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <span class="text-4xl font-bold text-primary">$1,000</span>
-                            <span class="text-gray-600">/ week for 10 influencers</span>
-                        </div>
-                        <ul class="space-y-4 mb-8">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Balanced reach & engagement</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Diverse audience segments</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Professional content quality</span>
-                            </li>
-                        </ul>
-                        <button class="w-full bg-secondary text-white py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors">Select Plan</button>
-                    </div>
+                <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-2">Micro</h3>
+                    <p class="text-gray-600 mb-6">10K+ - 100K followers</p>
+                    <div class="text-4xl font-bold mb-6">$1,000</div>
+                    <ul class="space-y-3 mb-8">
+                        <li>Balanced reach & engagement</li>
+                        <li>Established credibility</li>
+                        <li>Diverse content formats</li>
+                        <li>Strong community</li>
+                    </ul>
+                    <button class="w-full py-3 rounded-full btn-primary">Select Tier</button>
                 </div>
                 
                 <!-- Macro Tier -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover">
-                    <div class="bg-primary text-white py-6 text-center">
-                        <h3 class="text-2xl font-bold">Macro</h3>
-                        <p class="opacity-90">100K+ - 500K Followers</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <span class="text-4xl font-bold text-primary">$3,500</span>
-                            <span class="text-gray-600">/ week for 10 influencers</span>
-                        </div>
-                        <ul class="space-y-4 mb-8">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Significant brand exposure</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Professional production value</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Established credibility</span>
-                            </li>
-                        </ul>
-                        <button class="w-full bg-secondary text-white py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors">Select Plan</button>
-                    </div>
+                <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-2">Macro</h3>
+                    <p class="text-gray-600 mb-6">100K+ - 500K followers</p>
+                    <div class="text-4xl font-bold mb-6">$2,500</div>
+                    <ul class="space-y-3 mb-8">
+                        <li>Significant reach</li>
+                        <li>Professional content</li>
+                        <li>Cross-platform presence</li>
+                        <li>Industry recognition</li>
+                    </ul>
+                    <button class="w-full py-3 rounded-full btn-secondary">Select Tier</button>
                 </div>
                 
                 <!-- Mega Tier -->
-                <div class="bg-white rounded-2xl shadow-lg border border-gray-200 overflow-hidden card-hover">
-                    <div class="bg-primary text-white py-6 text-center">
-                        <h3 class="text-2xl font-bold">Mega</h3>
-                        <p class="opacity-90">500K+ Followers</p>
-                    </div>
-                    <div class="p-6">
-                        <div class="text-center mb-6">
-                            <span class="text-4xl font-bold text-primary">$6,000+</span>
-                            <span class="text-gray-600">/ week for 10 influencers</span>
-                        </div>
-                        <ul class="space-y-4 mb-8">
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Massive brand awareness</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Celebrity-level influence</span>
-                            </li>
-                            <li class="flex items-center">
-                                <i class="fas fa-check text-secondary mr-3"></i>
-                                <span>Premium content production</span>
-                            </li>
-                        </ul>
-                        <button class="w-full bg-secondary text-white py-3 rounded-lg font-medium hover:bg-yellow-500 transition-colors">Contact Sales</button>
-                    </div>
+                <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
+                    <h3 class="text-2xl font-bold mb-2">Mega</h3>
+                    <p class="text-gray-600 mb-6">500K+ followers</p>
+                    <div class="text-4xl font-bold mb-6">$6,000+</div>
+                    <ul class="space-y-3 mb-8">
+                        <li>Massive reach</li>
+                        <li>Celebrity status</li>
+                        <li>High production value</li>
+                        <li>Custom pricing</li>
+                    </ul>
+                    <button class="w-full py-3 rounded-full btn-primary">Contact Sales</button>
                 </div>
-            </div>
-            
-            <div class="mt-12 text-center">
-                <p class="text-gray-600">Custom packages available based on your specific campaign requirements and budget.</p>
             </div>
         </div>
     </section>
 
     <!-- CTA Section -->
-    <section class="py-16 gradient-bg text-white">
+    <section class="py-20 hero-gradient text-white">
         <div class="container mx-auto px-6 text-center">
-            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Influencer Marketing?</h2>
-            <p class="text-xl max-w-2xl mx-auto mb-8">Join Livex Africa today and connect with the perfect influencers or brands for your campaigns.</p>
-            <div class="flex flex-col md:flex-row justify-center space-y-4 md:space-y-0 md:space-x-6">
-                <button class="px-8 py-3 bg-secondary text-white rounded-lg font-medium hover:bg-yellow-500 transition-colors">Sign Up as Influencer</button>
-                <button class="px-8 py-3 bg-tertiary text-white rounded-lg font-medium hover:bg-green-600 transition-colors">Sign Up as Brand</button>
+            <h2 class="text-3xl md:text-4xl font-bold mb-6">Ready to Transform Your Marketing?</h2>
+            <p class="text-xl mb-10 max-w-2xl mx-auto">
+                Join Kenya's fastest growing influencer marketing platform today.
+            </p>
+            <div class="flex flex-col md:flex-row justify-center gap-4">
+                <button class="px-8 py-3 rounded-full bg-white text-gray-800 font-semibold hover:bg-gray-100 transition-all">
+                    Join as Influencer
+                </button>
+                <button class="px-8 py-3 rounded-full btn-primary">
+                    Join as Brand
+                </button>
             </div>
         </div>
     </section>
 
     <!-- Footer -->
-    <footer id="contact" class="bg-gray-800 text-white py-12">
+    <footer class="bg-gray-900 text-white py-12">
         <div class="container mx-auto px-6">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <div class="flex items-center mb-4">
-                        <img src="logo.jpg" alt="Livex Africa" class="h-8">
-                        <span class="ml-2 text-xl font-bold">Livex Africa</span>
+                        <div class="w-8 h-8 rounded-full bg-white flex items-center justify-center mr-2">
+                            <span class="text-lg font-bold text-blue-600">LX</span>
+                        </div>
+                        <span class="text-xl font-bold">LiveX Kenya</span>
                     </div>
-                    <p class="text-gray-400">Connecting creators and brands across Africa for successful marketing campaigns.</p>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Kenya.</p>
                 </div>
+                
                 <div>
-                    <h3 class="text-lg font-bold mb-4">Quick Links</h3>
-                    <ul class="space-y-2">
-                        <li><a href="#features" class="text-gray-400 hover:text-white transition-colors">Features</a></li>
-                        <li><a href="#how-it-works" class="text-gray-400 hover:text-white transition-colors">How It Works</a></li>
-                        <li><a href="#pricing" class="text-gray-400 hover:text-white transition-colors">Pricing</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-white transition-colors">Blog</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h3 class="text-lg font-bold mb-4">Contact Us</h3>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li class="flex items-center">
-                            <i class="fas fa-map-marker-alt mr-3 text-secondary"></i>
-                            <span>Nairobi, Kenya & Mogadishu, Somalia</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-phone mr-3 text-secondary"></i>
-                            <span>+254 700 000 000</span>
-                        </li>
-                        <li class="flex items-center">
-                            <i class="fas fa-envelope mr-3 text-secondary"></i>
-                            <span>info@livexafrica.com</span>
-                        </li>
+                        <li><a href="#" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="#" class="hover:text-white">For Brands</a></li>
+                        <li><a href="#" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
                     </ul>
                 </div>
+                
                 <div>
-                    <h3 class="text-lg font-bold mb-4">Follow Us</h3>
-                    <div class="flex space-x-4">
-                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                            <i class="fab fa-facebook-f"></i>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
                         </a>
-                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                            <i class="fab fa-instagram"></i>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-tiktok text-xl"></i>
                         </a>
-                        <a href="#" class="bg-gray-700 w-10 h-10 rounded-full flex items-center justify-center hover:bg-secondary transition-colors">
-                            <i class="fab fa-linkedin-in"></i>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-twitter text-xl"></i>
                         </a>
                     </div>
+                    <p class="text-gray-400">info@livexkenya.co.ke</p>
                 </div>
             </div>
-            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 Livex Africa. All rights reserved.</p>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX Kenya. All rights reserved.</p>
             </div>
         </div>
     </footer>
 
+    <!-- JavaScript -->
     <script type="module" src="script.js"></script>
-</body>
+</body> 
 </html>
