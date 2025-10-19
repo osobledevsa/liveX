@@ -1,56 +1,86 @@
 
-        // Scroll animations
+        // Mobile menu functionality
         document.addEventListener('DOMContentLoaded', function() {
-            // Fade in elements on scroll
-            const fadeElements = document.querySelectorAll('.fade-in');
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const closeMenuButton = document.getElementById('close-menu');
             
-            const fadeInOnScroll = function() {
-                fadeElements.forEach(element => {
-                    const elementTop = element.getBoundingClientRect().top;
-                    const elementVisible = 150;
-                    
-                    if (elementTop < window.innerHeight - elementVisible) {
-                        element.classList.add('visible');
-                    }
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+            });
+            
+            closeMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+            });
+            
+            // Close mobile menu when clicking on a link
+            const mobileMenuLinks = mobileMenu.querySelectorAll('a');
+            mobileMenuLinks.forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.remove('open');
                 });
-            };
+            });
             
-            // Initial check
-            fadeInOnScroll();
+            // GSAP Animations
+            gsap.registerPlugin(ScrollTrigger);
             
-            // Check on scroll
-            window.addEventListener('scroll', fadeInOnScroll);
-            
-            // Counter animation
-            const counters = document.querySelectorAll('.counter');
-            const speed = 200;
-            
-            const animateCounters = function() {
-                counters.forEach(counter => {
-                    const target = +counter.getAttribute('data-target');
-                    const count = +counter.innerText;
-                    const increment = target / speed;
-                    
-                    if (count < target) {
-                        counter.innerText = Math.ceil(count + increment);
-                        setTimeout(animateCounters, 1);
-                    } else {
-                        counter.innerText = target.toLocaleString();
-                    }
+            // Animate elements on scroll
+            gsap.utils.toArray('.card-hover, .tier-card, .dashboard-preview').forEach(element => {
+                gsap.from(element, {
+                    scrollTrigger: {
+                        trigger: element,
+                        start: "top 80%",
+                        end: "bottom 20%",
+                        toggleActions: "play none none reverse"
+                    },
+                    y: 50,
+                    opacity: 0,
+                    duration: 0.8,
+                    ease: "power2.out"
                 });
-            };
+            });
             
-            // Start counter animation when counters are in view
-            const observer = new IntersectionObserver((entries) => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        animateCounters();
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, { threshold: 0.5 });
-            
+            // Animate stats counters
+            const counters = document.querySelectorAll('.stats-counter');
             counters.forEach(counter => {
-                observer.observe(counter);
+                const target = +counter.innerText.replace('+', '');
+                const increment = target / 100;
+                let current = 0;
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.innerText = Math.ceil(current) + '+';
+                        setTimeout(updateCounter, 20);
+                    } else {
+                        counter.innerText = target + '+';
+                    }
+                };
+                
+                ScrollTrigger.create({
+                    trigger: counter,
+                    start: "top 80%",
+                    onEnter: updateCounter,
+                    once: true
+                });
+            });
+            
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    if (targetId === '#') return;
+                    
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
             });
         });
+    
