@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Sign Up | LiveX - Connect with Influencers</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-blue: #2563eb;
+            --primary-orange: #ea580c;
+            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #ea580c 100%);
+            --light-blue: #dbeafe;
+            --light-orange: #fed7aa;
+            --dark-blue: #1e40af;
+            --dark-orange: #c2410c;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+            color: #334155;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #f0f9ff 0%, #fffbeb 50%, #f0f9ff 100%);
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(37, 99, 235, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: white;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-blue);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 20px;
+            border-radius: 12px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-blue);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .nav-link {
+            position: relative;
+            font-weight: 500;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .error-container {
+            background-color: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        .password-requirements {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+        
+        .requirement {
+            display: flex;
+            align-items: center;
+            margin-top: 3px;
+        }
+        
+        .requirement i {
+            margin-right: 5px;
+            font-size: 12px;
+        }
+        
+        .requirement.met {
+            color: #10b981;
+        }
+        
+        .requirement.unmet {
+            color: #ef4444;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            padding: 32px;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+        
+        .benefit-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        
+        .benefit-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--light-blue);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 16px;
+            color: var(--primary-blue);
+            font-size: 18px;
+        }
+        
+        .testimonial {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        
+        .testimonial-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+        }
+        
+        .stats-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            flex: 1;
+            padding: 0 10px;
+        }
+        
+        .stat-number {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-blue);
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                    <img 
+                        src="assets/images/logo.jpg" 
+                        alt="Logo" 
+                        class="h-full w-full object-cover"
+                    />
+                </div>
+
+                <span class="text-xl font-bold text-slate-800">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all shadow-sm">
+                    Join as Influencer
+                </a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-20">
+        <div class="container mx-auto px-6 max-w-6xl">
+            <!-- Page Header -->
+            <div class="text-center mb-12">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">Create Your Brand Account</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Join Africa's leading influencer marketing platform and connect with authentic influencers to grow your brand.</p>
+                
+                <!-- Stats -->
+                <div class="stats-container">
+                    <div class="stat-item">
+                        <div class="stat-number">10+</div>
+                        <div class="stat-label">Brand Partners</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">10K+</div>
+                        <div class="stat-label">Active Influencers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">20M+</div>
+                        <div class="stat-label">Combined Reach</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Error Container -->
+            <div class="error-container" id="error-container">
+                <p class="text-red-600"><i class="fas fa-exclamation-circle mr-2"></i><span id="error-message"></span></p>
+            </div>
+
+            <div class="flex flex-col lg:flex-row gap-8">
+                <!-- Main Form Column -->
+                <div class="lg:w-2/3">
+                    <!-- Sign Up Form -->
+                    <form id="signup-form">
+                        <div class="card">
+                            <div class="text-center mb-6">
+                                <div class="flex items-center justify-center mb-6">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-12 w-12 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                <h2 class="text-3xl font-bold text-gray-900">Create Your Brand Account</h2>
+                                <p class="mt-2 text-gray-600">Join Africa's leading influencer marketing platform</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <!-- Brand Name -->
+                                <div>
+                                    <label for="brand-name" class="block text-sm font-medium text-gray-700">Brand Name</label>
+                                    <input id="brand-name" name="brand-name" type="text" required 
+                                           class="mt-1 form-input"
+                                           placeholder="Enter your brand name">
+                                    <div id="brand-name-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Industry -->
+                                <div>
+                                    <label for="industry" class="block text-sm font-medium text-gray-700">Industry</label>
+                                    <select id="industry" name="industry" 
+                                            class="mt-1 form-input">
+                                        <option value="">Select your industry</option>
+                                        <option value="fashion">Fashion & Beauty</option>
+                                        <option value="technology">Technology</option>
+                                        <option value="food">Food & Beverage</option>
+                                        <option value="travel">Travel & Hospitality</option>
+                                        <option value="health">Health & Fitness</option>
+                                        <option value="lifestyle">Lifestyle</option>
+                                        <option value="entertainment">Entertainment</option>
+                                        <option value="other">Other</option>
+                                    </select>
+                                    <div id="industry-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Email -->
+                                <div>
+                                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                                    <input id="email" name="email" type="email" required 
+                                           class="mt-1 form-input"
+                                           placeholder="Enter your email address">
+                                    <div id="email-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Phone Number -->
+                                <div>
+                                    <label for="phone" class="block text-sm font-medium text-gray-700">Phone Number (Optional)</label>
+                                    <input id="phone" name="phone" type="tel" 
+                                           class="mt-1 form-input"
+                                           placeholder="Enter your phone number">
+                                    <div id="phone-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Password -->
+                                <div>
+                                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                                    <input id="password" name="password" type="password" required 
+                                           class="mt-1 form-input"
+                                           placeholder="Create a password">
+                                    
+                                    <!-- Password Requirements -->
+                                    <div class="password-requirements">
+                                        <div class="requirement unmet" id="length-req">
+                                            <i class="fas fa-times-circle"></i> At least 8 characters
+                                        </div>
+                                        <div class="requirement unmet" id="uppercase-req">
+                                            <i class="fas fa-times-circle"></i> At least one uppercase letter
+                                        </div>
+                                        <div class="requirement unmet" id="lowercase-req">
+                                            <i class="fas fa-times-circle"></i> At least one lowercase letter
+                                        </div>
+                                        <div class="requirement unmet" id="number-req">
+                                            <i class="fas fa-times-circle"></i> At least one number
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="password-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Confirm Password -->
+                                <div>
+                                    <label for="confirm-password" class="block text-sm font-medium text-gray-700">Confirm Password</label>
+                                    <input id="confirm-password" name="confirm-password" type="password" required 
+                                           class="mt-1 form-input"
+                                           placeholder="Confirm your password">
+                                    <div id="confirm-password-error" class="error-message"></div>
+                                </div>
+                                
+                                <!-- Terms and Conditions -->
+                                <div class="flex items-center">
+                                    <input id="terms" name="terms" type="checkbox" required 
+                                           class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                                    <label for="terms" class="ml-2 block text-sm text-gray-700">
+                                        I agree to the <a href="#" class="text-blue-600 hover:text-blue-500">Terms and Conditions</a> and <a href="#" class="text-blue-600 hover:text-blue-500">Privacy Policy</a>
+                                    </label>
+                                </div>
+                                <div id="terms-error" class="error-message"></div>
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="mt-6">
+                                <button type="submit" id="submit-button" 
+                                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white btn-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                                    <span id="button-text">Create Account</span>
+                                    <span id="button-spinner" class="hidden ml-2">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                    </span>
+                                </button>
+                            </div>
+                            
+                            <!-- Login Link -->
+                            <div class="text-center mt-4">
+                                <p class="text-sm text-gray-600">
+                                    Already have an account? 
+                                    <a href="login.html" class="font-medium text-blue-600 hover:text-blue-500">Sign in</a>
+                                </p>
+                            </div>
+                        </div>
+                    </form>
+
+                    <!-- Loading State -->
+                    <div class="loading" id="loading">
+                        <div class="spinner"></div>
+                        <p class="mt-4 text-gray-600">Creating your account...</p>
+                    </div>
+
+                    <!-- Success Message -->
+                    <div class="success-message" id="success-message">
+                        <i class="fas fa-check-circle text-3xl text-green-500 mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Account created successfully!</h3>
+                        <p>We've sent a verification email to your address. Please check your inbox and click the verification link to activate your account.</p>
+                        <button onclick="window.location.href='index.html'" class="mt-4 px-6 py-2 rounded-full btn-primary">
+                            Back to Home
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Sidebar with Benefits -->
+                <div class="lg:w-1/3">
+                    <div class="card sticky top-32">
+                        <h3 class="text-xl font-bold mb-6 text-slate-800">Why Join LiveX?</h3>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Access to Authentic Influencers</h4>
+                                <p class="text-sm text-gray-600 mt-1">Connect with verified influencers who align with your brand values</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Track Campaign Performance</h4>
+                                <p class="text-sm text-gray-600 mt-1">Monitor ROI with detailed analytics and reporting tools</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Secure Payments</h4>
+                                <p class="text-sm text-gray-600 mt-1">Safe and transparent payment system for all collaborations</p>
+                            </div>
+                        </div>
+                        
+                        <div class="benefit-item">
+                            <div class="benefit-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <div>
+                                <h4 class="font-semibold">Increase Brand Awareness</h4>
+                                <p class="text-sm text-gray-600 mt-1">Reach new audiences through authentic influencer partnerships</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 pt-6 border-t border-gray-200">
+                            <h4 class="font-semibold mb-4">What Our Brands Say</h4>
+                            
+                            <div class="testimonial">
+                                <div class="flex items-center mb-3">
+                                    <img src="https://picsum.photos/seed/brand1/50/50.jpg" alt="John D." class="testimonial-avatar">
+                                    <div>
+                                        <h5 class="font-semibold">John Davis</h5>
+                                        <p class="text-sm text-gray-600">Marketing Director, TechCorp</p>
+                                    </div>
+                                </div>
+                                <p class="text-sm">"LiveX helped us reach our target audience more effectively than traditional advertising. The ROI has been incredible!"</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
+                             <img 
+                                src="assets/images/logo.jpg" 
+                                 alt="Logo" 
+                                 class="h-full w-full object-cover"
+                            />
+                        </div>
+
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting influencers with brands for authentic partnerships.</p>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">For Influencers</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">How It Works</a></li>
+                        <li><a href="#" class="hover:text-white transition">Success Stories</a></li>
+                        <li><a href="#" class="hover:text-white transition">Resources</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">For Brands</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Find Influencers</a></li>
+                        <li><a href="#" class="hover:text-white transition">Campaigns</a></li>
+                        <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h4 class="font-semibold mb-4">Company</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="auth.js" type="module"></script>
+</body>
+</html>
