@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --light-azure: #d2e4ee;
+            --dull-orange: #e67e22;
+            --electric-blue: #00a8ff;
+            --neon-pink: #ff2e63;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--electric-blue);
+            color: var(--electric-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.3);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(90deg, #ef4444 0%, #f87171 100%);
+            color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-danger:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .stats-counter {
+            font-weight: 700;
+            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .status-approved {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #dc2626;
+        }
+        
+        .status-active {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .status-completed {
+            background-color: #e0e7ff;
+            color: #4f46e5;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .tab-button {
+            padding: 12px 24px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .tab-button.active {
+            border-bottom-color: var(--dull-orange);
+            color: var(--dull-orange);
+        }
+        
+        .admin-only {
+            border-left: 4px solid var(--dull-orange);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal.open {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 600px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX Admin</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link">LiveX Home</a>
+                <button class="tab-button active" data-tab="pending">Pending Approvals</button>
+                <button class="tab-button" data-tab="campaigns">Campaigns</button>
+                <button class="tab-button" data-tab="users">Users</button>
+                <button class="tab-button" data-tab="analytics">Analytics</button>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
+                    <div class="h-8 w-8 rounded-full bg-red-500 flex items-center justify-center text-white font-bold">
+                        A
+                    </div>
+                    <span id="user-name" class="font-medium">Admin</span>
+                </div>
+                <button id="logout-btn" class="px-4 py-2 rounded-full btn-secondary">Logout</button>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX Admin</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">LiveX Home</a>
+            <button class="tab-button text-left active" data-tab="pending">Pending Approvals</button>
+            <button class="tab-button text-left" data-tab="campaigns">Campaigns</button>
+            <button class="tab-button text-left" data-tab="users">Users</button>
+            <button class="tab-button text-left" data-tab="analytics">Analytics</button>
+            <div class="pt-4">
+                <button id="mobile-logout-btn" class="w-full px-4 py-3 rounded-full btn-secondary">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Rejection Modal -->
+    <div id="rejection-modal" class="modal">
+        <div class="modal-content">
+            <button id="close-rejection-modal" class="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Reject Request</h2>
+            
+            <form id="rejection-form">
+                <input type="hidden" id="rejection-id">
+                <input type="hidden" id="rejection-type">
+                
+                <div class="form-group">
+                    <label for="rejection-reason">Reason for Rejection *</label>
+                    <select id="rejection-reason" required>
+                        <option value="">Select a reason</option>
+                        <option value="incomplete_info">Incomplete Information</option>
+                        <option value="policy_violation">Policy Violation</option>
+                        <option value="quality_standards">Doesn't Meet Quality Standards</option>
+                        <option value="suspicious_activity">Suspicious Activity</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="rejection-details">Additional Details (Optional)</label>
+                    <textarea id="rejection-details" rows="4" placeholder="Provide more details about why this request was rejected..."></textarea>
+                </div>
+                
+                <button type="submit" class="w-full py-3 rounded-full btn-danger mt-4">Confirm Rejection</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-20">
+        <div class="container mx-auto px-6">
+            <!-- Dashboard Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Admin Dashboard</h1>
+                <p class="text-gray-600">Manage platform operations, approve requests, and monitor activity.</p>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover admin-only">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-yellow-100 text-yellow-600 mr-4">
+                            <i class="fas fa-clock text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="pending-approvals-count">0</p>
+                            <p class="text-gray-600">Pending Approvals</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-blue-100 text-blue-600 mr-4">
+                            <i class="fas fa-bullhorn text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="active-campaigns-count">0</p>
+                            <p class="text-gray-600">Active Campaigns</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="total-users">0</p>
+                            <p class="text-gray-600">Total Users</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-purple-100 text-purple-600 mr-4">
+                            <i class="fas fa-money-bill-wave text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="total-revenue">Ksh 0</p>
+                            <p class="text-gray-600">Platform Revenue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab Content -->
+            <div class="bg-white rounded-xl shadow-sm overflow-hidden">
+                <!-- Pending Approvals Tab -->
+                <div class="tab-content active" id="pending-tab">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-2xl font-bold">Pending Approvals</h2>
+                        <p class="text-gray-600 mt-2">Review and approve pending requests from brands and influencers.</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <!-- Campaign Approvals -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold mb-4">Campaigns Waiting Approval</h3>
+                            <div id="pending-campaigns-container" class="space-y-4">
+                                <!-- Pending campaigns will be loaded here -->
+                                <div class="text-center py-10 text-gray-500">
+                                    <i class="fas fa-check-circle text-3xl mb-3"></i>
+                                    <p>No campaigns pending approval</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Verifications -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold mb-4">Payment Verifications</h3>
+                            <div id="pending-payments-container" class="space-y-4">
+                                <!-- Pending payments will be loaded here -->
+                                <div class="text-center py-10 text-gray-500">
+                                    <i class="fas fa-money-bill-wave text-3xl mb-3"></i>
+                                    <p>No payments pending verification</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Work Verifications -->
+                        <div class="mb-8">
+                            <h3 class="text-xl font-bold mb-4">Work Submissions for Verification</h3>
+                            <div id="pending-work-container" class="space-y-4">
+                                <!-- Pending work verifications will be loaded here -->
+                                <div class="text-center py-10 text-gray-500">
+                                    <i class="fas fa-tasks text-3xl mb-3"></i>
+                                    <p>No work submissions pending verification</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campaigns Tab -->
+                <div class="tab-content" id="campaigns-tab">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-2xl font-bold">Campaign Management</h2>
+                        <p class="text-gray-600 mt-2">Monitor and manage all campaigns on the platform.</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="flex flex-wrap gap-4 mb-6">
+                            <button class="px-4 py-2 rounded-full bg-blue-100 text-blue-700 font-medium campaign-filter active" data-status="all">
+                                All Campaigns
+                            </button>
+                            <button class="px-4 py-2 rounded-full bg-green-100 text-green-700 font-medium campaign-filter" data-status="active">
+                                Active
+                            </button>
+                            <button class="px-4 py-2 rounded-full bg-yellow-100 text-yellow-700 font-medium campaign-filter" data-status="pending">
+                                Pending
+                            </button>
+                            <button class="px-4 py-2 rounded-full bg-purple-100 text-purple-700 font-medium campaign-filter" data-status="completed">
+                                Completed
+                            </button>
+                        </div>
+                        
+                        <div id="campaigns-container" class="space-y-6">
+                            <!-- Campaigns will be loaded here -->
+                            <div class="text-center py-10 text-gray-500">
+                                <i class="fas fa-spinner fa-spin text-3xl mb-3"></i>
+                                <p>Loading campaigns...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Users Tab -->
+                <div class="tab-content" id="users-tab">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-2xl font-bold">User Management</h2>
+                        <p class="text-gray-600 mt-2">Manage brands, influencers, and platform users.</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <!-- Brands Section -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-4">Brands</h3>
+                                <div id="brands-container" class="space-y-4">
+                                    <!-- Brands will be loaded here -->
+                                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-building text-2xl mb-2"></i>
+                                        <p class="text-sm">Loading brands...</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Influencers Section -->
+                            <div>
+                                <h3 class="text-xl font-bold mb-4">Influencers</h3>
+                                <div id="influencers-container" class="space-y-4">
+                                    <!-- Influencers will be loaded here -->
+                                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                                        <i class="fas fa-user-friends text-2xl mb-2"></i>
+                                        <p class="text-sm">Loading influencers...</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Tab -->
+                <div class="tab-content" id="analytics-tab">
+                    <div class="p-6 border-b border-gray-200">
+                        <h2 class="text-2xl font-bold">Platform Analytics</h2>
+                        <p class="text-gray-600 mt-2">View platform performance and insights.</p>
+                    </div>
+                    
+                    <div class="p-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                            <!-- Revenue Chart -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm">
+                                <h3 class="text-lg font-bold mb-4">Revenue Overview</h3>
+                                <div class="text-center py-10 text-gray-500">
+                                    <i class="fas fa-chart-line text-3xl mb-3"></i>
+                                    <p>Revenue chart will appear here</p>
+                                </div>
+                            </div>
+                            
+                            <!-- User Growth -->
+                            <div class="bg-white rounded-xl p-6 shadow-sm">
+                                <h3 class="text-lg font-bold mb-4">User Growth</h3>
+                                <div class="text-center py-10 text-gray-500">
+                                    <i class="fas fa-chart-bar text-3xl mb-3"></i>
+                                    <p>User growth chart will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Platform Stats -->
+                        <div class="bg-white rounded-xl p-6 shadow-sm">
+                            <h3 class="text-lg font-bold mb-4">Platform Statistics</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                <div class="text-center p-4 bg-blue-50 rounded-lg">
+                                    <p class="text-2xl font-bold text-blue-600" id="total-campaigns">0</p>
+                                    <p class="text-gray-600">Total Campaigns</p>
+                                </div>
+                                <div class="text-center p-4 bg-green-50 rounded-lg">
+                                    <p class="text-2xl font-bold text-green-600" id="successful-campaigns">0</p>
+                                    <p class="text-gray-600">Successful Campaigns</p>
+                                </div>
+                                <div class="text-center p-4 bg-purple-50 rounded-lg">
+                                    <p class="text-2xl font-bold text-purple-600" id="avg-roi">0%</p>
+                                    <p class="text-gray-600">Average ROI</p>
+                                </div>
+                                <div class="text-center p-4 bg-orange-50 rounded-lg">
+                                    <p class="text-2xl font-bold text-orange-600" id="completion-rate">0%</p>
+                                    <p class="text-gray-600">Completion Rate</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentUser = null;
+        let isAdmin = false;
+
+        // DOM Elements
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const rejectionModal = document.getElementById('rejection-modal');
+        const closeRejectionModal = document.getElementById('close-rejection-modal');
+        const rejectionForm = document.getElementById('rejection-form');
+        const campaignFilters = document.querySelectorAll('.campaign-filter');
+
+        // Admin email check (in a real app, this would be more secure)
+        const adminEmails = ['admin@livexafrica.co', 'hello@livexafrica.co'];
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication state
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    currentUser = user;
+                    
+                    // Check if user is admin
+                    isAdmin = adminEmails.includes(user.email);
+                    
+                    if (!isAdmin) {
+                        // Redirect non-admin users to appropriate dashboard
+                        alert('Access denied. Admin privileges required.');
+                        await auth.signOut();
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    
+                    // Load admin data
+                    await loadAdminData();
+                    updateDashboardUI();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Mobile menu functionality
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+            });
+            
+            closeMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+            });
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', handleLogout);
+            mobileLogoutBtn.addEventListener('click', handleLogout);
+            
+            // Tab functionality
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Update tab buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
+                    
+                    // Update tab content
+                    document.querySelectorAll('.tab-content').forEach(content => {
+                        content.classList.remove('active');
+                    });
+                    document.getElementById(`${tabId}-tab`).classList.add('active');
+                    
+                    // Load data for the selected tab if needed
+                    if (tabId === 'campaigns') {
+                        loadCampaigns();
+                    } else if (tabId === 'users') {
+                        loadUsers();
+                    } else if (tabId === 'analytics') {
+                        loadAnalytics();
+                    }
+                });
+            });
+            
+            // Campaign filters
+            campaignFilters.forEach(filter => {
+                filter.addEventListener('click', function() {
+                    campaignFilters.forEach(f => f.classList.remove('active'));
+                    this.classList.add('active');
+                    const status = this.getAttribute('data-status');
+                    filterCampaigns(status);
+                });
+            });
+            
+            // Rejection modal
+            closeRejectionModal.addEventListener('click', function() {
+                rejectionModal.classList.remove('open');
+            });
+            
+            // Rejection form submission
+            rejectionForm.addEventListener('submit', handleRejection);
+        });
+
+        // Load admin data from Firestore
+        async function loadAdminData() {
+            try {
+                await loadPendingApprovals();
+                await loadStats();
+            } catch (error) {
+                console.error("Error loading admin data:", error);
+            }
+        }
+
+        // Load pending approvals
+        async function loadPendingApprovals() {
+            try {
+                // Load pending campaigns
+                const pendingCampaignsSnapshot = await db.collection('campaigns')
+                    .where('status', '==', 'pending_approval')
+                    .get();
+                
+                const pendingCampaigns = [];
+                pendingCampaignsSnapshot.forEach(doc => {
+                    pendingCampaigns.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Load pending payments (campaigns with payment pending)
+                const pendingPaymentsSnapshot = await db.collection('campaigns')
+                    .where('status', '==', 'pending_payment')
+                    .get();
+                
+                const pendingPayments = [];
+                pendingPaymentsSnapshot.forEach(doc => {
+                    pendingPayments.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Load pending work verifications
+                const pendingWorkSnapshot = await db.collection('userJobs')
+                    .where('status', '==', 'pending_verification')
+                    .get();
+                
+                const pendingWork = [];
+                for (const doc of pendingWorkSnapshot.docs) {
+                    const jobData = doc.data();
+                    // Get campaign details for each job
+                    const campaignDoc = await db.collection('campaigns').doc(jobData.jobId).get();
+                    const campaignData = campaignDoc.exists ? campaignDoc.data() : {};
+                    
+                    // Get influencer details
+                    const influencerDoc = await db.collection('influencers').doc(jobData.influencerId).get();
+                    const influencerData = influencerDoc.exists ? influencerDoc.data() : {};
+                    
+                    pendingWork.push({
+                        id: doc.id,
+                        ...jobData,
+                        campaign: campaignData,
+                        influencer: influencerData
+                    });
+                }
+                
+                renderPendingApprovals(pendingCampaigns, pendingPayments, pendingWork);
+            } catch (error) {
+                console.error("Error loading pending approvals:", error);
+            }
+        }
+
+        // Load campaigns for management
+        async function loadCampaigns() {
+            try {
+                const campaignsSnapshot = await db.collection('campaigns').get();
+                
+                const campaigns = [];
+                campaignsSnapshot.forEach(doc => {
+                    campaigns.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderCampaigns(campaigns);
+            } catch (error) {
+                console.error("Error loading campaigns:", error);
+            }
+        }
+
+        // Load users for management
+        async function loadUsers() {
+            try {
+                // Load brands
+                const brandsSnapshot = await db.collection('brands').get();
+                const brands = [];
+                brandsSnapshot.forEach(doc => {
+                    brands.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Load influencers
+                const influencersSnapshot = await db.collection('influencers').get();
+                const influencers = [];
+                influencersSnapshot.forEach(doc => {
+                    influencers.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderUsers(brands, influencers);
+            } catch (error) {
+                console.error("Error loading users:", error);
+            }
+        }
+
+        // Load analytics data
+        async function loadAnalytics() {
+            try {
+                // This would typically involve more complex queries
+                // For now, we'll just update some basic stats
+                const campaignsSnapshot = await db.collection('campaigns').get();
+                const brandsSnapshot = await db.collection('brands').get();
+                const influencersSnapshot = await db.collection('influencers').get();
+                
+                const totalCampaigns = campaignsSnapshot.size;
+                const totalBrands = brandsSnapshot.size;
+                const totalInfluencers = influencersSnapshot.size;
+                
+                // Calculate some basic metrics (simplified for demo)
+                const successfulCampaigns = Math.floor(totalCampaigns * 0.7); // 70% success rate
+                const avgROI = '245%'; // Example value
+                const completionRate = '82%'; // Example value
+                
+                document.getElementById('total-campaigns').textContent = totalCampaigns;
+                document.getElementById('successful-campaigns').textContent = successfulCampaigns;
+                document.getElementById('avg-roi').textContent = avgROI;
+                document.getElementById('completion-rate').textContent = completionRate;
+            } catch (error) {
+                console.error("Error loading analytics:", error);
+            }
+        }
+
+        // Load platform stats
+        async function loadStats() {
+            try {
+                // Pending approvals count
+                const pendingCampaigns = await db.collection('campaigns')
+                    .where('status', '==', 'pending_approval')
+                    .get();
+                
+                const pendingPayments = await db.collection('campaigns')
+                    .where('status', '==', 'pending_payment')
+                    .get();
+                
+                const pendingWork = await db.collection('userJobs')
+                    .where('status', '==', 'pending_verification')
+                    .get();
+                
+                const totalPending = pendingCampaigns.size + pendingPayments.size + pendingWork.size;
+                
+                // Active campaigns
+                const activeCampaigns = await db.collection('campaigns')
+                    .where('status', '==', 'active')
+                    .get();
+                
+                // Total users
+                const brands = await db.collection('brands').get();
+                const influencers = await db.collection('influencers').get();
+                const totalUsers = brands.size + influencers.size;
+                
+                // Total revenue (simplified calculation)
+                const allCampaigns = await db.collection('campaigns').get();
+                let totalRevenue = 0;
+                allCampaigns.forEach(doc => {
+                    const campaign = doc.data();
+                    if (campaign.cost) {
+                        totalRevenue += campaign.cost;
+                    }
+                });
+                
+                // Platform revenue (assuming 15% commission)
+                const platformRevenue = totalRevenue * 0.15;
+                
+                document.getElementById('pending-approvals-count').textContent = totalPending;
+                document.getElementById('active-campaigns-count').textContent = activeCampaigns.size;
+                document.getElementById('total-users').textContent = totalUsers;
+                document.getElementById('total-revenue').textContent = `Ksh ${platformRevenue.toLocaleString()}`;
+            } catch (error) {
+                console.error("Error loading stats:", error);
+            }
+        }
+
+        // Render pending approvals
+        function renderPendingApprovals(campaigns, payments, work) {
+            // Render pending campaigns
+            const campaignsContainer = document.getElementById('pending-campaigns-container');
+            
+            if (campaigns.length === 0) {
+                campaignsContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-check-circle text-2xl mb-2"></i>
+                        <p class="text-sm">No campaigns pending approval</p>
+                    </div>
+                `;
+            } else {
+                campaignsContainer.innerHTML = campaigns.map(campaign => `
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold">${campaign.title}</h4>
+                                <p class="text-sm text-gray-600">${campaign.brandName}</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium status-pending">Pending</span>
+                        </div>
+                        
+                        <p class="text-sm text-gray-700 mb-3">${campaign.description}</p>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
+                            <div>
+                                <p class="text-gray-500">Tier</p>
+                                <p class="font-medium">${campaign.tier ? campaign.tier.charAt(0).toUpperCase() + campaign.tier.slice(1) : 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Budget</p>
+                                <p class="font-medium">Ksh ${campaign.cost ? campaign.cost.toLocaleString() : '0'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 py-2 rounded-full btn-success text-sm" onclick="approveCampaign('${campaign.id}')">
+                                <i class="fas fa-check mr-1"></i> Approve
+                            </button>
+                            <button class="flex-1 py-2 rounded-full btn-danger text-sm" onclick="openRejectionModal('${campaign.id}', 'campaign')">
+                                <i class="fas fa-times mr-1"></i> Reject
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Render pending payments
+            const paymentsContainer = document.getElementById('pending-payments-container');
+            
+            if (payments.length === 0) {
+                paymentsContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-money-bill-wave text-2xl mb-2"></i>
+                        <p class="text-sm">No payments pending verification</p>
+                    </div>
+                `;
+            } else {
+                paymentsContainer.innerHTML = payments.map(campaign => `
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold">${campaign.title}</h4>
+                                <p class="text-sm text-gray-600">${campaign.brandName}</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium status-pending">Payment Pending</span>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-3 text-sm">
+                            <div>
+                                <p class="text-gray-500">Payment Method</p>
+                                <p class="font-medium">${campaign.paymentMethod || 'N/A'}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Amount</p>
+                                <p class="font-medium">Ksh ${campaign.cost ? campaign.cost.toLocaleString() : '0'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 py-2 rounded-full btn-success text-sm" onclick="verifyPayment('${campaign.id}')">
+                                <i class="fas fa-check mr-1"></i> Verify Payment
+                            </button>
+                            <button class="flex-1 py-2 rounded-full btn-secondary text-sm" onclick="viewPaymentDetails('${campaign.id}')">
+                                <i class="fas fa-eye mr-1"></i> View Details
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            
+            // Render pending work verifications
+            const workContainer = document.getElementById('pending-work-container');
+            
+            if (work.length === 0) {
+                workContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-tasks text-2xl mb-2"></i>
+                        <p class="text-sm">No work submissions pending verification</p>
+                    </div>
+                `;
+            } else {
+                workContainer.innerHTML = work.map(job => `
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-3">
+                            <div>
+                                <h4 class="font-bold">${job.campaign.title || 'Unknown Campaign'}</h4>
+                                <p class="text-sm text-gray-600">By ${job.influencer.firstName || 'Influencer'} ${job.influencer.lastName || ''}</p>
+                            </div>
+                            <span class="px-2 py-1 rounded-full text-xs font-medium status-pending">Verification Needed</span>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <p class="text-sm font-medium mb-1">Submitted Links:</p>
+                            <div class="text-sm text-gray-700 space-y-1">
+                                ${job.workLinks && job.workLinks.instagram ? 
+                                    `<p><i class="fab fa-instagram mr-1 text-pink-600"></i> ${job.workLinks.instagram}</p>` : ''}
+                                ${job.workLinks && job.workLinks.tiktok ? 
+                                    `<p><i class="fab fa-tiktok mr-1 text-black"></i> ${job.workLinks.tiktok}</p>` : ''}
+                                ${job.workLinks && job.workLinks.facebook ? 
+                                    `<p><i class="fab fa-facebook mr-1 text-blue-600"></i> ${job.workLinks.facebook}</p>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="flex space-x-2">
+                            <button class="flex-1 py-2 rounded-full btn-success text-sm" onclick="approveWork('${job.id}')">
+                                <i class="fas fa-check mr-1"></i> Approve Work
+                            </button>
+                            <button class="flex-1 py-2 rounded-full btn-danger text-sm" onclick="openRejectionModal('${job.id}', 'work')">
+                                <i class="fas fa-times mr-1"></i> Reject
+                            </button>
+                            <button class="flex-1 py-2 rounded-full btn-secondary text-sm" onclick="viewWorkDetails('${job.id}')">
+                                <i class="fas fa-eye mr-1"></i> Details
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        // Render campaigns for management
+        function renderCampaigns(campaigns) {
+            const container = document.getElementById('campaigns-container');
+            
+            if (campaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fas fa-bullhorn text-3xl mb-3"></i>
+                        <p>No campaigns found</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = campaigns.map(campaign => `
+                <div class="bg-white border border-gray-200 rounded-lg p-6 campaign-item" data-status="${campaign.status}">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="text-lg font-bold">${campaign.title}</h3>
+                            <p class="text-gray-600">${campaign.brandName}</p>
+                        </div>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium ${getStatusClass(campaign.status)}">
+                            ${formatStatus(campaign.status)}
+                        </span>
+                    </div>
+                    
+                    <p class="text-gray-700 mb-4">${campaign.description}</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4 text-sm">
+                        <div>
+                            <p class="text-gray-500">Category</p>
+                            <p class="font-medium">${formatCategory(campaign.category)}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Tier</p>
+                            <p class="font-medium">${campaign.tier ? campaign.tier.charAt(0).toUpperCase() + campaign.tier.slice(1) : 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Budget</p>
+                            <p class="font-medium">Ksh ${campaign.cost ? campaign.cost.toLocaleString() : '0'}</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500">Influencers</p>
+                            <p class="font-medium">${campaign.influencers ? campaign.influencers.length : 0}/${campaign.influencerLimit || 0}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500">Created</p>
+                            <p class="text-sm font-medium">${formatDate(campaign.createdAt)}</p>
+                        </div>
+                        <div class="flex space-x-2">
+                            <button class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm" onclick="viewCampaignDetails('${campaign.id}')">
+                                View Details
+                            </button>
+                            ${campaign.status === 'active' ? 
+                                `<button class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm" onclick="pauseCampaign('${campaign.id}')">
+                                    Pause
+                                </button>` : ''
+                            }
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render users for management
+        function renderUsers(brands, influencers) {
+            // Render brands
+            const brandsContainer = document.getElementById('brands-container');
+            
+            if (brands.length === 0) {
+                brandsContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-building text-2xl mb-2"></i>
+                        <p class="text-sm">No brands registered</p>
+                    </div>
+                `;
+            } else {
+                brandsContainer.innerHTML = brands.slice(0, 5).map(brand => `
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center mb-3">
+                            <div class="h-10 w-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold mr-3">
+                                ${brand.brandName ? brand.brandName.charAt(0).toUpperCase() : 'B'}
+                            </div>
+                            <div>
+                                <h4 class="font-bold">${brand.brandName || 'Unnamed Brand'}</h4>
+                                <p class="text-sm text-gray-600">${brand.industry || 'No industry specified'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between text-sm">
+                            <div>
+                                <p class="text-gray-500">Campaigns</p>
+                                <p class="font-medium">${brand.campaignCount || 0}</p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Status</p>
+                                <p class="font-medium ${brand.status === 'active' ? 'text-green-600' : 'text-gray-600'}">
+                                    ${brand.status || 'Active'}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                if (brands.length > 5) {
+                    brandsContainer.innerHTML += `
+                        <div class="text-center pt-4">
+                            <button class="text-blue-600 hover:text-blue-800 font-medium">
+                                View All ${brands.length} Brands
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Render influencers
+            const influencersContainer = document.getElementById('influencers-container');
+            
+            if (influencers.length === 0) {
+                influencersContainer.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-user-friends text-2xl mb-2"></i>
+                        <p class="text-sm">No influencers registered</p>
+                    </div>
+                `;
+            } else {
+                influencersContainer.innerHTML = influencers.slice(0, 5).map(influencer => `
+                    <div class="bg-white border border-gray-200 rounded-lg p-4">
+                        <div class="flex items-center mb-3">
+                            <div class="h-10 w-10 rounded-full bg-purple-100 flex items-center justify-center text-purple-600 font-bold mr-3">
+                                ${influencer.firstName ? influencer.firstName.charAt(0).toUpperCase() : 'I'}
+                            </div>
+                            <div>
+                                <h4 class="font-bold">${influencer.firstName || ''} ${influencer.lastName || ''}</h4>
+                                <p class="text-sm text-gray-600">${influencer.niches ? influencer.niches.join(', ') : 'No niches specified'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between text-sm">
+                            <div>
+                                <p class="text-gray-500">Followers</p>
+                                <p class="font-medium">
+                                    ${influencer.socialMedia && influencer.socialMedia.instagram ? 
+                                        influencer.socialMedia.instagram.followers.toLocaleString() : '0'}
+                                </p>
+                            </div>
+                            <div>
+                                <p class="text-gray-500">Tier</p>
+                                <p class="font-medium">${calculateTier(influencer)}</p>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                
+                if (influencers.length > 5) {
+                    influencersContainer.innerHTML += `
+                        <div class="text-center pt-4">
+                            <button class="text-blue-600 hover:text-blue-800 font-medium">
+                                View All ${influencers.length} Influencers
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Filter campaigns by status
+        function filterCampaigns(status) {
+            const campaignItems = document.querySelectorAll('.campaign-item');
+            
+            campaignItems.forEach(item => {
+                if (status === 'all' || item.getAttribute('data-status') === status) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+        // Open rejection modal
+        function openRejectionModal(id, type) {
+            document.getElementById('rejection-id').value = id;
+            document.getElementById('rejection-type').value = type;
+            rejectionModal.classList.add('open');
+        }
+
+        // Handle rejection
+        async function handleRejection(e) {
+            e.preventDefault();
+            
+            const id = document.getElementById('rejection-id').value;
+            const type = document.getElementById('rejection-type').value;
+            const reason = document.getElementById('rejection-reason').value;
+            const details = document.getElementById('rejection-details').value;
+            
+            try {
+                if (type === 'campaign') {
+                    // Update campaign status to rejected
+                    await db.collection('campaigns').doc(id).update({
+                        status: 'rejected',
+                        rejectionReason: reason,
+                        rejectionDetails: details,
+                        reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        reviewedBy: currentUser.uid
+                    });
+                    
+                    // Also update the corresponding job
+                    const jobsSnapshot = await db.collection('jobs')
+                        .where('brandId', '==', (await db.collection('campaigns').doc(id).get()).data().brandId)
+                        .where('title', '==', (await db.collection('campaigns').doc(id).get()).data().title)
+                        .get();
+                    
+                    jobsSnapshot.forEach(async (jobDoc) => {
+                        await jobDoc.ref.update({
+                            status: 'rejected'
+                        });
+                    });
+                } else if (type === 'work') {
+                    // Update work submission status to rejected
+                    await db.collection('userJobs').doc(id).update({
+                        status: 'rejected',
+                        rejectionReason: reason,
+                        rejectionDetails: details,
+                        reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        reviewedBy: currentUser.uid
+                    });
+                }
+                
+                // Close modal and reset form
+                rejectionModal.classList.remove('open');
+                rejectionForm.reset();
+                
+                // Reload pending approvals
+                await loadPendingApprovals();
+                await loadStats();
+                
+                alert('Request rejected successfully');
+            } catch (error) {
+                console.error("Error rejecting request:", error);
+                alert('There was an error rejecting the request. Please try again.');
+            }
+        }
+
+        // Approve campaign
+        async function approveCampaign(campaignId) {
+            try {
+                await db.collection('campaigns').doc(campaignId).update({
+                    status: 'pending_payment',
+                    reviewedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    reviewedBy: currentUser.uid
+                });
+                
+                // Also update the corresponding job
+                const campaignDoc = await db.collection('campaigns').doc(campaignId).get();
+                const campaignData = campaignDoc.data();
+                
+                const jobsSnapshot = await db.collection('jobs')
+                    .where('brandId', '==', campaignData.brandId)
+                    .where('title', '==', campaignData.title)
+                    .get();
+                
+                jobsSnapshot.forEach(async (jobDoc) => {
+                    await jobDoc.ref.update({
+                        status: 'pending_payment'
+                    });
+                });
+                
+                // Reload pending approvals
+                await loadPendingApprovals();
+                await loadStats();
+                
+                alert('Campaign approved successfully! Waiting for payment verification.');
+            } catch (error) {
+                console.error("Error approving campaign:", error);
+                alert('There was an error approving the campaign. Please try again.');
+            }
+        }
+
+        // Verify payment
+        async function verifyPayment(campaignId) {
+            try {
+                await db.collection('campaigns').doc(campaignId).update({
+                    status: 'active',
+                    paymentVerified: true,
+                    paymentVerifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    paymentVerifiedBy: currentUser.uid
+                });
+                
+                // Also update the corresponding job
+                const campaignDoc = await db.collection('campaigns').doc(campaignId).get();
+                const campaignData = campaignDoc.data();
+                
+                const jobsSnapshot = await db.collection('jobs')
+                    .where('brandId', '==', campaignData.brandId)
+                    .where('title', '==', campaignData.title)
+                    .get();
+                
+                jobsSnapshot.forEach(async (jobDoc) => {
+                    await jobDoc.ref.update({
+                        status: 'available'
+                    });
+                });
+                
+                // Reload pending approvals
+                await loadPendingApprovals();
+                await loadStats();
+                
+                alert('Payment verified successfully! Campaign is now active.');
+            } catch (error) {
+                console.error("Error verifying payment:", error);
+                alert('There was an error verifying the payment. Please try again.');
+            }
+        }
+
+        // Approve work
+        async function approveWork(jobId) {
+            try {
+                await db.collection('userJobs').doc(jobId).update({
+                    status: 'pending_payment',
+                    verifiedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    verifiedBy: currentUser.uid
+                });
+                
+                // Reload pending approvals
+                await loadPendingApprovals();
+                await loadStats();
+                
+                alert('Work approved successfully! Payment will be processed on Saturday.');
+            } catch (error) {
+                console.error("Error approving work:", error);
+                alert('There was an error approving the work. Please try again.');
+            }
+        }
+
+        // Update dashboard UI
+        function updateDashboardUI() {
+            // Update user name
+            document.getElementById('user-name').textContent = 'Admin';
+        }
+
+        // Handle logout
+        function handleLogout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+            });
+        }
+
+        // Utility functions
+        function getStatusClass(status) {
+            switch(status) {
+                case 'pending_approval': return 'status-pending';
+                case 'pending_payment': return 'status-pending';
+                case 'active': return 'status-active';
+                case 'completed': return 'status-completed';
+                case 'rejected': return 'status-rejected';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+
+        function formatStatus(status) {
+            const statusMap = {
+                'pending_approval': 'Pending Approval',
+                'pending_payment': 'Pending Payment',
+                'active': 'Active',
+                'completed': 'Completed',
+                'rejected': 'Rejected'
+            };
+            
+            return statusMap[status] || status;
+        }
+
+        function formatCategory(category) {
+            const categoryMap = {
+                'fashion': 'Fashion & Beauty',
+                'lifestyle': 'Lifestyle',
+                'technology': 'Technology',
+                'food': 'Food & Beverage',
+                'travel': 'Travel & Hospitality',
+                'fitness': 'Health & Fitness',
+                'entertainment': 'Entertainment',
+                'education': 'Education',
+                'business': 'Business',
+                'other': 'Other'
+            };
+            
+            return categoryMap[category] || category;
+        }
+
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            
+            const d = date.toDate ? date.toDate() : new Date(date);
+            return d.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function calculateTier(influencer) {
+            // Simplified tier calculation based on follower count
+            if (!influencer.socialMedia || !influencer.socialMedia.instagram) return 'Nano';
+            
+            const followers = influencer.socialMedia.instagram.followers || 0;
+            
+            if (followers >= 500000) return 'Mega';
+            if (followers >= 100000) return 'Macro';
+            if (followers >= 10000) return 'Micro';
+            return 'Nano';
+        }
+
+        // Placeholder functions for additional features
+        function viewPaymentDetails(campaignId) {
+            alert(`View payment details for campaign: ${campaignId}`);
+        }
+
+        function viewWorkDetails(jobId) {
+            alert(`View work details for job: ${jobId}`);
+        }
+
+        function viewCampaignDetails(campaignId) {
+            alert(`View details for campaign: ${campaignId}`);
+        }
+
+        function pauseCampaign(campaignId) {
+            if (confirm('Are you sure you want to pause this campaign?')) {
+                alert(`Campaign ${campaignId} paused`);
+                // In a real implementation, you would update the campaign status in Firestore
+            }
+        }
+    </script>
+</body>
+</html>

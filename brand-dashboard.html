@@ -1,0 +1,1833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Dashboard | LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <style>
+        :root {
+            --light-azure: #d2e4ee;
+            --dull-orange: #e67e22;
+            --electric-blue: #00a8ff;
+            --neon-pink: #ff2e63;
+            --brand-primary: #2563eb;
+            --brand-secondary: #ea580c;
+            --brand-accent: #8b5cf6;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--electric-blue);
+            color: var(--electric-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .stats-counter {
+            font-weight: 700;
+            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .campaign-status-active {
+            background-color: #dbeafe;
+            color: #2563eb;
+        }
+        
+        .campaign-status-pending {
+            background-color: #fef3c7;
+            color: #d97706;
+        }
+        
+        .campaign-status-completed {
+            background-color: #d1fae5;
+            color: #059669;
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .error-message {
+            display: none;
+            background: #f8d7da;
+            color: #721c24;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .error-message.show {
+            display: block;
+        }
+        
+        .campaign-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+        
+        .campaign-modal.open {
+            display: flex;
+        }
+        
+        .campaign-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+            margin: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #666;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+        }
+        
+        .profile-setup-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .profile-setup-modal.open {
+            display: flex;
+        }
+        
+        .profile-setup-content {
+            background: white;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 800px;
+            padding: 30px;
+            position: relative;
+        }
+        
+        .profile-preview {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--electric-blue);
+            margin: 0 auto 20px;
+            display: block;
+        }
+        
+        .file-input-wrapper {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+        
+        .file-input-wrapper input[type="file"] {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+        
+        .file-input-label {
+            display: block;
+            padding: 12px 20px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-input-label:hover {
+            background: #e2e8f0;
+            border-color: var(--electric-blue);
+        }
+        
+        .color-picker {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .color-option {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .color-option.selected {
+            border-color: #333;
+            transform: scale(1.1);
+        }
+        
+        .preview-section {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            background: white;
+        }
+        
+        .preview-brand-card {
+            max-width: 400px;
+            margin: 0 auto;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .preview-brand-header {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .preview-brand-logo {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 auto 15px;
+            border: 3px solid white;
+        }
+        
+        .preview-brand-body {
+            padding: 20px;
+        }
+        
+        .tier-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+            margin-bottom: 8px;
+        }
+        
+        .tier-nano {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .tier-micro {
+            background-color: #dbeafe;
+            color: #1e40af;
+        }
+        
+        .tier-macro {
+            background-color: #f3e8ff;
+            color: #6b21a8;
+        }
+        
+        .tier-mega {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .influencer-card {
+            background: white;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            margin-bottom: 12px;
+        }
+        
+        .campaign-step {
+            display: none;
+        }
+        
+        .campaign-step.active {
+            display: block;
+        }
+        
+        .payment-option {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--electric-blue);
+        }
+        
+        .payment-option.selected {
+            border-color: var(--dull-orange);
+            background-color: rgba(230, 126, 34, 0.05);
+        }
+        
+        .campaign-navigation {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+            </div>
+            
+            <!-- User Menu -->
+            <div class="hidden md:flex items-center space-x-4">
+                <div class="flex items-center space-x-3">
+                    <img id="user-avatar" src="" alt="User" class="h-8 w-8 rounded-full object-cover">
+                    <span id="user-name" class="font-medium">Brand</span>
+                </div>
+                <button id="logout-btn" class="px-4 py-2 rounded-full btn-secondary">Logout</button>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Home</a>
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <div class="pt-4">
+                <button id="mobile-logout-btn" class="w-full px-4 py-3 rounded-full btn-secondary">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Setup Modal -->
+    <div id="profile-setup-modal" class="profile-setup-modal">
+        <div class="profile-setup-content">
+            <button id="close-profile-modal" class="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Customize Your Brand Profile</h2>
+            <p class="text-gray-600 mb-6 text-center">Personalize your brand presence on LiveX to attract the right influencers.</p>
+            
+            <form id="profile-setup-form">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Left Column - Basic Info -->
+                    <div>
+                        <div class="text-center mb-6">
+                            <img id="brand-logo-preview" src="https://via.placeholder.com/150" alt="Brand Logo Preview" class="profile-preview">
+                            <div class="file-input-wrapper mt-4">
+                                <input type="file" id="brand-logo" accept="image/*">
+                                <label for="brand-logo" class="file-input-label">
+                                    <i class="fas fa-camera mr-2"></i>Upload Brand Logo
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="brand-name">Brand Name *</label>
+                            <input type="text" id="brand-name" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="brand-description">Brand Description *</label>
+                            <textarea id="brand-description" rows="4" required placeholder="Describe your brand and what you stand for..."></textarea>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Column - Customization -->
+                    <div>
+                        <div class="form-group">
+                            <label>Brand Colors</label>
+                            <p class="text-sm text-gray-600 mb-2">Choose colors that represent your brand</p>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background-color: #2563eb;" data-color="#2563eb"></div>
+                                <div class="color-option" style="background-color: #ea580c;" data-color="#ea580c"></div>
+                                <div class="color-option" style="background-color: #059669;" data-color="#059669"></div>
+                                <div class="color-option" style="background-color: #7c3aed;" data-color="#7c3aed"></div>
+                                <div class="color-option" style="background-color: #dc2626;" data-color="#dc2626"></div>
+                                <div class="color-option" style="background-color: #7e22ce;" data-color="#7e22ce"></div>
+                            </div>
+                            <input type="hidden" id="brand-primary-color" value="#2563eb">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="brand-accent-color">Accent Color</label>
+                            <div class="color-picker">
+                                <div class="color-option selected" style="background-color: #8b5cf6;" data-color="#8b5cf6"></div>
+                                <div class="color-option" style="background-color: #f59e0b;" data-color="#f59e0b"></div>
+                                <div class="color-option" style="background-color: #10b981;" data-color="#10b981"></div>
+                                <div class="color-option" style="background-color: #ef4444;" data-color="#ef4444"></div>
+                                <div class="color-option" style="background-color: #ec4899;" data-color="#ec4899"></div>
+                                <div class="color-option" style="background-color: #06b6d4;" data-color="#06b6d4"></div>
+                            </div>
+                            <input type="hidden" id="brand-accent-color" value="#8b5cf6">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="brand-font">Font Style</label>
+                            <select id="brand-font">
+                                <option value="Inter">Inter (Modern)</option>
+                                <option value="Poppins">Poppins (Elegant)</option>
+                                <option value="Montserrat">Montserrat (Clean)</option>
+                                <option value="Roboto">Roboto (Professional)</option>
+                                <option value="Open Sans">Open Sans (Friendly)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Preview Section -->
+                <div class="preview-section">
+                    <h3 class="font-bold mb-4 text-center">Preview</h3>
+                    <div class="preview-brand-card" id="brand-preview-card">
+                        <div class="preview-brand-header" id="preview-header">
+                            <img id="preview-logo" src="https://via.placeholder.com/150" alt="Brand Logo" class="preview-brand-logo">
+                            <h3 id="preview-name" class="text-xl font-bold">Your Brand Name</h3>
+                            <p id="preview-description" class="text-gray-600 mt-2">Your brand description will appear here</p>
+                        </div>
+                        <div class="preview-brand-body">
+                            <h4 class="font-semibold mb-2">Active Campaigns</h4>
+                            <div class="flex flex-wrap">
+                                <span class="tier-badge tier-nano">Nano</span>
+                                <span class="tier-badge tier-micro">Micro</span>
+                                <span class="tier-badge tier-macro">Macro</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button type="submit" class="w-full py-3 rounded-full btn-primary mt-6">Save Brand Profile</button>
+            </form>
+            
+            <div id="profile-success-message" class="success-message">
+                <i class="fas fa-check-circle mr-2"></i>
+                Brand profile updated successfully!
+            </div>
+        </div>
+    </div>
+
+    <!-- Create Campaign Modal -->
+    <div id="campaign-modal" class="campaign-modal">
+        <div class="campaign-content">
+            <button id="close-campaign-modal" class="close-modal">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="text-2xl font-bold mb-6 text-center">Create New Campaign</h2>
+            
+            <!-- Campaign Creation Steps -->
+            <div id="campaign-steps">
+                <!-- Step 1: Campaign Details -->
+                <div class="campaign-step active" id="step-1">
+                    <h3 class="text-xl font-semibold mb-4">Campaign Details</h3>
+                    
+                    <div class="form-group">
+                        <label for="campaign-title">Campaign Title *</label>
+                        <input type="text" id="campaign-title" required placeholder="e.g., Summer Collection Launch">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-description">Campaign Description *</label>
+                        <textarea id="campaign-description" rows="4" required placeholder="Describe your campaign goals and what you want influencers to do..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-category">Category *</label>
+                        <select id="campaign-category" required>
+                            <option value="">Select Category</option>
+                            <option value="fashion">Fashion & Beauty</option>
+                            <option value="lifestyle">Lifestyle</option>
+                            <option value="technology">Technology</option>
+                            <option value="food">Food & Beverage</option>
+                            <option value="travel">Travel & Hospitality</option>
+                            <option value="fitness">Health & Fitness</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="education">Education</option>
+                            <option value="business">Business</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-requirements">Requirements *</label>
+                        <textarea id="campaign-requirements" rows="3" required placeholder="List specific requirements for influencers (one per line)"></textarea>
+                        <p class="text-sm text-gray-600 mt-1">Enter each requirement on a new line</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-deadline">Deadline *</label>
+                        <input type="date" id="campaign-deadline" required>
+                    </div>
+                    
+                    <div class="campaign-navigation">
+                        <div></div> <!-- Empty div for spacing -->
+                        <button type="button" class="px-6 py-2 rounded-full btn-primary" onclick="showCampaignStep(2)">
+                            Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Campaign Assets -->
+                <div class="campaign-step" id="step-2">
+                    <h3 class="text-xl font-semibold mb-4">Campaign Assets</h3>
+                    
+                    <div class="form-group">
+                        <label>Campaign Images (Optional)</label>
+                        <p class="text-sm text-gray-600 mb-2">Upload images for influencers to use in their content</p>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="campaign-images" accept="image/*" multiple>
+                            <label for="campaign-images" class="file-input-label">
+                                <i class="fas fa-images mr-2"></i>Upload Campaign Images
+                            </label>
+                        </div>
+                        <div id="image-preview" class="mt-3 grid grid-cols-3 gap-2"></div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-hashtags">Recommended Hashtags (Optional)</label>
+                        <input type="text" id="campaign-hashtags" placeholder="#YourBrand #Summer2024 #CampaignName">
+                        <p class="text-sm text-gray-600 mt-1">Separate hashtags with spaces</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-mentions">Required Mentions (Optional)</label>
+                        <input type="text" id="campaign-mentions" placeholder="@YourBrand">
+                        <p class="text-sm text-gray-600 mt-1">Tag your brand account(s)</p>
+                    </div>
+                    
+                    <div class="campaign-navigation">
+                        <button type="button" class="px-6 py-2 rounded-full btn-secondary" onclick="showCampaignStep(1)">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="button" class="px-6 py-2 rounded-full btn-primary" onclick="showCampaignStep(3)">
+                            Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Influencer Selection -->
+                <div class="campaign-step" id="step-3">
+                    <h3 class="text-xl font-semibold mb-4">Influencer Selection</h3>
+                    
+                    <div class="form-group">
+                        <label for="campaign-tier">Influencer Tier *</label>
+                        <p class="text-sm text-gray-600 mb-2">Select which tier of influencers can apply for this campaign</p>
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                            <div class="payment-option" data-tier="nano">
+                                <div class="text-center">
+                                    <h4 class="font-bold">Nano</h4>
+                                    <p class="text-sm text-gray-600">1K - 10K followers</p>
+                                    <p class="font-bold mt-2">$500</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-tier="micro">
+                                <div class="text-center">
+                                    <h4 class="font-bold">Micro</h4>
+                                    <p class="text-sm text-gray-600">10K - 100K followers</p>
+                                    <p class="font-bold mt-2">$1,000</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-tier="macro">
+                                <div class="text-center">
+                                    <h4 class="font-bold">Macro</h4>
+                                    <p class="text-sm text-gray-600">100K - 500K followers</p>
+                                    <p class="font-bold mt-2">$2,500</p>
+                                </div>
+                            </div>
+                            <div class="payment-option" data-tier="mega">
+                                <div class="text-center">
+                                    <h4 class="font-bold">Mega</h4>
+                                    <p class="text-sm text-gray-600">500K+ followers</p>
+                                    <p class="font-bold mt-2">Custom</p>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" id="campaign-tier" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="campaign-influencer-limit">Influencer Limit *</label>
+                        <select id="campaign-influencer-limit" required>
+                            <option value="5">5 Influencers</option>
+                            <option value="10" selected>10 Influencers</option>
+                            <option value="15">15 Influencers</option>
+                            <option value="20">20 Influencers</option>
+                            <option value="custom">Custom (Mega Tier Only)</option>
+                        </select>
+                        <p class="text-sm text-gray-600 mt-1">Maximum number of influencers for this campaign</p>
+                    </div>
+                    
+                    <div class="campaign-navigation">
+                        <button type="button" class="px-6 py-2 rounded-full btn-secondary" onclick="showCampaignStep(2)">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="button" class="px-6 py-2 rounded-full btn-primary" onclick="showCampaignStep(4)">
+                            Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Review & Payment -->
+                <div class="campaign-step" id="step-4">
+                    <h3 class="text-xl font-semibold mb-4">Review & Payment</h3>
+                    
+                    <div class="bg-gray-50 rounded-xl p-6 mb-6">
+                        <h4 class="font-bold mb-4">Campaign Summary</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <p class="font-semibold">Campaign Title:</p>
+                                <p id="review-title">-</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Category:</p>
+                                <p id="review-category">-</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Tier:</p>
+                                <p id="review-tier">-</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Influencer Limit:</p>
+                                <p id="review-limit">-</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Deadline:</p>
+                                <p id="review-deadline">-</p>
+                            </div>
+                            <div>
+                                <p class="font-semibold">Total Cost:</p>
+                                <p id="review-cost" class="font-bold">-</p>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <p class="font-semibold">Description:</p>
+                            <p id="review-description">-</p>
+                        </div>
+                        
+                        <div>
+                            <p class="font-semibold">Requirements:</p>
+                            <ul id="review-requirements" class="list-disc list-inside"></ul>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment-method">Payment Method *</label>
+                        <select id="payment-method" required>
+                            <option value="">Select Payment Method</option>
+                            <option value="mpesa">M-Pesa</option>
+                            <option value="card">Credit/Debit Card</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="campaign-navigation">
+                        <button type="button" class="px-6 py-2 rounded-full btn-secondary" onclick="showCampaignStep(3)">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="button" class="px-6 py-2 rounded-full btn-primary" onclick="createCampaign()">
+                            Create Campaign & Pay
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="campaign-success-message" class="success-message">
+                <i class="fas fa-check-circle mr-2"></i>
+                Campaign created successfully! It's now pending payment verification.
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="pt-24 pb-20">
+        <div class="container mx-auto px-6">
+            <!-- Dashboard Header -->
+            <div class="mb-8">
+                <h1 class="text-3xl md:text-4xl font-bold mb-2">Brand Dashboard</h1>
+                <p class="text-gray-600">Welcome back, <span id="dashboard-brandname" class="font-semibold">Brand</span>! Manage your campaigns and connect with influencers.</p>
+            </div>
+
+            <!-- Stats Section -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-blue-100 text-blue-600 mr-4">
+                            <i class="fas fa-bullhorn text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="active-campaigns-count">0</p>
+                            <p class="text-gray-600">Active Campaigns</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-check-circle text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="completed-campaigns-count">0</p>
+                            <p class="text-gray-600">Completed Campaigns</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-purple-100 text-purple-600 mr-4">
+                            <i class="fas fa-users text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="total-influencers">0</p>
+                            <p class="text-gray-600">Total Influencers</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl p-6 shadow-sm card-hover">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-lg bg-orange-100 text-orange-600 mr-4">
+                            <i class="fas fa-money-bill-wave text-xl"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-bold stats-counter" id="total-spent">Ksh 0</p>
+                            <p class="text-gray-600">Total Spent</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <div class="flex flex-col md:flex-row justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold mb-2">Ready to launch a new campaign?</h2>
+                        <p class="text-gray-600">Create a campaign to connect with influencers who match your brand.</p>
+                    </div>
+                    <button id="create-campaign-btn" class="mt-4 md:mt-0 px-6 py-3 rounded-full btn-primary">
+                        <i class="fas fa-plus mr-2"></i>Start a Campaign
+                    </button>
+                </div>
+            </div>
+
+            <!-- Brand Profile Section -->
+            <div class="bg-white rounded-xl shadow-sm p-6 mb-8">
+                <div class="flex flex-col md:flex-row items-center md:items-start">
+                    <div class="flex-shrink-0 mb-4 md:mb-0 md:mr-6">
+                        <img id="dashboard-brand-logo" src="https://via.placeholder.com/120" alt="Brand Logo" class="w-24 h-24 rounded-full object-cover border-4 border-blue-100">
+                    </div>
+                    <div class="flex-1 text-center md:text-left">
+                        <h2 class="text-2xl font-bold mb-2" id="dashboard-brand-name">Brand Name</h2>
+                        <p class="text-gray-600 mb-4" id="dashboard-brand-description">Brand description will appear here once set up.</p>
+                        
+                        <div class="flex flex-wrap justify-center md:justify-start gap-2 mb-4">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Fashion</span>
+                            <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">Beauty</span>
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm">Lifestyle</span>
+                        </div>
+                        
+                        <button id="edit-brand-profile-btn" class="px-4 py-2 rounded-full btn-secondary">
+                            <i class="fas fa-edit mr-2"></i>Customize Profile
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Campaigns Section -->
+            <section class="mb-12">
+                <h2 class="text-2xl font-bold mb-6">Active Campaigns</h2>
+                
+                <div id="active-campaigns-container" class="space-y-6">
+                    <!-- Active campaigns will be dynamically loaded here -->
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fas fa-bullhorn text-3xl mb-3"></i>
+                        <p>No active campaigns at the moment.</p>
+                        <p class="text-sm">Create your first campaign to get started.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Campaign Status Sections -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                <!-- Pending Approval -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Pending Approval</h3>
+                    <div id="pending-approval-container" class="space-y-4">
+                        <!-- Campaigns pending approval will be dynamically loaded here -->
+                        <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                            <i class="fas fa-hourglass-half text-2xl mb-2"></i>
+                            <p class="text-sm">No campaigns pending approval</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Completed Campaigns -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Completed Campaigns</h3>
+                    <div id="completed-campaigns-container" class="space-y-4">
+                        <!-- Completed campaigns will be dynamically loaded here -->
+                        <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                            <i class="fas fa-check-circle text-2xl mb-2"></i>
+                            <p class="text-sm">No completed campaigns yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Campaign Performance -->
+                <div>
+                    <h3 class="text-xl font-bold mb-4">Campaign Performance</h3>
+                    <div class="bg-white rounded-xl p-6 shadow-sm">
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-chart-line text-3xl mb-3"></i>
+                            <p class="text-sm">Performance data will appear here once you have active campaigns</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+
+        // Initialize Firebase
+        try {
+            firebase.initializeApp(firebaseConfig);
+            console.log("Firebase initialized successfully");
+        } catch (error) {
+            console.error("Error initializing Firebase:", error);
+        }
+
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+
+        // Global variables
+        let currentUser = null;
+        let brandData = null;
+        let brandCampaigns = [];
+        let currentCampaignStep = 1;
+
+        // DOM Elements
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu');
+        const logoutBtn = document.getElementById('logout-btn');
+        const mobileLogoutBtn = document.getElementById('mobile-logout-btn');
+        const profileSetupModal = document.getElementById('profile-setup-modal');
+        const closeProfileModal = document.getElementById('close-profile-modal');
+        const profileSetupForm = document.getElementById('profile-setup-form');
+        const brandLogoInput = document.getElementById('brand-logo');
+        const brandLogoPreview = document.getElementById('brand-logo-preview');
+        const campaignModal = document.getElementById('campaign-modal');
+        const closeCampaignModal = document.getElementById('close-campaign-modal');
+        const createCampaignBtn = document.getElementById('create-campaign-btn');
+        const editBrandProfileBtn = document.getElementById('edit-brand-profile-btn');
+        const colorOptions = document.querySelectorAll('.color-option');
+        const paymentOptions = document.querySelectorAll('.payment-option');
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check authentication state
+            auth.onAuthStateChanged(async function(user) {
+                if (user) {
+                    currentUser = user;
+                    await loadBrandData();
+                    await loadCampaigns();
+                    updateDashboardUI();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
+
+            // Mobile menu functionality
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+            });
+            
+            closeMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+            });
+            
+            // Logout functionality
+            logoutBtn.addEventListener('click', handleLogout);
+            mobileLogoutBtn.addEventListener('click', handleLogout);
+            
+            // Profile setup modal
+            closeProfileModal.addEventListener('click', function() {
+                profileSetupModal.classList.remove('open');
+            });
+            
+            // Brand logo preview
+            brandLogoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        brandLogoPreview.src = e.target.result;
+                        document.getElementById('preview-logo').src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Color selection
+            colorOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from all options in the same group
+                    const parent = this.closest('.color-picker');
+                    parent.querySelectorAll('.color-option').forEach(opt => {
+                        opt.classList.remove('selected');
+                    });
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                    
+                    // Update the corresponding hidden input
+                    const colorValue = this.getAttribute('data-color');
+                    if (parent.previousElementSibling.textContent.includes('Brand Colors')) {
+                        document.getElementById('brand-primary-color').value = colorValue;
+                        updateBrandPreview();
+                    } else if (parent.previousElementSibling.textContent.includes('Accent Color')) {
+                        document.getElementById('brand-accent-color').value = colorValue;
+                        updateBrandPreview();
+                    }
+                });
+            });
+            
+            // Font selection
+            document.getElementById('brand-font').addEventListener('change', updateBrandPreview);
+            
+            // Brand name and description updates
+            document.getElementById('brand-name').addEventListener('input', updateBrandPreview);
+            document.getElementById('brand-description').addEventListener('input', updateBrandPreview);
+            
+            // Profile setup form submission
+            profileSetupForm.addEventListener('submit', handleProfileSetup);
+            
+            // Campaign modal
+            closeCampaignModal.addEventListener('click', function() {
+                campaignModal.classList.remove('open');
+                resetCampaignForm();
+            });
+            
+            createCampaignBtn.addEventListener('click', function() {
+                campaignModal.classList.add('open');
+            });
+            
+            // Campaign image preview
+            document.getElementById('campaign-images').addEventListener('change', function(e) {
+                const files = e.target.files;
+                const previewContainer = document.getElementById('image-preview');
+                previewContainer.innerHTML = '';
+                
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.classList.add('w-full', 'h-24', 'object-cover', 'rounded');
+                        previewContainer.appendChild(img);
+                    };
+                    
+                    reader.readAsDataURL(file);
+                }
+            });
+            
+            // Tier selection
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    paymentOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    document.getElementById('campaign-tier').value = this.getAttribute('data-tier');
+                    updateCampaignReview();
+                });
+            });
+            
+            // Campaign form updates for review
+            document.getElementById('campaign-title').addEventListener('input', updateCampaignReview);
+            document.getElementById('campaign-description').addEventListener('input', updateCampaignReview);
+            document.getElementById('campaign-category').addEventListener('change', updateCampaignReview);
+            document.getElementById('campaign-requirements').addEventListener('input', updateCampaignReview);
+            document.getElementById('campaign-deadline').addEventListener('change', updateCampaignReview);
+            document.getElementById('campaign-influencer-limit').addEventListener('change', updateCampaignReview);
+            
+            // Edit brand profile button
+            editBrandProfileBtn.addEventListener('click', function() {
+                profileSetupModal.classList.add('open');
+                // Pre-fill form with existing data
+                if (brandData) {
+                    document.getElementById('brand-name').value = brandData.brandName || '';
+                    document.getElementById('brand-description').value = brandData.description || '';
+                    if (brandData.brandLogo) {
+                        brandLogoPreview.src = brandData.brandLogo;
+                        document.getElementById('preview-logo').src = brandData.brandLogo;
+                    }
+                    if (brandData.primaryColor) {
+                        document.getElementById('brand-primary-color').value = brandData.primaryColor;
+                        // Update color picker UI
+                        const primaryColorPicker = document.querySelector('.color-picker:first-child');
+                        primaryColorPicker.querySelector(`[data-color="${brandData.primaryColor}"]`).classList.add('selected');
+                    }
+                    if (brandData.accentColor) {
+                        document.getElementById('brand-accent-color').value = brandData.accentColor;
+                        // Update color picker UI
+                        const accentColorPicker = document.querySelectorAll('.color-picker')[1];
+                        accentColorPicker.querySelector(`[data-color="${brandData.accentColor}"]`).classList.add('selected');
+                    }
+                    if (brandData.font) {
+                        document.getElementById('brand-font').value = brandData.font;
+                    }
+                    updateBrandPreview();
+                }
+            });
+        });
+
+        // Load brand data from Firestore
+        async function loadBrandData() {
+            try {
+                const doc = await db.collection('brands').doc(currentUser.uid).get();
+                if (doc.exists) {
+                    brandData = doc.data();
+                    
+                    // Check if profile is complete
+                    if (!brandData.profileComplete) {
+                        profileSetupModal.classList.add('open');
+                    }
+                } else {
+                    console.error("No brand data found");
+                    // Redirect to signup if no data found
+                    window.location.href = 'BrandSignUp.html';
+                }
+            } catch (error) {
+                console.error("Error loading brand data:", error);
+            }
+        }
+
+        // Load campaigns from Firestore
+        async function loadCampaigns() {
+            try {
+                const campaignsSnapshot = await db.collection('campaigns')
+                    .where('brandId', '==', currentUser.uid)
+                    .get();
+                
+                brandCampaigns = [];
+                campaignsSnapshot.forEach(doc => {
+                    brandCampaigns.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                renderCampaigns();
+                updateCampaignCounts();
+            } catch (error) {
+                console.error("Error loading campaigns:", error);
+            }
+        }
+
+        // Update dashboard UI with brand data
+        function updateDashboardUI() {
+            if (brandData) {
+                // Update header
+                document.getElementById('user-name').textContent = brandData.brandName || 'Brand';
+                document.getElementById('dashboard-brandname').textContent = brandData.brandName || 'Brand';
+                document.getElementById('dashboard-brand-name').textContent = brandData.brandName || 'Brand Name';
+                
+                // Update brand logo
+                if (brandData.brandLogo) {
+                    document.getElementById('user-avatar').src = brandData.brandLogo;
+                    document.getElementById('dashboard-brand-logo').src = brandData.brandLogo;
+                }
+                
+                // Update brand description
+                if (brandData.description) {
+                    document.getElementById('dashboard-brand-description').textContent = brandData.description;
+                }
+                
+                // Apply brand customization if available
+                if (brandData.primaryColor) {
+                    document.documentElement.style.setProperty('--brand-primary', brandData.primaryColor);
+                }
+                if (brandData.accentColor) {
+                    document.documentElement.style.setProperty('--brand-accent', brandData.accentColor);
+                }
+                if (brandData.font) {
+                    document.body.style.fontFamily = brandData.font + ', sans-serif';
+                }
+            }
+        }
+
+        // Update brand preview
+        function updateBrandPreview() {
+            const brandName = document.getElementById('brand-name').value || 'Your Brand Name';
+            const brandDescription = document.getElementById('brand-description').value || 'Your brand description will appear here';
+            const primaryColor = document.getElementById('brand-primary-color').value;
+            const accentColor = document.getElementById('brand-accent-color').value;
+            const font = document.getElementById('brand-font').value;
+            
+            // Update preview card
+            document.getElementById('preview-name').textContent = brandName;
+            document.getElementById('preview-description').textContent = brandDescription;
+            
+            const previewHeader = document.getElementById('preview-header');
+            const previewCard = document.getElementById('brand-preview-card');
+            
+            previewHeader.style.backgroundColor = primaryColor;
+            previewHeader.style.color = 'white';
+            
+            // Update CSS variables for preview
+            previewCard.style.setProperty('--brand-primary', primaryColor);
+            previewCard.style.setProperty('--brand-accent', accentColor);
+            previewCard.style.fontFamily = font + ', sans-serif';
+        }
+
+        // Render campaigns based on status
+        function renderCampaigns() {
+            renderActiveCampaigns();
+            renderPendingApprovalCampaigns();
+            renderCompletedCampaigns();
+        }
+
+        // Render active campaigns
+        function renderActiveCampaigns() {
+            const container = document.getElementById('active-campaigns-container');
+            const activeCampaigns = brandCampaigns.filter(campaign => campaign.status === 'active');
+            
+            if (activeCampaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-500">
+                        <i class="fas fa-bullhorn text-3xl mb-3"></i>
+                        <p>No active campaigns at the moment.</p>
+                        <p class="text-sm">Create your first campaign to get started.</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = activeCampaigns.map(campaign => `
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <h3 class="text-lg font-bold">${campaign.title}</h3>
+                        <span class="px-3 py-1 rounded-full text-xs font-medium campaign-status-active">Active</span>
+                    </div>
+                    
+                    <p class="text-gray-600 mb-4">${campaign.description}</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Category</p>
+                            <p class="font-semibold">${formatCategory(campaign.category)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Tier</p>
+                            <p class="font-semibold">${campaign.tier.charAt(0).toUpperCase() + campaign.tier.slice(1)}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Influencers</p>
+                            <p class="font-semibold">${campaign.influencers ? campaign.influencers.length : 0}/${campaign.influencerLimit}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Deadline</p>
+                            <p class="font-semibold">${formatDate(campaign.deadline)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <h4 class="font-semibold mb-2">Influencers Working on This Campaign</h4>
+                        <div id="influencers-${campaign.id}" class="space-y-3">
+                            ${campaign.influencers && campaign.influencers.length > 0 ? 
+                                campaign.influencers.map(influencer => `
+                                    <div class="influencer-card">
+                                        <div class="flex justify-between items-start">
+                                            <div>
+                                                <p class="font-semibold">${influencer.name}</p>
+                                                <div class="flex items-center mt-1 space-x-3 text-sm text-gray-600">
+                                                    <span><i class="fab fa-instagram mr-1"></i> ${influencer.instagramFollowers || '0'} followers</span>
+                                                    <span><i class="fab fa-tiktok mr-1"></i> ${influencer.tiktokFollowers || '0'} followers</span>
+                                                </div>
+                                                <div class="mt-2">
+                                                    <span class="px-2 py-1 bg-gray-100 text-gray-800 rounded text-xs">${influencer.niche || 'General'}</span>
+                                                </div>
+                                            </div>
+                                            <span class="px-2 py-1 rounded-full text-xs font-medium ${getTierClass(influencer.tier)}">${influencer.tier}</span>
+                                        </div>
+                                    </div>
+                                `).join('') : 
+                                '<p class="text-gray-500 text-sm">No influencers have accepted this campaign yet.</p>'
+                            }
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-gray-500">Total Budget</p>
+                            <p class="font-bold">Ksh ${calculateCampaignCost(campaign.tier, campaign.influencerLimit)}</p>
+                        </div>
+                        <button class="px-4 py-2 rounded-full btn-secondary text-sm">
+                            View Analytics
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Render pending approval campaigns
+        function renderPendingApprovalCampaigns() {
+            const container = document.getElementById('pending-approval-container');
+            const pendingCampaigns = brandCampaigns.filter(campaign => campaign.status === 'pending_approval');
+            
+            if (pendingCampaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-hourglass-half text-2xl mb-2"></i>
+                        <p class="text-sm">No campaigns pending approval</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = pendingCampaigns.map(campaign => `
+                <div class="bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold">${campaign.title}</h4>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium campaign-status-pending">Pending</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Submitted: ${formatDate(campaign.createdAt)}</p>
+                    <p class="text-sm font-medium">Ksh ${calculateCampaignCost(campaign.tier, campaign.influencerLimit)}</p>
+                </div>
+            `).join('');
+        }
+
+        // Render completed campaigns
+        function renderCompletedCampaigns() {
+            const container = document.getElementById('completed-campaigns-container');
+            const completedCampaigns = brandCampaigns.filter(campaign => campaign.status === 'completed');
+            
+            if (completedCampaigns.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-6 text-gray-500 bg-gray-50 rounded-lg">
+                        <i class="fas fa-check-circle text-2xl mb-2"></i>
+                        <p class="text-sm">No completed campaigns yet</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = completedCampaigns.map(campaign => `
+                <div class="bg-white rounded-lg shadow-sm p-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h4 class="font-semibold">${campaign.title}</h4>
+                        <span class="px-2 py-1 rounded-full text-xs font-medium campaign-status-completed">Completed</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">Completed: ${formatDate(campaign.completedAt)}</p>
+                    <p class="text-sm font-medium">Ksh ${calculateCampaignCost(campaign.tier, campaign.influencerLimit)}</p>
+                </div>
+            `).join('');
+        }
+
+        // Update campaign counts in the stats section
+        function updateCampaignCounts() {
+            const activeCampaignsCount = brandCampaigns.filter(campaign => campaign.status === 'active').length;
+            const completedCampaignsCount = brandCampaigns.filter(campaign => campaign.status === 'completed').length;
+            
+            // Calculate total influencers across all campaigns
+            const totalInfluencers = brandCampaigns.reduce((total, campaign) => {
+                return total + (campaign.influencers ? campaign.influencers.length : 0);
+            }, 0);
+            
+            // Calculate total spent
+            const totalSpent = brandCampaigns.reduce((total, campaign) => {
+                return total + calculateCampaignCost(campaign.tier, campaign.influencerLimit);
+            }, 0);
+            
+            document.getElementById('active-campaigns-count').textContent = activeCampaignsCount;
+            document.getElementById('completed-campaigns-count').textContent = completedCampaignsCount;
+            document.getElementById('total-influencers').textContent = totalInfluencers;
+            document.getElementById('total-spent').textContent = `Ksh ${totalSpent.toLocaleString()}`;
+        }
+
+        // Show campaign creation step
+        function showCampaignStep(step) {
+            // Validate current step before proceeding
+            if (step > currentCampaignStep) {
+                if (!validateCampaignStep(currentCampaignStep)) {
+                    return;
+                }
+            }
+            
+            // Hide all steps
+            document.querySelectorAll('.campaign-step').forEach(stepEl => {
+                stepEl.classList.remove('active');
+            });
+            
+            // Show selected step
+            document.getElementById(`step-${step}`).classList.add('active');
+            currentCampaignStep = step;
+            
+            // Update review if we're on the last step
+            if (step === 4) {
+                updateCampaignReview();
+            }
+        }
+
+        // Validate campaign step
+        function validateCampaignStep(step) {
+            let isValid = true;
+            
+            if (step === 1) {
+                const title = document.getElementById('campaign-title').value;
+                const description = document.getElementById('campaign-description').value;
+                const category = document.getElementById('campaign-category').value;
+                const requirements = document.getElementById('campaign-requirements').value;
+                const deadline = document.getElementById('campaign-deadline').value;
+                
+                if (!title) {
+                    alert('Please enter a campaign title');
+                    isValid = false;
+                } else if (!description) {
+                    alert('Please enter a campaign description');
+                    isValid = false;
+                } else if (!category) {
+                    alert('Please select a category');
+                    isValid = false;
+                } else if (!requirements) {
+                    alert('Please enter campaign requirements');
+                    isValid = false;
+                } else if (!deadline) {
+                    alert('Please select a deadline');
+                    isValid = false;
+                }
+            } else if (step === 3) {
+                const tier = document.getElementById('campaign-tier').value;
+                const limit = document.getElementById('campaign-influencer-limit').value;
+                
+                if (!tier) {
+                    alert('Please select an influencer tier');
+                    isValid = false;
+                } else if (!limit) {
+                    alert('Please select an influencer limit');
+                    isValid = false;
+                }
+            }
+            
+            return isValid;
+        }
+
+        // Update campaign review
+        function updateCampaignReview() {
+            const title = document.getElementById('campaign-title').value;
+            const description = document.getElementById('campaign-description').value;
+            const category = document.getElementById('campaign-category').value;
+            const requirements = document.getElementById('campaign-requirements').value;
+            const deadline = document.getElementById('campaign-deadline').value;
+            const tier = document.getElementById('campaign-tier').value;
+            const limit = document.getElementById('campaign-influencer-limit').value;
+            
+            document.getElementById('review-title').textContent = title || '-';
+            document.getElementById('review-description').textContent = description || '-';
+            document.getElementById('review-category').textContent = category ? formatCategory(category) : '-';
+            document.getElementById('review-tier').textContent = tier ? tier.charAt(0).toUpperCase() + tier.slice(1) : '-';
+            document.getElementById('review-limit').textContent = limit ? `${limit} influencers` : '-';
+            document.getElementById('review-deadline').textContent = deadline ? formatDate(new Date(deadline)) : '-';
+            
+            // Update requirements list
+            const requirementsList = document.getElementById('review-requirements');
+            requirementsList.innerHTML = '';
+            if (requirements) {
+                const reqArray = requirements.split('\n').filter(req => req.trim() !== '');
+                reqArray.forEach(req => {
+                    const li = document.createElement('li');
+                    li.textContent = req;
+                    requirementsList.appendChild(li);
+                });
+            }
+            
+            // Update cost
+            if (tier && limit) {
+                const cost = calculateCampaignCost(tier, parseInt(limit));
+                document.getElementById('review-cost').textContent = `Ksh ${cost.toLocaleString()}`;
+            } else {
+                document.getElementById('review-cost').textContent = '-';
+            }
+        }
+
+        // Create campaign
+        async function createCampaign() {
+            // Validate final step
+            if (!validateCampaignStep(4)) {
+                return;
+            }
+            
+            const paymentMethod = document.getElementById('payment-method').value;
+            if (!paymentMethod) {
+                alert('Please select a payment method');
+                return;
+            }
+            
+            try {
+                // Get campaign data
+                const title = document.getElementById('campaign-title').value;
+                const description = document.getElementById('campaign-description').value;
+                const category = document.getElementById('campaign-category').value;
+                const requirements = document.getElementById('campaign-requirements').value.split('\n').filter(req => req.trim() !== '');
+                const deadline = new Date(document.getElementById('campaign-deadline').value);
+                const tier = document.getElementById('campaign-tier').value;
+                const influencerLimit = parseInt(document.getElementById('campaign-influencer-limit').value);
+                const hashtags = document.getElementById('campaign-hashtags').value;
+                const mentions = document.getElementById('campaign-mentions').value;
+                
+                // Get image files (in a real app, you would upload these to storage)
+                const imageFiles = document.getElementById('campaign-images').files;
+                const imageUrls = [];
+                // For demo purposes, we'll just store placeholder URLs
+                for (let i = 0; i < imageFiles.length; i++) {
+                    imageUrls.push(URL.createObjectURL(imageFiles[i]));
+                }
+                
+                // Calculate cost per influencer
+                const costPerInfluencer = calculateCampaignCost(tier, 1);
+                const totalCost = costPerInfluencer * influencerLimit;
+                
+                // Create campaign in Firestore
+                const campaignRef = await db.collection('campaigns').add({
+                    brandId: currentUser.uid,
+                    brandName: brandData.brandName,
+                    title: title,
+                    description: description,
+                    category: category,
+                    requirements: requirements,
+                    deadline: deadline,
+                    tier: tier,
+                    influencerLimit: influencerLimit,
+                    hashtags: hashtags,
+                    mentions: mentions,
+                    imageUrls: imageUrls,
+                    status: 'pending_approval',
+                    paymentMethod: paymentMethod,
+                    cost: totalCost,
+                    costPerInfluencer: costPerInfluencer,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    influencers: [] // Will be populated as influencers accept the campaign
+                });
+                
+                // Also create a job for influencers to see
+                await db.collection('jobs').add({
+                    campaignId: campaignRef.id,
+                    brandId: currentUser.uid,
+                    brandName: brandData.brandName,
+                    title: title,
+                    description: description,
+                    category: category,
+                    requirements: requirements,
+                    deadline: deadline,
+                    tier: tier,
+                    payment: costPerInfluencer, // Payment per influencer
+                    status: 'pending_approval',
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Close modal and reset form
+                campaignModal.classList.remove('open');
+                resetCampaignForm();
+                
+                // Show success message
+                document.getElementById('campaign-success-message').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('campaign-success-message').classList.remove('show');
+                }, 3000);
+                
+                // Reload campaigns
+                await loadCampaigns();
+            } catch (error) {
+                console.error("Error creating campaign:", error);
+                alert('There was an error creating your campaign. Please try again.');
+            }
+        }
+
+        // Reset campaign form
+        function resetCampaignForm() {
+            document.getElementById('campaign-title').value = '';
+            document.getElementById('campaign-description').value = '';
+            document.getElementById('campaign-category').value = '';
+            document.getElementById('campaign-requirements').value = '';
+            document.getElementById('campaign-deadline').value = '';
+            document.getElementById('campaign-images').value = '';
+            document.getElementById('campaign-hashtags').value = '';
+            document.getElementById('campaign-mentions').value = '';
+            document.getElementById('campaign-tier').value = '';
+            document.getElementById('campaign-influencer-limit').value = '10';
+            document.getElementById('payment-method').value = '';
+            
+            // Reset UI
+            document.getElementById('image-preview').innerHTML = '';
+            paymentOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            // Reset to first step
+            showCampaignStep(1);
+        }
+
+        // Handle profile setup
+        async function handleProfileSetup(e) {
+            e.preventDefault();
+            
+            const brandName = document.getElementById('brand-name').value;
+            const brandDescription = document.getElementById('brand-description').value;
+            const primaryColor = document.getElementById('brand-primary-color').value;
+            const accentColor = document.getElementById('brand-accent-color').value;
+            const font = document.getElementById('brand-font').value;
+            const brandLogoFile = brandLogoInput.files[0];
+            
+            try {
+                let brandLogoUrl = brandData ? brandData.brandLogo : '';
+                
+                // If a new brand logo was uploaded, we would typically upload it to storage
+                // For this demo, we'll just use a placeholder
+                if (brandLogoFile) {
+                    // In a real app, you would upload to Firebase Storage and get the URL
+                    brandLogoUrl = URL.createObjectURL(brandLogoFile);
+                }
+                
+                // Update brand data in Firestore
+                await db.collection('brands').doc(currentUser.uid).update({
+                    brandName: brandName,
+                    description: brandDescription,
+                    brandLogo: brandLogoUrl,
+                    primaryColor: primaryColor,
+                    accentColor: accentColor,
+                    font: font,
+                    profileComplete: true
+                });
+                
+                // Reload brand data
+                await loadBrandData();
+                
+                // Close modal
+                profileSetupModal.classList.remove('open');
+                
+                // Show success message
+                document.getElementById('profile-success-message').classList.add('show');
+                setTimeout(() => {
+                    document.getElementById('profile-success-message').classList.remove('show');
+                }, 3000);
+            } catch (error) {
+                console.error("Error updating brand profile:", error);
+                alert('There was an error updating your brand profile. Please try again.');
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            auth.signOut().then(() => {
+                window.location.href = 'index.html';
+            }).catch((error) => {
+                console.error("Error signing out:", error);
+            });
+        }
+
+        // Utility functions
+        function calculateCampaignCost(tier, influencerLimit) {
+            const costPerInfluencer = {
+                'nano': 500,
+                'micro': 1000,
+                'macro': 2500,
+                'mega': 5000
+            };
+            
+            return (costPerInfluencer[tier] || 0) * influencerLimit;
+        }
+
+        function formatCategory(category) {
+            const categoryMap = {
+                'fashion': 'Fashion & Beauty',
+                'lifestyle': 'Lifestyle',
+                'technology': 'Technology',
+                'food': 'Food & Beverage',
+                'travel': 'Travel & Hospitality',
+                'fitness': 'Health & Fitness',
+                'entertainment': 'Entertainment',
+                'education': 'Education',
+                'business': 'Business',
+                'other': 'Other'
+            };
+            
+            return categoryMap[category] || category;
+        }
+
+        function formatDate(date) {
+            if (!date) return 'N/A';
+            
+            const d = date.toDate ? date.toDate() : new Date(date);
+            return d.toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+        }
+
+        function getTierClass(tier) {
+            switch(tier) {
+                case 'nano': return 'tier-nano';
+                case 'micro': return 'tier-micro';
+                case 'macro': return 'tier-macro';
+                case 'mega': return 'tier-mega';
+                default: return 'bg-gray-100 text-gray-800';
+            }
+        }
+    </script>
+</body>
+</html>
