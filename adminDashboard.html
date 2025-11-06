@@ -54,11 +54,21 @@
             top: 0;
             z-index: 100;
             box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar.collapsed {
+            transform: translateX(-100%);
         }
         
         .main-content {
             margin-left: 260px;
             padding: 20px;
+            transition: margin-left 0.3s ease;
+        }
+        
+        .main-content.expanded {
+            margin-left: 0;
         }
         
         .card {
@@ -505,11 +515,145 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* Mobile Responsive Styles */
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--dark-azure);
+            font-size: 20px;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+        
+        @media (max-width: 768px) {
+            .mobile-menu-btn {
+                display: block;
+            }
+            
+            .sidebar {
+                width: 100%;
+                max-width: 260px;
+            }
+            
+            .main-content {
+                margin-left: 0;
+                padding: 15px;
+            }
+            
+            .top-bar {
+                padding: 12px 15px;
+                flex-wrap: wrap;
+            }
+            
+            .top-bar h1 {
+                font-size: 1.25rem;
+            }
+            
+            .top-bar p {
+                font-size: 0.875rem;
+            }
+            
+            .user-profile {
+                margin-top: 10px;
+            }
+            
+            .stats-card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .stats-card .text-3xl {
+                font-size: 1.5rem;
+            }
+            
+            .card {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .table-container {
+                font-size: 0.875rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+            
+            .work-submission {
+                padding: 12px;
+            }
+            
+            .work-links {
+                flex-direction: column;
+            }
+            
+            .work-link {
+                width: 100%;
+                text-align: center;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 10px;
+            }
+            
+            .nav-item {
+                padding: 12px 15px;
+            }
+            
+            .nav-item i {
+                margin-right: 10px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 0.875rem;
+            }
+            
+            .btn-primary, .btn-success, .btn-warning {
+                padding: 8px 12px;
+                font-size: 0.875rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-card .text-3xl {
+                font-size: 1.25rem;
+            }
+            
+            .stats-card .text-sm {
+                font-size: 0.75rem;
+            }
+            
+            .card {
+                padding: 12px;
+            }
+            
+            .table-container {
+                font-size: 0.75rem;
+            }
+            
+            th, td {
+                padding: 6px 8px;
+            }
+            
+            .modal-content {
+                width: 100%;
+                margin: 0;
+                border-radius: 0;
+                max-height: 100vh;
+            }
+        }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
-    <div class="sidebar">
+    <div class="sidebar" id="sidebar">
         <div class="p-6">
             <div class="flex items-center mb-10">
                 <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
@@ -554,12 +698,17 @@
     </div>
     
     <!-- Main Content -->
-    <div class="main-content">
+    <div class="main-content" id="mainContent">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
-                <p class="text-gray-600">Manage campaigns, influencers, and brands</p>
+            <div class="flex items-center">
+                <button class="mobile-menu-btn" id="mobileMenuBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+                    <p class="text-gray-600">Manage campaigns, influencers, and brands</p>
+                </div>
             </div>
             
             <div class="flex items-center">
@@ -638,9 +787,9 @@
         
         <!-- Campaigns Page -->
         <div id="campaignsPage" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">All Campaigns</h2>
-                <div class="flex space-x-2">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">All Campaigns</h2>
+                <div class="flex flex-wrap gap-2">
                     <button class="tab active" data-tab="all">All Campaigns</button>
                     <button class="tab" data-tab="pending">Pending</button>
                     <button class="tab" data-tab="active">Active</button>
@@ -677,9 +826,9 @@
         
         <!-- Influencers Page -->
         <div id="influencersPage" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">All Influencers</h2>
-                <div class="flex space-x-2">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">All Influencers</h2>
+                <div class="flex flex-wrap gap-2">
                     <button class="tab active" data-tab="all">All Influencers</button>
                     <button class="tab" data-tab="nano">Nano</button>
                     <button class="tab" data-tab="micro">Micro</button>
@@ -717,8 +866,8 @@
         
         <!-- Brands Page -->
         <div id="brandsPage" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">All Brands</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">All Brands</h2>
             </div>
             
             <div class="card p-6">
@@ -749,9 +898,9 @@
         
         <!-- Work Approval Page -->
         <div id="workApprovalPage" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Work Approval</h2>
-                <div class="flex space-x-2">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">Work Approval</h2>
+                <div class="flex flex-wrap gap-2">
                     <button class="tab active" data-tab="pending">Pending Approval</button>
                     <button class="tab" data-tab="approved">Approved</button>
                 </div>
@@ -766,8 +915,8 @@
         
         <!-- Payments Page -->
         <div id="paymentsPage" class="page-content hidden">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">Pending Payments</h2>
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4 sm:mb-0">Pending Payments</h2>
             </div>
             
             <div id="paymentsList">
@@ -793,8 +942,8 @@
                     <!-- Campaign details will be inserted here -->
                 </div>
                 
-                <div class="flex justify-end mt-6">
-                    <button id="rejectCampaignBtn" class="px-4 py-2 border border-gray-300 rounded-lg mr-3">Reject</button>
+                <div class="flex flex-col sm:flex-row justify-end mt-6 gap-3">
+                    <button id="rejectCampaignBtn" class="px-4 py-2 border border-gray-300 rounded-lg">Reject</button>
                     <button id="approveCampaignBtn" class="btn-primary px-4 py-2 rounded-lg">Approve Campaign</button>
                 </div>
             </div>
@@ -816,8 +965,8 @@
                     <!-- Work details will be inserted here -->
                 </div>
                 
-                <div class="flex justify-end mt-6">
-                    <button id="rejectWorkBtn" class="px-4 py-2 border border-gray-300 rounded-lg mr-3">Reject</button>
+                <div class="flex flex-col sm:flex-row justify-end mt-6 gap-3">
+                    <button id="rejectWorkBtn" class="px-4 py-2 border border-gray-300 rounded-lg">Reject</button>
                     <button id="approveWorkBtn" class="btn-success px-4 py-2 rounded-lg">Approve Work</button>
                 </div>
             </div>
@@ -846,6 +995,9 @@
         const tabs = document.querySelectorAll('.tab');
         const logoutBtn = document.getElementById('logoutBtn');
         const notificationCount = document.getElementById('notificationCount');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
         
         // Modal elements
         const campaignApprovalModal = document.getElementById('campaignApprovalModal');
@@ -880,6 +1032,12 @@
                     // Redirect to login if not authenticated
                     window.location.href = 'login.html';
                 }
+            });
+            
+            // Mobile menu toggle
+            mobileMenuBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
             });
             
             // Navigation
@@ -920,6 +1078,12 @@
                                 loadPaymentsPage();
                                 break;
                         }
+                    }
+                    
+                    // Close mobile menu after navigation
+                    if (window.innerWidth <= 768) {
+                        sidebar.classList.add('collapsed');
+                        mainContent.classList.add('expanded');
                     }
                 });
             });
@@ -996,6 +1160,17 @@
                 pageContents.forEach(content => content.classList.add('hidden'));
                 document.getElementById('workApprovalPage').classList.remove('hidden');
                 loadWorkApprovalPage();
+            });
+            
+            // Close sidebar when clicking outside on mobile
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && 
+                    !sidebar.contains(e.target) && 
+                    !mobileMenuBtn.contains(e.target) &&
+                    !sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                }
             });
         });
         
@@ -1244,7 +1419,7 @@
                     <h4 class="text-lg font-medium text-gray-800 mb-2">${campaign.name}</h4>
                     <p class="text-gray-600 mb-4">${campaign.description}</p>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                             <p class="text-sm text-gray-500">Brand</p>
                             <p class="font-medium">${brand ? brand.brandName : 'Unknown'}</p>
@@ -1295,7 +1470,7 @@
                 <div class="mb-6">
                     <h4 class="text-lg font-medium text-gray-800 mb-2">Work Submission</h4>
                     
-                    <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
                         <div>
                             <p class="text-sm text-gray-500">Influencer</p>
                             <p class="font-medium">${influencer ? influencer.name : 'Unknown'}</p>
