@@ -1,0 +1,2300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Dashboard - LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --dark-azure: #2c5e7a;
+            --light-azure: #d2e4ee;
+            --primary: #2c5e7a;
+            --primary-light: #4a7c95;
+            --primary-dark: #1a3a4a;
+            --secondary: #EC4899;
+            --accent: #06B6D4;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --gray: #64748B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f0f8ff 0%, #f8fafc 50%, #f0f8ff 100%);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(44, 94, 122, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 94, 122, 0.4);
+        }
+        
+        .btn-secondary {
+            background: var(--accent);
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.3);
+        }
+        
+        .btn-secondary:hover {
+            background: #0891B2;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+        }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+        }
+        
+        .status-completed {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+        }
+        
+        .tier-card {
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .tier-card:hover {
+            border-color: var(--dark-azure);
+            transform: translateY(-2px);
+        }
+        
+        .tier-card.selected {
+            border-color: var(--dark-azure);
+            background: rgba(44, 94, 122, 0.05);
+            box-shadow: 0 4px 12px rgba(44, 94, 122, 0.1);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 850px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .profile-pic {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 5px solid white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+        }
+        
+        .profile-icon {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            border: 5px solid white;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+            color: white;
+            font-size: 50px;
+        }
+        
+        .influencer-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .influencer-card:hover {
+            background: #f1f5f9;
+        }
+        
+        .influencer-avatar {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab:hover {
+            color: var(--dark-azure);
+            background: rgba(44, 94, 122, 0.05);
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--dark-azure);
+            color: var(--dark-azure);
+            font-weight: 600;
+            background: rgba(44, 94, 122, 0.05);
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--dark-azure);
+            box-shadow: 0 0 0 3px rgba(44, 94, 122, 0.15);
+        }
+        
+        .requirement-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .requirement-item input {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        
+        .requirement-item button {
+            background: #ef4444;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 8px 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .requirement-item button:hover {
+            background: #dc2626;
+        }
+        
+        .add-requirement {
+            background: var(--dark-azure);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 8px;
+            transition: all 0.2s ease;
+        }
+        
+        .add-requirement:hover {
+            background: var(--primary-dark);
+        }
+        
+        .payment-option {
+            padding: 16px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .payment-option:hover {
+            border-color: var(--dark-azure);
+            transform: translateY(-2px);
+        }
+        
+        .payment-option.selected {
+            border-color: var(--dark-azure);
+            background: rgba(44, 94, 122, 0.05);
+            box-shadow: 0 4px 12px rgba(44, 94, 122, 0.1);
+        }
+        
+        .campaign-card {
+            border-left: 5px solid var(--dark-azure);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .campaign-card.completed {
+            border-left: 5px solid #3b82f6;
+        }
+        
+        .campaign-card.pending {
+            border-left: 5px solid var(--warning);
+        }
+        
+        .image-preview {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 12px;
+        }
+        
+        .image-preview-item {
+            position: relative;
+            width: 110px;
+            height: 110px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .image-preview-item .remove-image {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            background: rgba(0, 0, 0, 0.6);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .image-preview-item .remove-image:hover {
+            background: rgba(0, 0, 0, 0.8);
+        }
+        
+        .progress-bar {
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--dark-azure);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .step-indicator {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .step-indicator::before {
+            content: '';
+            position: absolute;
+            top: 15px;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #e5e7eb;
+            z-index: 1;
+        }
+        
+        .step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .step-number {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #e5e7eb;
+            color: #6b7280;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        
+        .step.active .step-number {
+            background: var(--dark-azure);
+            color: white;
+            box-shadow: 0 4px 10px rgba(44, 94, 122, 0.3);
+        }
+        
+        .step.completed .step-number {
+            background: var(--success);
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+        }
+        
+        .step.active .step-label {
+            color: var(--dark-azure);
+            font-weight: 600;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(44, 94, 122, 0.3);
+        }
+        
+        .stats-card.secondary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #F472B6 100%);
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+        }
+        
+        .stats-card.tertiary {
+            background: linear-gradient(135deg, var(--accent) 0%, #22D3EE 100%);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 50%, var(--accent) 100%);
+        }
+        
+        .top-bar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            margin-right: 12px;
+            border: 2px solid #e2e8f0;
+            color: white;
+            font-size: 16px;
+        }
+        
+        /* New Tailwind Styles */
+        .dashboard-card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .dashboard-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .dashboard-card-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+        }
+        
+        .dashboard-card-action {
+            color: var(--dark-azure);
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .dashboard-card-action i {
+            margin-left: 6px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 20px;
+        }
+        
+        .stat-card-icon.primary {
+            background: rgba(44, 94, 122, 0.1);
+            color: var(--dark-azure);
+        }
+        
+        .stat-card-icon.secondary {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--secondary);
+        }
+        
+        .stat-card-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 4px;
+        }
+        
+        .stat-card-label {
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .campaign-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 24px;
+        }
+        
+        .campaign-card-new {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            padding: 20px;
+            border: 1px solid #f1f5f9;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .campaign-card-new:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+        
+        .campaign-card-new::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: var(--dark-azure);
+        }
+        
+        .campaign-card-new.completed::before {
+            background: #3b82f6;
+        }
+        
+        .campaign-card-new.pending::before {
+            background: var(--warning);
+        }
+        
+        .campaign-card-new-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+        }
+        
+        .campaign-card-new-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            line-height: 1.3;
+        }
+        
+        .campaign-card-new-status {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .campaign-card-new-description {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+        
+        .campaign-card-new-progress {
+            margin-bottom: 16px;
+        }
+        
+        .campaign-card-new-progress-label {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 14px;
+            color: #64748b;
+        }
+        
+        .campaign-card-new-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .campaign-card-new-meta-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .campaign-card-new-meta-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 2px;
+        }
+        
+        .campaign-card-new-meta-value {
+            font-size: 14px;
+            font-weight: 600;
+            color: #334155;
+        }
+        
+        .campaign-card-new-action {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: auto;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            border: 1px solid #f1f5f9;
+        }
+        
+        .empty-state-icon {
+            font-size: 48px;
+            color: #cbd5e1;
+            margin-bottom: 16px;
+        }
+        
+        .empty-state-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state-description {
+            color: #64748b;
+            max-width: 400px;
+            margin: 0 auto 24px;
+        }
+        
+        .empty-state-action {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 500;
+        }
+        
+        .hero-section {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            border-radius: 20px;
+            padding: 30px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(100px, -100px);
+        }
+        
+        .hero-section::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50px, 50px);
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .hero-title {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 12px;
+        }
+        
+        .hero-description {
+            font-size: 16px;
+            opacity: 0.9;
+            max-width: 600px;
+            margin-bottom: 24px;
+        }
+        
+        .hero-stats {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .hero-stat {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            padding: 16px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .hero-stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+        
+        .hero-stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .top-bar {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 12px 16px;
+            }
+            
+            .top-bar .flex.items-center {
+                margin-bottom: 12px;
+                width: 100%;
+            }
+            
+            .top-bar h1 {
+                font-size: 1.5rem;
+            }
+            
+            .user-profile {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .hero-section {
+                padding: 20px;
+            }
+            
+            .hero-title {
+                font-size: 1.5rem;
+            }
+            
+            .hero-stats {
+                flex-wrap: wrap;
+                gap: 10px;
+            }
+            
+            .hero-stat {
+                min-width: 100px;
+                padding: 12px;
+            }
+            
+            .profile-pic, .profile-icon {
+                width: 80px;
+                height: 80px;
+                font-size: 32px;
+            }
+            
+            .campaign-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .dashboard-card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .dashboard-card-action {
+                margin-top: 10px;
+            }
+            
+            .tabs {
+                overflow-x: auto;
+                white-space: nowrap;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .tab {
+                display: inline-block;
+                padding: 8px 12px;
+            }
+        }
+        
+        /* Niche selection styles */
+        .niche-selection {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 8px;
+        }
+        
+        .niche-option {
+            position: relative;
+        }
+        
+        .niche-option input[type="checkbox"] {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .niche-option label {
+            display: block;
+            padding: 10px 15px;
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+        
+        .niche-option input[type="checkbox"]:checked + label {
+            background: rgba(44, 94, 122, 0.1);
+            border-color: var(--dark-azure);
+            color: var(--dark-azure);
+            font-weight: 500;
+        }
+        
+        .niche-count {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Content -->
+    <div class="min-h-screen">
+        <!-- Top Bar -->
+        <div class="top-bar mb-6">
+            <div class="flex items-center">
+                <div class="flex items-center mr-8">
+                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                    <span class="text-xl font-bold text-gray-800">LiveX</span>
+                </div>
+                <h1 class="text-2xl font-bold text-gray-800">Brand Dashboard</h1>
+            </div>
+            
+            <div class="flex items-center">
+                <div class="user-profile">
+                    <div id="brandLogoIcon" class="user-icon">
+                        <i class="fas fa-shop"></i>
+                    </div>
+                    <img id="brandLogo" src="" alt="Brand Logo" class="user-avatar hidden">
+                    <div>
+                        <div class="font-medium" id="brandNameHeader">Brand Name</div>
+                        <div class="text-sm text-gray-500">Brand Account</div>
+                    </div>
+                </div>
+                <a href="login.html" class="ml-6 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </a>
+            </div>
+        </div>
+        
+        <!-- Main Content Area -->
+        <div class="p-6">
+            <!-- Hero Section -->
+            <div class="hero-section">
+                <div class="hero-content">
+                    <div class="flex flex-col md:flex-row items-start">
+                        <div class="mr-6 relative mb-4 md:mb-0">
+                            <div id="brandProfileIcon" class="profile-icon">
+                                <i class="fas fa-shop"></i>
+                            </div>
+                            <img id="brandProfilePic" src="" alt="Brand Logo" class="profile-pic hidden">
+                            <div class="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg">
+                                <label for="logoUpload" class="cursor-pointer" style="color: var(--dark-azure);">
+                                    <i class="fas fa-camera text-sm"></i>
+                                </label>
+                                <input type="file" id="logoUpload" class="hidden" accept="image/*">
+                            </div>
+                        </div>
+                        <div class="flex-grow">
+                            <h2 class="hero-title" id="brandProfileName">Brand Name</h2>
+                            <p class="hero-description" id="brandDescription">Brand description goes here. This is a brief overview of what the brand does and its target audience.</p>
+                            <div class="hero-stats">
+                                <div class="hero-stat">
+                                    <div class="hero-stat-value" id="activeCampaignsCount">0</div>
+                                    <div class="hero-stat-label">Active Campaigns</div>
+                                </div>
+                                <div class="hero-stat">
+                                    <div class="hero-stat-value" id="pendingCampaignsCount">0</div>
+                                    <div class="hero-stat-label">Pending Campaigns</div>
+                                </div>
+                                <div class="hero-stat">
+                                    <div class="hero-stat-value" id="completedCampaignsCount">0</div>
+                                    <div class="hero-stat-label">Completed Campaigns</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="stat-card">
+                    <div class="stat-card-icon primary">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <div class="stat-card-value" id="totalCampaignsCount">0</div>
+                    <div class="stat-card-label">Total Campaigns</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-card-icon secondary">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-card-value" id="totalInfluencersCount">0</div>
+                    <div class="stat-card-label">Total Influencers</div>
+                </div>
+            </div>
+            
+            <!-- Campaign Actions -->
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h2 class="dashboard-card-title">Your Campaigns</h2>
+                    <button id="createCampaignBtn" class="dashboard-card-action">
+                        Create New Campaign <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+                
+                <!-- Campaign Tabs -->
+                <div class="flex border-b border-gray-200 mb-6 tabs">
+                    <div class="tab active" data-tab="active">Active Campaigns</div>
+                    <div class="tab" data-tab="pending">Pending Campaigns</div>
+                    <div class="tab" data-tab="completed">Completed Campaigns</div>
+                </div>
+                
+                <!-- Campaigns List -->
+                <div id="activeCampaigns" class="tab-content">
+                    <div class="campaign-grid">
+                        <!-- Campaign cards will be inserted here -->
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-bullhorn"></i>
+                            </div>
+                            <h3 class="empty-state-title">No active campaigns yet</h3>
+                            <p class="empty-state-description">Create your first campaign to start collaborating with influencers and grow your brand.</p>
+                            <button class="empty-state-action btn-primary">Create Campaign</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="pendingCampaigns" class="tab-content hidden">
+                    <div class="campaign-grid">
+                        <!-- Pending campaign cards will be inserted here -->
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h3 class="empty-state-title">No pending campaigns yet</h3>
+                            <p class="empty-state-description">Pending campaigns will appear here while waiting for admin approval.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="completedCampaigns" class="tab-content hidden">
+                    <div class="campaign-grid">
+                        <!-- Completed campaign cards will be inserted here -->
+                        <div class="empty-state">
+                            <div class="empty-state-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 class="empty-state-title">No completed campaigns yet</h3>
+                            <p class="empty-state-description">Completed campaigns will appear here once they're finished.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Create Campaign Modal -->
+    <div id="createCampaignModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-800">Create New Campaign</h3>
+                    <p class="text-gray-600 text-sm mt-1">Fill in the details to launch your influencer campaign</p>
+                </div>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 shadow-sm">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <form id="campaignForm" class="p-6">
+                <!-- Step Indicator -->
+                <div class="step-indicator">
+                    <div class="step active" data-step="1">
+                        <div class="step-number">1</div>
+                        <div class="step-label">Details</div>
+                    </div>
+                    <div class="step" data-step="2">
+                        <div class="step-number">2</div>
+                        <div class="step-label">Requirements</div>
+                    </div>
+                    <div class="step" data-step="3">
+                        <div class="step-number">3</div>
+                        <div class="step-label">Tier & Payment</div>
+                    </div>
+                </div>
+                
+                <!-- Step 1: Campaign Details -->
+                <div class="step-content active" data-step="1">
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">Campaign Details</h4>
+                        
+                        <div class="form-group">
+                            <label for="campaignName">Campaign Name</label>
+                            <input type="text" id="campaignName" placeholder="Enter a catchy name for your campaign" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="campaignDescription">Campaign Description</label>
+                            <textarea id="campaignDescription" rows="4" placeholder="Describe what this campaign is about and what influencers will do" required></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Campaign Niches (select up to 3)</label>
+                            <div class="niche-selection">
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-beauty" name="niche" value="beauty">
+                                    <label for="niche-beauty">Beauty</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-fashion" name="niche" value="fashion">
+                                    <label for="niche-fashion">Fashion</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-fitness" name="niche" value="fitness">
+                                    <label for="niche-fitness">Fitness</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-travel" name="niche" value="travel">
+                                    <label for="niche-travel">Travel</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-food" name="niche" value="food">
+                                    <label for="niche-food">Food</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-tech" name="niche" value="tech">
+                                    <label for="niche-tech">Tech</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-lifestyle" name="niche" value="lifestyle">
+                                    <label for="niche-lifestyle">Lifestyle</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-gaming" name="niche" value="gaming">
+                                    <label for="niche-gaming">Gaming</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-parenting" name="niche" value="parenting">
+                                    <label for="niche-parenting">Parenting</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-business" name="niche" value="business">
+                                    <label for="niche-business">Business</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-music" name="niche" value="music">
+                                    <label for="niche-music">Music</label>
+                                </div>
+                                <div class="niche-option">
+                                    <input type="checkbox" id="niche-art" name="niche" value="art">
+                                    <label for="niche-art">Art</label>
+                                </div>
+                            </div>
+                            <div class="niche-count">Selected: <span id="nicheCount">0</span>/3</div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="campaignGoal">Campaign Goal</label>
+                            <select id="campaignGoal" required>
+                                <option value="">Select a goal</option>
+                                <option value="visibility">Brand Visibility</option>
+                                <option value="loyalty">Brand Loyalty</option>
+                                <option value="sales">Sales</option>
+                                <option value="launch">Product Launch</option>
+                                <option value="event">Event Promotion</option>
+                                <option value="content">Content Creation</option>
+                                <option value="awareness">Awareness</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <div></div> <!-- Empty div for spacing -->
+                        <button type="button" class="btn-primary px-5 py-2.5 rounded-xl next-step" data-next="2">
+                            Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 2: Requirements -->
+                <div class="step-content hidden" data-step="2">
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">Influencer Requirements</h4>
+                        <p class="text-gray-600 mb-4 text-sm">Specify what you need from influencers (max 5 requirements)</p>
+                        <div id="requirementsList">
+                            <div class="requirement-item">
+                                <input type="text" placeholder="Enter requirement" class="requirement-input">
+                                <button type="button" class="remove-requirement"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                        <button type="button" id="addRequirementBtn" class="add-requirement">
+                            <i class="fas fa-plus mr-2"></i> Add Requirement
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">Optional Elements</h4>
+                        
+                        <div class="form-group">
+                            <label for="hashtags">Hashtags (comma separated)</label>
+                            <input type="text" id="hashtags" placeholder="#brand, #campaign, #product">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="tagAccounts">Accounts to Tag (comma separated)</label>
+                            <input type="text" id="tagAccounts" placeholder="@brand, @product">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="campaignImages">Campaign Images (max 7)</label>
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-4 text-center">
+                                <i class="fas fa-cloud-upload-alt text-gray-400 text-2xl mb-2"></i>
+                                <p class="text-gray-500 mb-2">Drag & drop images here or click to browse</p>
+                                <input type="file" id="campaignImages" accept="image/*" multiple class="hidden">
+                                <label for="campaignImages" class="btn-secondary px-4 py-2 rounded-lg inline-block cursor-pointer">Select Images</label>
+                            </div>
+                            <div id="imagePreview" class="image-preview"></div>
+                            <p class="text-sm text-gray-500 mt-2">These images will be available for influencers to download and use in their posts</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button type="button" class="px-5 py-2.5 border border-gray-300 rounded-xl mr-3 prev-step" data-prev="1">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="button" class="btn-primary px-5 py-2.5 rounded-xl next-step" data-next="3">
+                            Next <i class="fas fa-arrow-right ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Step 3: Tier and Payment -->
+                <div class="step-content hidden" data-step="3">
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">Select Influencer Tier</h4>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                            <div class="tier-card" data-tier="nano">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">Nano Influencer</h5>
+                                        <p class="text-sm text-gray-600">1K-10K followers</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">Ksh 50,000</div>
+                                        <div class="text-sm text-gray-600">for 10 influencers</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tier-card" data-tier="micro">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">Micro Influencer</h5>
+                                        <p class="text-sm text-gray-600">10K-100K followers</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">Ksh 100,000</div>
+                                        <div class="text-sm text-gray-600">for 10 influencers</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tier-card" data-tier="macro">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">Macro Influencer</h5>
+                                        <p class="text-sm text-gray-600">100K-500K followers</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">Ksh 250,000</div>
+                                        <div class="text-sm text-gray-600">for 10 influencers</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="tier-card" data-tier="mega">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h5 class="font-medium text-gray-800">Mega Influencer</h5>
+                                        <p class="text-sm text-gray-600">500K+ followers</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="font-medium">Contact Sales</div>
+                                        <div class="text-sm text-gray-600">hello@livexafrica.co</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="influencerCount">Number of Influencers</label>
+                            <input type="number" id="influencerCount" min="1" max="100" value="10" class="w-32">
+                            <div id="totalCost" class="mt-3 p-3 bg-blue-50 rounded-xl font-medium text-lg">Total: Ksh 0</div>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-800 mb-4">Payment Method</h4>
+                        
+                        <div class="payment-option" data-payment="mpesa">
+                            <div class="flex items-center">
+                                <div class="h-6 w-6 rounded-full border-2 border-gray-300 mr-4 flex-shrink-0 flex items-center justify-center">
+                                    <div class="h-3 w-3 rounded-full bg-blue-500 hidden"></div>
+                                </div>
+                                <div class="flex-grow">
+                                    <h5 class="font-medium">M-Pesa</h5>
+                                    <p class="text-sm text-gray-600">Pay via M-Pesa</p>
+                                </div>
+                                <i class="fas fa-mobile-alt text-gray-400 text-xl"></i>
+                            </div>
+                        </div>
+                        
+                        <div class="payment-option" data-payment="bank">
+                            <div class="flex items-center">
+                                <div class="h-6 w-6 rounded-full border-2 border-gray-300 mr-4 flex-shrink-0 flex items-center justify-center">
+                                    <div class="h-3 w-3 rounded-full bg-blue-500 hidden"></div>
+                                </div>
+                                <div class="flex-grow">
+                                    <h5 class="font-medium">Bank Transfer</h5>
+                                    <p class="text-sm text-gray-600">Pay via bank transfer</p>
+                                </div>
+                                <i class="fas fa-university text-gray-400 text-xl"></i>
+                            </div>
+                        </div>
+                        
+                        <div id="paymentDetails" class="mt-4 p-4 bg-gray-50 rounded-xl hidden">
+                            <!-- Payment details will be shown here -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex justify-between">
+                        <button type="button" class="px-5 py-2.5 border border-gray-300 rounded-xl mr-3 prev-step" data-prev="2">
+                            <i class="fas fa-arrow-left mr-2"></i> Back
+                        </button>
+                        <button type="submit" class="btn-primary px-5 py-2.5 rounded-xl">
+                            Create Campaign <i class="fas fa-rocket ml-2"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Campaign Analytics Modal -->
+    <div id="analyticsModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800">Campaign Analytics</h3>
+                <button id="closeAnalyticsBtn" class="text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 shadow-sm">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <h4 class="text-lg font-medium text-gray-800 mb-4" id="analyticsCampaignName">Campaign Name</h4>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between mb-2">
+                        <span class="text-gray-700">Progress</span>
+                        <span class="font-medium" id="progressText">0/0 influencers</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                </div>
+                
+                <div class="mb-6">
+                    <h5 class="font-medium text-gray-800 mb-3">Influencers</h5>
+                    <div id="influencersList">
+                        <!-- Influencer cards will be inserted here -->
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-user-friends text-4xl mb-3 opacity-30"></i>
+                            <p>No influencers have joined this campaign yet</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-blue-50 p-4 rounded-xl border border-blue-100">
+                        <div class="text-2xl font-bold text-blue-600" id="activeInfluencersCount">0</div>
+                        <div class="text-sm text-blue-700">Active Influencers</div>
+                    </div>
+                    <div class="bg-green-50 p-4 rounded-xl border border-green-100">
+                        <div class="text-2xl font-bold text-green-600" id="completedInfluencersCount">0</div>
+                        <div class="text-sm text-green-700">Completed Influencers</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+        
+        // DOM Elements
+        const createCampaignBtn = document.getElementById('createCampaignBtn');
+        const createCampaignModal = document.getElementById('createCampaignModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const campaignForm = document.getElementById('campaignForm');
+        const analyticsModal = document.getElementById('analyticsModal');
+        const closeAnalyticsBtn = document.getElementById('closeAnalyticsBtn');
+        const logoUpload = document.getElementById('logoUpload');
+        const campaignImages = document.getElementById('campaignImages');
+        const imagePreview = document.getElementById('imagePreview');
+        
+        // Tabs
+        const tabs = document.querySelectorAll('.tab');
+        const activeCampaigns = document.getElementById('activeCampaigns');
+        const pendingCampaigns = document.getElementById('pendingCampaigns');
+        const completedCampaigns = document.getElementById('completedCampaigns');
+        
+        // Form elements
+        const addRequirementBtn = document.getElementById('addRequirementBtn');
+        const requirementsList = document.getElementById('requirementsList');
+        const tierCards = document.querySelectorAll('.tier-card');
+        const influencerCount = document.getElementById('influencerCount');
+        const totalCost = document.getElementById('totalCost');
+        const paymentOptions = document.querySelectorAll('.payment-option');
+        const paymentDetails = document.getElementById('paymentDetails');
+        const stepContents = document.querySelectorAll('.step-content');
+        const steps = document.querySelectorAll('.step');
+        const nextStepBtns = document.querySelectorAll('.next-step');
+        const prevStepBtns = document.querySelectorAll('.prev-step');
+        
+        // Niche selection elements
+        const nicheCheckboxes = document.querySelectorAll('input[name="niche"]');
+        const nicheCount = document.getElementById('nicheCount');
+        
+        // Campaign data
+        let selectedTier = '';
+        let requirements = [];
+        let currentBrand = null;
+        let campaigns = [];
+        let campaignImageFiles = [];
+        let campaignImageUrls = [];
+        let currentStep = 1;
+        let selectedPaymentMethod = '';
+        let selectedNiches = [];
+        
+        // Payment details
+        const paymentMethods = {
+            mpesa: {
+                title: 'M-Pesa Payment',
+                details: `
+                    <p class="font-medium">Paybill Number: <span class="text-indigo-600">123456</span></p>
+                    <p class="font-medium">Account Number: <span class="text-indigo-600">Your Email</span></p>
+                    <p class="text-sm text-gray-600 mt-2">Enter the total amount shown above and complete the payment.</p>
+                `
+            },
+            bank: {
+                title: 'Bank Transfer',
+                details: `
+                    <p class="font-medium">Bank: <span class="text-indigo-600">Equity Bank</span></p>
+                    <p class="font-medium">Account Name: <span class="text-indigo-600">LiveX Africa Ltd</span></p>
+                    <p class="font-medium">Account Number: <span class="text-indigo-600">0123456789</span></p>
+                    <p class="text-sm text-gray-600 mt-2">Use your email as the payment reference.</p>
+                `
+            }
+        };
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    console.log("User is authenticated:", user.uid);
+                    loadBrandData(user.uid);
+                    loadCampaigns(user.uid);
+                } else {
+                    // Redirect to login if not authenticated
+                    console.log("User is not authenticated, redirecting to login");
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Event listeners
+            createCampaignBtn.addEventListener('click', () => {
+                createCampaignModal.classList.add('active');
+                resetForm();
+            });
+            
+            closeModalBtn.addEventListener('click', () => {
+                createCampaignModal.classList.remove('active');
+            });
+            
+            closeAnalyticsBtn.addEventListener('click', () => {
+                analyticsModal.classList.remove('active');
+            });
+            
+            // Logo upload
+            logoUpload.addEventListener('change', handleLogoUpload);
+            
+            // Campaign images upload
+            campaignImages.addEventListener('change', handleCampaignImagesUpload);
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    if (tab.dataset.tab === 'active') {
+                        activeCampaigns.classList.remove('hidden');
+                        pendingCampaigns.classList.add('hidden');
+                        completedCampaigns.classList.add('hidden');
+                    } else if (tab.dataset.tab === 'pending') {
+                        activeCampaigns.classList.add('hidden');
+                        pendingCampaigns.classList.remove('hidden');
+                        completedCampaigns.classList.add('hidden');
+                    } else {
+                        activeCampaigns.classList.add('hidden');
+                        pendingCampaigns.classList.add('hidden');
+                        completedCampaigns.classList.remove('hidden');
+                    }
+                });
+            });
+            
+            // Add requirement
+            addRequirementBtn.addEventListener('click', () => {
+                if (requirementsList.children.length < 5) {
+                    const requirementItem = document.createElement('div');
+                    requirementItem.className = 'requirement-item';
+                    requirementItem.innerHTML = `
+                        <input type="text" placeholder="Enter requirement" class="requirement-input">
+                        <button type="button" class="remove-requirement"><i class="fas fa-trash"></i></button>
+                    `;
+                    requirementsList.appendChild(requirementItem);
+                    
+                    // Add event listener to remove button
+                    requirementItem.querySelector('.remove-requirement').addEventListener('click', () => {
+                        requirementItem.remove();
+                    });
+                } else {
+                    alert('Maximum 5 requirements allowed');
+                }
+            });
+            
+            // Niche selection
+            nicheCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', () => {
+                    if (checkbox.checked) {
+                        if (selectedNiches.length >= 3) {
+                            checkbox.checked = false;
+                            alert('You can select a maximum of 3 niches');
+                            return;
+                        }
+                        selectedNiches.push(checkbox.value);
+                    } else {
+                        selectedNiches = selectedNiches.filter(niche => niche !== checkbox.value);
+                    }
+                    nicheCount.textContent = selectedNiches.length;
+                });
+            });
+            
+            // Tier selection
+            tierCards.forEach(card => {
+                card.addEventListener('click', () => {
+                    if (card.dataset.tier === 'mega') {
+                        alert('For Mega influencer campaigns, please contact our sales team at hello@livexafrica.co');
+                        return;
+                    }
+                    
+                    tierCards.forEach(c => {
+                        c.classList.remove('selected');
+                        c.querySelector('h5').classList.remove('text-blue-600');
+                    });
+                    card.classList.add('selected');
+                    card.querySelector('h5').classList.add('text-blue-600');
+                    selectedTier = card.dataset.tier;
+                    updateTotalCost();
+                });
+            });
+            
+            // Influencer count change
+            influencerCount.addEventListener('input', updateTotalCost);
+            
+            // Payment method selection
+            paymentOptions.forEach(option => {
+                option.addEventListener('click', () => {
+                    paymentOptions.forEach(opt => {
+                        opt.classList.remove('selected');
+                        opt.querySelector('.h-3').classList.add('hidden');
+                    });
+                    option.classList.add('selected');
+                    option.querySelector('.h-3').classList.remove('hidden');
+                    
+                    selectedPaymentMethod = option.dataset.payment;
+                    paymentDetails.innerHTML = `
+                        <h5 class="font-medium text-gray-800 mb-2">${paymentMethods[selectedPaymentMethod].title}</h5>
+                        ${paymentMethods[selectedPaymentMethod].details}
+                    `;
+                    paymentDetails.classList.remove('hidden');
+                });
+            });
+            
+            // Step navigation
+            nextStepBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const nextStep = parseInt(btn.dataset.next);
+                    
+                    // Validate niches before moving to next step
+                    if (nextStep === 2 && selectedNiches.length === 0) {
+                        alert('Please select at least one niche');
+                        return;
+                    }
+                    
+                    goToStep(nextStep);
+                });
+            });
+            
+            prevStepBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const prevStep = parseInt(btn.dataset.prev);
+                    goToStep(prevStep);
+                });
+            });
+            
+            // Form submission
+            campaignForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                if (!selectedTier) {
+                    alert('Please select an influencer tier');
+                    return;
+                }
+                
+                if (selectedTier === 'mega') {
+                    alert('For Mega influencer campaigns, please contact our sales team at hello@livexafrica.co');
+                    return;
+                }
+                
+                if (!selectedPaymentMethod) {
+                    alert('Please select a payment method');
+                    return;
+                }
+                
+                // Get requirements
+                requirements = [];
+                document.querySelectorAll('.requirement-input').forEach(input => {
+                    if (input.value.trim() !== '') {
+                        requirements.push(input.value.trim());
+                    }
+                });
+                
+                if (requirements.length === 0) {
+                    alert('Please add at least one requirement');
+                    return;
+                }
+                
+                // Disable submit button
+                const submitBtn = campaignForm.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Campaign...';
+                
+                try {
+                    // Upload campaign images if any
+                    if (campaignImageFiles.length > 0) {
+                        for (let i = 0; i < campaignImageFiles.length; i++) {
+                            const file = campaignImageFiles[i];
+                            const fileName = `campaigns/${Date.now()}_${file.name}`;
+                            const storageRef = storage.ref(fileName);
+                            await storageRef.put(file);
+                            const downloadURL = await storageRef.getDownloadURL();
+                            campaignImageUrls.push(downloadURL);
+                        }
+                    }
+                    
+                    // Create campaign
+                    const campaignData = {
+                        name: document.getElementById('campaignName').value,
+                        description: document.getElementById('campaignDescription').value,
+                        niches: selectedNiches,
+                        goal: document.getElementById('campaignGoal').value,
+                        requirements: requirements,
+                        hashtags: document.getElementById('hashtags').value,
+                        tagAccounts: document.getElementById('tagAccounts').value,
+                        imageUrls: campaignImageUrls,
+                        tier: selectedTier,
+                        influencerCount: parseInt(influencerCount.value),
+                        totalCost: calculateTotalCost(),
+                        paymentMethod: selectedPaymentMethod,
+                        brandId: currentBrand.id,
+                        brandName: currentBrand.brandName,
+                        status: 'pending', // Changed to pending
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        influencers: [],
+                        completedInfluencers: 0
+                    };
+                    
+                    // Add campaign to Firestore
+                    const docRef = await db.collection('campaigns').add(campaignData);
+                    
+                    // Close modal and refresh campaigns
+                    createCampaignModal.classList.remove('active');
+                    loadCampaigns(currentBrand.id);
+                    
+                    alert('Campaign submitted successfully! It is now pending admin approval.');
+                    
+                } catch (error) {
+                    console.error('Error creating campaign:', error);
+                    alert('Error creating campaign: ' + error.message);
+                } finally {
+                    // Re-enable submit button
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = 'Create Campaign <i class="fas fa-rocket ml-2"></i>';
+                }
+            });
+        });
+        
+        // Handle logo upload
+        async function handleLogoUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            try {
+                // Show loading state
+                const profilePic = document.getElementById('brandProfilePic');
+                const brandLogo = document.getElementById('brandLogo');
+                const profileIcon = document.getElementById('brandProfileIcon');
+                const brandIcon = document.getElementById('brandLogoIcon');
+                
+                profileIcon.style.opacity = '0.5';
+                brandIcon.style.opacity = '0.5';
+                
+                // Upload to Firebase Storage
+                const fileName = `brands/${currentBrand.id}/logo`;
+                const storageRef = storage.ref(fileName);
+                await storageRef.put(file);
+                
+                // Get download URL
+                const downloadURL = await storageRef.getDownloadURL();
+                
+                // Update brand document in Firestore
+                await db.collection('brands').doc(currentBrand.id).update({
+                    logoUrl: downloadURL
+                });
+                
+                // Update UI
+                profilePic.src = downloadURL;
+                brandLogo.src = downloadURL;
+                profilePic.classList.remove('hidden');
+                brandLogo.classList.remove('hidden');
+                profileIcon.classList.add('hidden');
+                brandIcon.classList.add('hidden');
+                
+                // Update current brand data
+                currentBrand.logoUrl = downloadURL;
+                
+                alert('Logo updated successfully!');
+                
+            } catch (error) {
+                console.error('Error uploading logo:', error);
+                alert('Error uploading logo: ' + error.message);
+                
+                // Reset opacity
+                const profileIcon = document.getElementById('brandProfileIcon');
+                const brandIcon = document.getElementById('brandLogoIcon');
+                profileIcon.style.opacity = '1';
+                brandIcon.style.opacity = '1';
+            }
+        }
+        
+        // Handle campaign images upload
+        function handleCampaignImagesUpload(e) {
+            const files = e.target.files;
+            
+            // Clear previous previews
+            imagePreview.innerHTML = '';
+            campaignImageFiles = [];
+            campaignImageUrls = [];
+            
+            // Check if more than 7 files
+            if (files.length > 7) {
+                alert('You can upload a maximum of 7 images');
+                e.target.value = '';
+                return;
+            }
+            
+            // Show preview for each file
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                campaignImageFiles.push(file);
+                
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const imagePreviewItem = document.createElement('div');
+                    imagePreviewItem.className = 'image-preview-item';
+                    imagePreviewItem.innerHTML = `
+                        <img src="${event.target.result}" alt="Preview">
+                        <button type="button" class="remove-image" data-index="${i}">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    imagePreview.appendChild(imagePreviewItem);
+                    
+                    // Add event listener to remove button
+                    imagePreviewItem.querySelector('.remove-image').addEventListener('click', function() {
+                        const index = parseInt(this.dataset.index);
+                        campaignImageFiles.splice(index, 1);
+                        imagePreviewItem.remove();
+                        
+                        // Update indices
+                        const removeButtons = imagePreview.querySelectorAll('.remove-image');
+                        removeButtons.forEach((btn, idx) => {
+                            btn.dataset.index = idx;
+                        });
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+        
+        // Load brand data
+        async function loadBrandData(userId) {
+            try {
+                console.log("Loading brand data for user ID:", userId);
+                const doc = await db.collection('brands').doc(userId).get();
+                console.log("Document exists:", doc.exists);
+                
+                if (doc.exists) {
+                    const data = doc.data();
+                    console.log("Brand data:", data);
+                    
+                    currentBrand = { id: doc.id, ...data };
+                    
+                    // Update UI - only update the elements that exist
+                    document.getElementById('brandNameHeader').textContent = currentBrand.brandName || 'Brand Name';
+                    document.getElementById('brandProfileName').textContent = currentBrand.brandName || 'Brand Name';
+                    document.getElementById('brandDescription').textContent = currentBrand.description || 'Brand description goes here.';
+                    
+                    // Set profile picture if available
+                    if (currentBrand.logoUrl) {
+                        document.getElementById('brandLogo').src = currentBrand.logoUrl;
+                        document.getElementById('brandProfilePic').src = currentBrand.logoUrl;
+                        document.getElementById('brandLogo').classList.remove('hidden');
+                        document.getElementById('brandProfilePic').classList.remove('hidden');
+                        document.getElementById('brandLogoIcon').classList.add('hidden');
+                        document.getElementById('brandProfileIcon').classList.add('hidden');
+                    }
+                } else {
+                    console.log("No brand document found for user ID:", userId);
+                }
+            } catch (error) {
+                console.error('Error loading brand data:', error);
+            }
+        }
+        
+        // Load campaigns - FIXED VERSION without complex query
+        async function loadCampaigns(brandId) {
+            try {
+                // Simple query without ordering to avoid index issues
+                const snapshot = await db.collection('campaigns')
+                    .where('brandId', '==', brandId)
+                    .get();
+                
+                campaigns = [];
+                snapshot.forEach(doc => {
+                    campaigns.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Sort locally by creation date
+                campaigns.sort((a, b) => {
+                    const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                    const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                    return dateB - dateA;
+                });
+                
+                // Update UI
+                renderCampaigns();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+                // Fallback: try to load without any filters
+                try {
+                    const snapshot = await db.collection('campaigns').get();
+                    campaigns = [];
+                    snapshot.forEach(doc => {
+                        const data = doc.data();
+                        if (data.brandId === brandId) {
+                            campaigns.push({ id: doc.id, ...data });
+                        }
+                    });
+                    
+                    // Sort locally
+                    campaigns.sort((a, b) => {
+                        const dateA = a.createdAt ? a.createdAt.toDate() : new Date(0);
+                        const dateB = b.createdAt ? b.createdAt.toDate() : new Date(0);
+                        return dateB - dateA;
+                    });
+                    
+                    renderCampaigns();
+                    updateStats();
+                } catch (fallbackError) {
+                    console.error('Fallback error loading campaigns:', fallbackError);
+                }
+            }
+        }
+        
+        // Render campaigns
+        function renderCampaigns() {
+            const activeContainer = activeCampaigns.querySelector('.campaign-grid');
+            const pendingContainer = pendingCampaigns.querySelector('.campaign-grid');
+            const completedContainer = completedCampaigns.querySelector('.campaign-grid');
+            
+            // Clear existing content
+            activeContainer.innerHTML = '';
+            pendingContainer.innerHTML = '';
+            completedContainer.innerHTML = '';
+            
+            const activeCampaignsList = campaigns.filter(c => c.status === 'active');
+            const pendingCampaignsList = campaigns.filter(c => c.status === 'pending');
+            const completedCampaignsList = campaigns.filter(c => c.status === 'completed');
+            
+            if (activeCampaignsList.length === 0) {
+                activeContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h3 class="empty-state-title">No active campaigns yet</h3>
+                        <p class="empty-state-description">Create your first campaign to start collaborating with influencers and grow your brand.</p>
+                        <button class="empty-state-action btn-primary">Create Campaign</button>
+                    </div>
+                `;
+            } else {
+                activeCampaignsList.forEach(campaign => {
+                    activeContainer.appendChild(createCampaignCard(campaign));
+                });
+            }
+            
+            if (pendingCampaignsList.length === 0) {
+                pendingContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h3 class="empty-state-title">No pending campaigns yet</h3>
+                        <p class="empty-state-description">Pending campaigns will appear here while waiting for admin approval.</p>
+                    </div>
+                `;
+            } else {
+                pendingCampaignsList.forEach(campaign => {
+                    pendingContainer.appendChild(createCampaignCard(campaign, false, true));
+                });
+            }
+            
+            if (completedCampaignsList.length === 0) {
+                completedContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <h3 class="empty-state-title">No completed campaigns yet</h3>
+                        <p class="empty-state-description">Completed campaigns will appear here once they're finished.</p>
+                    </div>
+                `;
+            } else {
+                completedCampaignsList.forEach(campaign => {
+                    completedContainer.appendChild(createCampaignCard(campaign, true));
+                });
+            }
+        }
+        
+        // Create campaign card
+        function createCampaignCard(campaign, isCompleted = false, isPending = false) {
+            const card = document.createElement('div');
+            
+            let statusText = '';
+            let statusClass = '';
+            
+            if (isPending) {
+                statusText = 'Pending';
+                statusClass = 'status-pending';
+                card.className = 'campaign-card-new pending';
+            } else if (isCompleted) {
+                statusText = 'Completed';
+                statusClass = 'status-completed';
+                card.className = 'campaign-card-new completed';
+            } else {
+                statusText = 'Active';
+                statusClass = 'status-active';
+                card.className = 'campaign-card-new';
+            }
+            
+            const progressPercent = (campaign.influencers.length / campaign.influencerCount) * 100;
+            
+            // Display niches
+            const nichesText = campaign.niches ? campaign.niches.join(', ') : campaign.niche || '';
+            
+            card.innerHTML = `
+                <div class="campaign-card-new-header">
+                    <h3 class="campaign-card-new-title">${campaign.name}</h3>
+                    <span class="campaign-card-new-status ${statusClass}">${statusText}</span>
+                </div>
+                <p class="campaign-card-new-description">${campaign.description}</p>
+                <div class="campaign-card-new-progress">
+                    <div class="campaign-card-new-progress-label">
+                        <span>Progress</span>
+                        <span>${campaign.influencers.length}/${campaign.influencerCount} influencers</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${progressPercent}%"></div>
+                    </div>
+                </div>
+                <div class="campaign-card-new-meta">
+                    <div class="campaign-card-new-meta-item">
+                        <span class="campaign-card-new-meta-label">Tier</span>
+                        <span class="campaign-card-new-meta-value capitalize">${campaign.tier}</span>
+                    </div>
+                    <div class="campaign-card-new-meta-item">
+                        <span class="campaign-card-new-meta-label">Niches</span>
+                        <span class="campaign-card-new-meta-value capitalize">${nichesText}</span>
+                    </div>
+                </div>
+                <button class="campaign-card-new-action btn-secondary view-analytics-btn" data-campaign-id="${campaign.id}">
+                    <i class="fas fa-chart-bar mr-2"></i>View Analytics
+                </button>
+            `;
+            
+            // Add event listener to analytics button
+            card.querySelector('.view-analytics-btn').addEventListener('click', (e) => {
+                e.stopPropagation();
+                showCampaignAnalytics(campaign);
+            });
+            
+            // Add event listener to card for analytics
+            card.addEventListener('click', () => {
+                showCampaignAnalytics(campaign);
+            });
+            
+            return card;
+        }
+        
+        // Show campaign analytics
+        async function showCampaignAnalytics(campaign) {
+            try {
+                // Set campaign name
+                document.getElementById('analyticsCampaignName').textContent = campaign.name;
+                
+                // Update progress
+                const progressPercent = (campaign.influencers.length / campaign.influencerCount) * 100;
+                document.getElementById('progressFill').style.width = `${progressPercent}%`;
+                document.getElementById('progressText').textContent = `${campaign.influencers.length}/${campaign.influencerCount} influencers`;
+                
+                // Load influencers for this campaign
+                const influencersList = document.getElementById('influencersList');
+                influencersList.innerHTML = '';
+                
+                if (campaign.influencers.length === 0) {
+                    influencersList.innerHTML = `
+                        <div class="text-center py-8 text-gray-500">
+                            <i class="fas fa-user-friends text-4xl mb-3 opacity-30"></i>
+                            <p>No influencers have joined this campaign yet</p>
+                        </div>
+                    `;
+                } else {
+                    // Load influencer details
+                    const activeCount = { value: 0 };
+                    const completedCount = { value: 0 };
+                    
+                    for (const influencerId of campaign.influencers) {
+                        const influencerDoc = await db.collection('influencers').doc(influencerId).get();
+                        if (influencerDoc.exists) {
+                            const influencer = influencerDoc.data();
+                            
+                            // Check if influencer has completed the campaign
+                            const isInfluencerCompleted = campaign.completedInfluencers > 0 && 
+                                campaign.influencers.indexOf(influencerId) < campaign.completedInfluencers;
+                            
+                            if (isInfluencerCompleted) {
+                                completedCount.value++;
+                            } else {
+                                activeCount.value++;
+                            }
+                            
+                            const influencerCard = document.createElement('div');
+                            influencerCard.className = 'influencer-card';
+                            influencerCard.innerHTML = `
+                                <img src="${influencer.profilePicUrl || 'https://picsum.photos/seed/influencer/50/50.jpg'}" alt="${influencer.name}" class="influencer-avatar">
+                                <div class="flex-grow">
+                                    <h5 class="font-medium">${influencer.name}</h5>
+                                    <p class="text-sm text-gray-600">${influencer.totalFollowers?.toLocaleString() || 0} followers</p>
+                                </div>
+                                <div>
+                                    <span class="status-badge ${isInfluencerCompleted ? 'status-completed' : 'status-active'}">
+                                        ${isInfluencerCompleted ? 'Completed' : 'Active'}
+                                    </span>
+                                </div>
+                            `;
+                            
+                            influencersList.appendChild(influencerCard);
+                        }
+                    }
+                    
+                    // Update counts
+                    document.getElementById('activeInfluencersCount').textContent = activeCount.value;
+                    document.getElementById('completedInfluencersCount').textContent = completedCount.value;
+                }
+                
+                // Show modal
+                analyticsModal.classList.add('active');
+                
+            } catch (error) {
+                console.error('Error loading campaign analytics:', error);
+                alert('Error loading analytics: ' + error.message);
+            }
+        }
+        
+        // Update stats
+        function updateStats() {
+            const activeCampaignsCount = campaigns.filter(c => c.status === 'active').length;
+            const pendingCampaignsCount = campaigns.filter(c => c.status === 'pending').length;
+            const completedCampaignsCount = campaigns.filter(c => c.status === 'completed').length;
+            
+            document.getElementById('activeCampaignsCount').textContent = activeCampaignsCount;
+            document.getElementById('pendingCampaignsCount').textContent = pendingCampaignsCount;
+            document.getElementById('completedCampaignsCount').textContent = completedCampaignsCount;
+            
+            // Update total campaigns count
+            document.getElementById('totalCampaignsCount').textContent = campaigns.length;
+            
+            // Update total influencers count
+            let totalInfluencers = 0;
+            campaigns.forEach(campaign => {
+                totalInfluencers += campaign.influencers.length;
+            });
+            document.getElementById('totalInfluencersCount').textContent = totalInfluencers;
+        }
+        
+        // Update total cost
+        function updateTotalCost() {
+            if (!selectedTier) return;
+            
+            const count = parseInt(influencerCount.value) || 0;
+            let costPerTen = 0;
+            
+            switch (selectedTier) {
+                case 'nano':
+                    costPerTen = 50000;
+                    break;
+                case 'micro':
+                    costPerTen = 100000;
+                    break;
+                case 'macro':
+                    costPerTen = 250000;
+                    break;
+            }
+            
+            // Calculate the total cost based on the number of influencers (with a base of 10)
+            const baseCount = 10;
+            const total = Math.round(costPerTen * (count / baseCount));
+            
+            // Update the total cost element
+            document.getElementById('totalCost').textContent = `Total: Ksh ${total.toLocaleString()}`;
+        }
+        
+        // Calculate total cost
+        function calculateTotalCost() {
+            const count = parseInt(influencerCount.value) || 0;
+            let costPerTen = 0;
+            
+            switch (selectedTier) {
+                case 'nano':
+                    costPerTen = 50000;
+                    break;
+                case 'micro':
+                    costPerTen = 100000;
+                    break;
+                case 'macro':
+                    costPerTen = 250000;
+                    break;
+            }
+            
+            // Adjust based on the number of influencers
+            const baseCount = 10;
+            const ratio = count / baseCount;
+            const adjustedTotal = Math.round(costPerTen * ratio);
+            
+            return adjustedTotal;
+        }
+        
+        // Go to specific step
+        function goToStep(step) {
+            // Hide all step contents
+            stepContents.forEach(content => {
+                content.classList.add('hidden');
+            });
+            
+            // Show current step content
+            document.querySelector(`.step-content[data-step="${step}"]`).classList.remove('hidden');
+            
+            // Update step indicators
+            steps.forEach(s => {
+                const stepNum = parseInt(s.dataset.step);
+                s.classList.remove('active', 'completed');
+                
+                if (stepNum === step) {
+                    s.classList.add('active');
+                } else if (stepNum < step) {
+                    s.classList.add('completed');
+                }
+            });
+            
+            currentStep = step;
+        }
+        
+        // Reset form
+        function resetForm() {
+            campaignForm.reset();
+            requirementsList.innerHTML = `
+                <div class="requirement-item">
+                    <input type="text" placeholder="Enter requirement" class="requirement-input">
+                    <button type="button" class="remove-requirement"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            
+            // Add event listener to remove button
+            requirementsList.querySelector('.remove-requirement').addEventListener('click', function() {
+                this.parentElement.remove();
+            });
+            
+            // Reset niche selection
+            nicheCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            selectedNiches = [];
+            nicheCount.textContent = '0';
+            
+            tierCards.forEach(card => {
+                card.classList.remove('selected');
+                card.querySelector('h5').classList.remove('text-blue-600');
+            });
+            selectedTier = '';
+            totalCost.textContent = 'Total: Ksh 0';
+            paymentOptions.forEach(opt => {
+                opt.classList.remove('selected');
+                opt.querySelector('.h-3').classList.add('hidden');
+            });
+            selectedPaymentMethod = '';
+            paymentDetails.classList.add('hidden');
+            imagePreview.innerHTML = '';
+            campaignImageFiles = [];
+            campaignImageUrls = [];
+            
+            // Reset to step 1
+            goToStep(1);
+        }
+    </script>
+</body>
+</html>

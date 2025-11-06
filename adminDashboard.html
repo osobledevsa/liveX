@@ -1,0 +1,1896 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        :root {
+            --dark-azure: #2c5e7a;
+            --light-azure: #d2e4ee;
+            --primary: #2c5e7a;
+            --primary-light: #4a7c95;
+            --primary-dark: #1a3a4a;
+            --secondary: #EC4899;
+            --accent: #06B6D4;
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --dark: #1E293B;
+            --light: #F8FAFC;
+            --gray: #64748B;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #f0f8ff 0%, #f8fafc 50%, #f0f8ff 100%);
+            color: var(--dark);
+            overflow-x: hidden;
+        }
+        
+        .sidebar {
+            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--dark-azure) 100%);
+            width: 260px;
+            min-height: 100vh;
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .main-content {
+            margin-left: 260px;
+            padding: 20px;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+            transition: all 0.3s ease;
+            border: 1px solid #f1f5f9;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(44, 94, 122, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 94, 122, 0.4);
+        }
+        
+        .btn-success {
+            background: var(--success);
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+            transform: translateY(-1px);
+        }
+        
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+            transition: all 0.3s ease;
+            border: none;
+            font-weight: 600;
+        }
+        
+        .btn-warning:hover {
+            background: #D97706;
+            transform: translateY(-1px);
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(16, 185, 129, 0.12);
+            color: var(--success);
+        }
+        
+        .status-completed {
+            background: rgba(59, 130, 246, 0.12);
+            color: #3b82f6;
+        }
+        
+        .status-pending {
+            background: rgba(245, 158, 11, 0.12);
+            color: var(--warning);
+        }
+        
+        .status-payment-pending {
+            background: rgba(236, 72, 153, 0.12);
+            color: var(--secondary);
+        }
+        
+        .tier-badge {
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .tier-nano {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .tier-micro {
+            background: rgba(6, 182, 212, 0.1);
+            color: var(--accent);
+        }
+        
+        .tier-macro {
+            background: rgba(44, 94, 122, 0.1);
+            color: var(--dark-azure);
+        }
+        
+        .tier-mega {
+            background: rgba(236, 72, 153, 0.1);
+            color: var(--secondary);
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            padding: 14px 20px;
+            color: rgba(255, 255, 255, 0.8);
+            transition: all 0.2s ease;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left: 3px solid var(--light-azure);
+        }
+        
+        .nav-item.active {
+            background: rgba(255, 255, 255, 0.15);
+            color: white;
+            border-left: 3px solid var(--light-azure);
+        }
+        
+        .nav-item i {
+            margin-right: 12px;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .stats-card {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(44, 94, 122, 0.3);
+        }
+        
+        .stats-card.secondary {
+            background: linear-gradient(135deg, var(--secondary) 0%, #F472B6 100%);
+            box-shadow: 0 10px 25px rgba(236, 72, 153, 0.3);
+        }
+        
+        .stats-card.tertiary {
+            background: linear-gradient(135deg, var(--accent) 0%, #22D3EE 100%);
+            box-shadow: 0 10px 25px rgba(6, 182, 212, 0.3);
+        }
+        
+        .stats-card.quaternary {
+            background: linear-gradient(135deg, var(--warning) 0%, #FCD34D 100%);
+            box-shadow: 0 10px 25px rgba(245, 158, 11, 0.3);
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+        }
+        
+        .influencer-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .influencer-card:hover {
+            background: #f1f5f9;
+        }
+        
+        .influencer-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .brand-card {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            background: #f9fafb;
+            transition: all 0.2s ease;
+        }
+        
+        .brand-card:hover {
+            background: #f1f5f9;
+        }
+        
+        .brand-logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 16px;
+            border: 2px solid white;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .campaign-card {
+            border-left: 5px solid var(--dark-azure);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .campaign-card.completed {
+            border-left: 5px solid #3b82f6;
+        }
+        
+        .campaign-card.pending {
+            border-left: 5px solid var(--warning);
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s ease;
+            font-weight: 500;
+            border-radius: 8px 8px 0 0;
+        }
+        
+        .tab:hover {
+            color: var(--dark-azure);
+            background: rgba(44, 94, 122, 0.05);
+        }
+        
+        .tab.active {
+            border-bottom: 3px solid var(--dark-azure);
+            color: var(--dark-azure);
+            font-weight: 600;
+            background: rgba(44, 94, 122, 0.05);
+        }
+        
+        .work-submission {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+            background: #f9fafb;
+        }
+        
+        .work-submission-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .work-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .work-link {
+            display: inline-block;
+            padding: 6px 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            color: var(--dark-azure);
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+        
+        .work-link:hover {
+            background: #d1d5db;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid #e5e7eb;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 4px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--dark-azure);
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .top-bar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            padding: 16px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-radius: 12px;
+        }
+        
+        .user-profile {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin-right: 12px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .user-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-azure) 0%, var(--primary-light) 100%);
+            margin-right: 12px;
+            border: 2px solid #e2e8f0;
+            color: white;
+            font-size: 16px;
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: var(--danger);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: 600;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6b7280;
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: #d1d5db;
+            margin-bottom: 16px;
+        }
+        
+        .empty-state h3 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+        
+        .empty-state p {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner i {
+            font-size: 24px;
+            color: var(--dark-azure);
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-6">
+            <div class="flex items-center mb-10">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold text-white">LiveX</span>
+            </div>
+            <div class="text-sm text-white text-opacity-80 mb-1">Admin Dashboard</div>
+        </div>
+        
+        <nav>
+            <div class="nav-item active" data-page="dashboard">
+                <i class="fas fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-page="campaigns">
+                <i class="fas fa-bullhorn"></i>
+                <span>Campaigns</span>
+            </div>
+            <div class="nav-item" data-page="influencers">
+                <i class="fas fa-users"></i>
+                <span>Influencers</span>
+            </div>
+            <div class="nav-item" data-page="brands">
+                <i class="fas fa-building"></i>
+                <span>Brands</span>
+            </div>
+            <div class="nav-item" data-page="work-approval">
+                <i class="fas fa-check-circle"></i>
+                <span>Work Approval</span>
+            </div>
+            <div class="nav-item" data-page="payments">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Payments</span>
+            </div>
+        </nav>
+        
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-white border-opacity-20">
+            <button id="logoutBtn" class="nav-item">
+                <i class="fas fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </button>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Bar -->
+        <div class="top-bar">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-800">Admin Dashboard</h1>
+                <p class="text-gray-600">Manage campaigns, influencers, and brands</p>
+            </div>
+            
+            <div class="flex items-center">
+                <div class="relative mr-6">
+                    <button class="text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span class="notification-badge" id="notificationCount">0</span>
+                    </button>
+                </div>
+                
+                <div class="user-profile">
+                    <div class="user-icon">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div>
+                        <div class="font-medium">Admin</div>
+                        <div class="text-sm text-gray-500">Administrator</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard Content -->
+        <div id="dashboardPage" class="page-content">
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                <div class="stats-card">
+                    <div class="text-3xl font-bold mb-1" id="totalCampaigns">-</div>
+                    <div class="text-sm opacity-90">Total Campaigns</div>
+                </div>
+                <div class="stats-card secondary">
+                    <div class="text-3xl font-bold mb-1" id="pendingCampaigns">-</div>
+                    <div class="text-sm opacity-90">Pending Campaigns</div>
+                </div>
+                <div class="stats-card tertiary">
+                    <div class="text-3xl font-bold mb-1" id="totalInfluencers">-</div>
+                    <div class="text-sm opacity-90">Total Influencers</div>
+                </div>
+                <div class="stats-card quaternary">
+                    <div class="text-3xl font-bold mb-1" id="pendingPayments">-</div>
+                    <div class="text-sm opacity-90">Pending Payments</div>
+                </div>
+            </div>
+            
+            <!-- Recent Activities -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Pending Campaigns -->
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Pending Campaigns</h2>
+                        <a href="#" class="text-dark-azure text-sm font-medium" id="viewAllPendingCampaigns">View All</a>
+                    </div>
+                    
+                    <div id="pendingCampaignsList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Pending Work Approvals -->
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-lg font-bold text-gray-800">Pending Work Approvals</h2>
+                        <a href="#" class="text-dark-azure text-sm font-medium" id="viewAllPendingWork">View All</a>
+                    </div>
+                    
+                    <div id="pendingWorkList">
+                        <div class="loading-spinner">
+                            <i class="fas fa-spinner"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Campaigns Page -->
+        <div id="campaignsPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">All Campaigns</h2>
+                <div class="flex space-x-2">
+                    <button class="tab active" data-tab="all">All Campaigns</button>
+                    <button class="tab" data-tab="pending">Pending</button>
+                    <button class="tab" data-tab="active">Active</button>
+                    <button class="tab" data-tab="completed">Completed</button>
+                </div>
+            </div>
+            
+            <div class="card p-6">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Campaign Name</th>
+                                <th>Brand</th>
+                                <th>Niche</th>
+                                <th>Tier</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="campaignsTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-gray-500">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Influencers Page -->
+        <div id="influencersPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">All Influencers</h2>
+                <div class="flex space-x-2">
+                    <button class="tab active" data-tab="all">All Influencers</button>
+                    <button class="tab" data-tab="nano">Nano</button>
+                    <button class="tab" data-tab="micro">Micro</button>
+                    <button class="tab" data-tab="macro">Macro</button>
+                    <button class="tab" data-tab="mega">Mega</button>
+                </div>
+            </div>
+            
+            <div class="card p-6">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Niche</th>
+                                <th>Followers</th>
+                                <th>Tier</th>
+                                <th>Campaigns</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="influencersTableBody">
+                            <tr>
+                                <td colspan="6" class="text-center py-8 text-gray-500">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Brands Page -->
+        <div id="brandsPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">All Brands</h2>
+            </div>
+            
+            <div class="card p-6">
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Brand Name</th>
+                                <th>Description</th>
+                                <th>Campaigns</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="brandsTableBody">
+                            <tr>
+                                <td colspan="5" class="text-center py-8 text-gray-500">
+                                    <div class="loading-spinner">
+                                        <i class="fas fa-spinner"></i>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Work Approval Page -->
+        <div id="workApprovalPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Work Approval</h2>
+                <div class="flex space-x-2">
+                    <button class="tab active" data-tab="pending">Pending Approval</button>
+                    <button class="tab" data-tab="approved">Approved</button>
+                </div>
+            </div>
+            
+            <div id="workApprovalList">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payments Page -->
+        <div id="paymentsPage" class="page-content hidden">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold text-gray-800">Pending Payments</h2>
+            </div>
+            
+            <div id="paymentsList">
+                <div class="loading-spinner">
+                    <i class="fas fa-spinner"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Campaign Approval Modal -->
+    <div id="campaignApprovalModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800">Campaign Approval</h3>
+                <button id="closeCampaignModal" class="text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 shadow-sm">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div id="campaignApprovalContent">
+                    <!-- Campaign details will be inserted here -->
+                </div>
+                
+                <div class="flex justify-end mt-6">
+                    <button id="rejectCampaignBtn" class="px-4 py-2 border border-gray-300 rounded-lg mr-3">Reject</button>
+                    <button id="approveCampaignBtn" class="btn-primary px-4 py-2 rounded-lg">Approve Campaign</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Work Approval Modal -->
+    <div id="workApprovalModal" class="modal">
+        <div class="modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center bg-gradient-to-r from-blue-50 to-indigo-50 rounded-t-2xl">
+                <h3 class="text-xl font-bold text-gray-800">Work Approval</h3>
+                <button id="closeWorkModal" class="text-gray-500 hover:text-gray-700 bg-white rounded-full p-2 shadow-sm">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div id="workApprovalContent">
+                    <!-- Work details will be inserted here -->
+                </div>
+                
+                <div class="flex justify-end mt-6">
+                    <button id="rejectWorkBtn" class="px-4 py-2 border border-gray-300 rounded-lg mr-3">Reject</button>
+                    <button id="approveWorkBtn" class="btn-success px-4 py-2 rounded-lg">Approve Work</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const navItems = document.querySelectorAll('.nav-item');
+        const pageContents = document.querySelectorAll('.page-content');
+        const tabs = document.querySelectorAll('.tab');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const notificationCount = document.getElementById('notificationCount');
+        
+        // Modal elements
+        const campaignApprovalModal = document.getElementById('campaignApprovalModal');
+        const closeCampaignModal = document.getElementById('closeCampaignModal');
+        const approveCampaignBtn = document.getElementById('approveCampaignBtn');
+        const rejectCampaignBtn = document.getElementById('rejectCampaignBtn');
+        const campaignApprovalContent = document.getElementById('campaignApprovalContent');
+        
+        const workApprovalModal = document.getElementById('workApprovalModal');
+        const closeWorkModal = document.getElementById('closeWorkModal');
+        const approveWorkBtn = document.getElementById('approveWorkBtn');
+        const rejectWorkBtn = document.getElementById('rejectWorkBtn');
+        const workApprovalContent = document.getElementById('workApprovalContent');
+        
+        // Data variables
+        let campaigns = [];
+        let influencers = [];
+        let brands = [];
+        let pendingWork = [];
+        let pendingPayments = [];
+        let currentCampaign = null;
+        let currentWork = null;
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            // Check if user is logged in
+            auth.onAuthStateChanged(user => {
+                if (user) {
+                    // Load data
+                    loadDashboardData();
+                } else {
+                    // Redirect to login if not authenticated
+                    window.location.href = 'login.html';
+                }
+            });
+            
+            // Navigation
+            navItems.forEach(item => {
+                item.addEventListener('click', () => {
+                    const page = item.dataset.page;
+                    navItems.forEach(nav => nav.classList.remove('active'));
+                    item.classList.add('active');
+                    
+                    // Hide all pages
+                    pageContents.forEach(content => {
+                        content.classList.add('hidden');
+                    });
+                    
+                    // Show selected page
+                    const pageElement = document.getElementById(`${page}Page`);
+                    if (pageElement) {
+                        pageElement.classList.remove('hidden');
+                        
+                        // Load data for the selected page
+                        switch(page) {
+                            case 'dashboard':
+                                loadDashboardData();
+                                break;
+                            case 'campaigns':
+                                loadCampaignsPage();
+                                break;
+                            case 'influencers':
+                                loadInfluencersPage();
+                                break;
+                            case 'brands':
+                                loadBrandsPage();
+                                break;
+                            case 'work-approval':
+                                loadWorkApprovalPage();
+                                break;
+                            case 'payments':
+                                loadPaymentsPage();
+                                break;
+                        }
+                    }
+                });
+            });
+            
+            // Tab switching
+            tabs.forEach(tab => {
+                tab.addEventListener('click', () => {
+                    const tabContainer = tab.parentElement;
+                    const tabName = tab.dataset.tab;
+                    
+                    // Update active tab
+                    tabContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    
+                    // Filter content based on tab
+                    filterContent(tabContainer, tabName);
+                });
+            });
+            
+            // Modal event listeners
+            closeCampaignModal.addEventListener('click', () => {
+                campaignApprovalModal.classList.remove('active');
+            });
+            
+            closeWorkModal.addEventListener('click', () => {
+                workApprovalModal.classList.remove('active');
+            });
+            
+            approveCampaignBtn.addEventListener('click', () => {
+                if (currentCampaign) {
+                    approveCampaign(currentCampaign.id);
+                }
+            });
+            
+            rejectCampaignBtn.addEventListener('click', () => {
+                if (currentCampaign) {
+                    rejectCampaign(currentCampaign.id);
+                }
+            });
+            
+            approveWorkBtn.addEventListener('click', () => {
+                if (currentWork) {
+                    approveWork(currentWork.id);
+                }
+            });
+            
+            rejectWorkBtn.addEventListener('click', () => {
+                if (currentWork) {
+                    rejectWork(currentWork.id);
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut().then(() => {
+                    window.location.href = 'login.html';
+                });
+            });
+            
+            // View All links
+            document.getElementById('viewAllPendingCampaigns').addEventListener('click', (e) => {
+                e.preventDefault();
+                navItems.forEach(nav => nav.classList.remove('active'));
+                document.querySelector('.nav-item[data-page="campaigns"]').classList.add('active');
+                pageContents.forEach(content => content.classList.add('hidden'));
+                document.getElementById('campaignsPage').classList.remove('hidden');
+                loadCampaignsPage();
+            });
+            
+            document.getElementById('viewAllPendingWork').addEventListener('click', (e) => {
+                e.preventDefault();
+                navItems.forEach(nav => nav.classList.remove('active'));
+                document.querySelector('.nav-item[data-page="work-approval"]').classList.add('active');
+                pageContents.forEach(content => content.classList.add('hidden'));
+                document.getElementById('workApprovalPage').classList.remove('hidden');
+                loadWorkApprovalPage();
+            });
+        });
+        
+        // Load dashboard data
+        async function loadDashboardData() {
+            try {
+                // Show loading states
+                document.getElementById('pendingCampaignsList').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+                document.getElementById('pendingWorkList').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+                
+                // Load campaigns
+                const campaignsSnapshot = await db.collection('campaigns').get();
+                campaigns = [];
+                campaignsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    campaigns.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure all required fields exist
+                        name: data.name || 'Unnamed Campaign',
+                        description: data.description || '',
+                        brandName: data.brandName || 'Unknown Brand',
+                        niche: data.niche || 'Unknown',
+                        tier: data.tier || 'Unknown',
+                        status: data.status || 'pending',
+                        influencerCount: data.influencerCount || 0,
+                        totalCost: data.totalCost || 0,
+                        paymentMethod: data.paymentMethod || 'Unknown'
+                    });
+                });
+                
+                // Load influencers
+                const influencersSnapshot = await db.collection('influencers').get();
+                influencers = [];
+                influencersSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    influencers.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure all required fields exist
+                        name: data.name || 'Unknown Influencer',
+                        niches: data.niches || [],
+                        totalFollowers: data.totalFollowers || 0,
+                        category: data.category || 'Unknown',
+                        campaigns: data.campaigns || []
+                    });
+                });
+                
+                // Load brands
+                const brandsSnapshot = await db.collection('brands').get();
+                brands = [];
+                brandsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    brands.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure all required fields exist
+                        brandName: data.brandName || 'Unknown Brand',
+                        description: data.description || '',
+                        campaigns: data.campaigns || 0
+                    });
+                });
+                
+                // Load pending work
+                const pendingWorkSnapshot = await db.collection('pendingWork').get();
+                pendingWork = [];
+                pendingWorkSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    pendingWork.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure all required fields exist
+                        influencerId: data.influencerId || '',
+                        campaignId: data.campaignId || '',
+                        links: data.links || [],
+                        status: data.status || 'pending',
+                        submittedAt: data.submittedAt || null
+                    });
+                });
+                
+                // Load pending payments
+                const pendingPaymentsSnapshot = await db.collection('pendingPayments').get();
+                pendingPayments = [];
+                pendingPaymentsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    pendingPayments.push({ 
+                        id: doc.id, 
+                        ...data,
+                        // Ensure all required fields exist
+                        workId: data.workId || '',
+                        influencerId: data.influencerId || '',
+                        campaignId: data.campaignId || '',
+                        amount: data.amount || 0,
+                        status: data.status || 'pending'
+                    });
+                });
+                
+                // Update UI
+                updateDashboardStats();
+                updatePendingCampaigns();
+                updatePendingWork();
+                
+                // Update notification count
+                const totalCount = pendingWork.length + pendingPayments.length;
+                notificationCount.textContent = totalCount > 0 ? totalCount : '';
+                notificationCount.style.display = totalCount > 0 ? 'flex' : 'none';
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+                
+                // Show error states
+                document.getElementById('pendingCampaignsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>There was an error loading pending campaigns. Please try again.</p>
+                    </div>
+                `;
+                
+                document.getElementById('pendingWorkList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>There was an error loading pending work. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Update dashboard stats
+        function updateDashboardStats() {
+            document.getElementById('totalCampaigns').textContent = campaigns.length;
+            document.getElementById('pendingCampaigns').textContent = campaigns.filter(c => c.status === 'pending').length;
+            document.getElementById('totalInfluencers').textContent = influencers.length;
+            document.getElementById('pendingPayments').textContent = pendingPayments.length;
+        }
+        
+        // Update pending campaigns
+        function updatePendingCampaigns() {
+            const pendingCampaignsList = document.getElementById('pendingCampaignsList');
+            const pendingCampaignsData = campaigns.filter(c => c.status === 'pending');
+            
+            if (pendingCampaignsData.length === 0) {
+                pendingCampaignsList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clock"></i>
+                        <h3>No pending campaigns</h3>
+                        <p>All campaigns have been reviewed and approved.</p>
+                    </div>
+                `;
+            } else {
+                pendingCampaignsList.innerHTML = '';
+                pendingCampaignsData.slice(0, 3).forEach(campaign => {
+                    const campaignCard = document.createElement('div');
+                    campaignCard.className = 'campaign-card p-4 mb-3 cursor-pointer';
+                    campaignCard.innerHTML = `
+                        <div class="flex justify-between items-start mb-2">
+                            <h3 class="font-bold">${campaign.name}</h3>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        <p class="text-gray-600 text-sm mb-2">${campaign.description}</p>
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>Brand: ${campaign.brandName}</span>
+                            <span>Tier: ${campaign.tier}</span>
+                        </div>
+                    `;
+                    
+                    campaignCard.addEventListener('click', () => {
+                        showCampaignApprovalModal(campaign);
+                    });
+                    
+                    pendingCampaignsList.appendChild(campaignCard);
+                });
+                
+                if (pendingCampaignsData.length > 3) {
+                    const viewAll = document.createElement('div');
+                    viewAll.className = 'text-center mt-2';
+                    viewAll.innerHTML = `<a href="#" class="text-dark-azure font-medium">View all pending campaigns</a>`;
+                    pendingCampaignsList.appendChild(viewAll);
+                }
+            }
+        }
+        
+        // Update pending work
+        function updatePendingWork() {
+            const pendingWorkList = document.getElementById('pendingWorkList');
+            
+            if (pendingWork.length === 0) {
+                pendingWorkList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-tasks"></i>
+                        <h3>No pending work approvals</h3>
+                        <p>All submitted work has been reviewed and approved.</p>
+                    </div>
+                `;
+            } else {
+                pendingWorkList.innerHTML = '';
+                pendingWork.slice(0, 3).forEach(work => {
+                    const workCard = document.createElement('div');
+                    workCard.className = 'work-submission';
+                    
+                    // Find influencer details
+                    const influencer = influencers.find(i => i.id === work.influencerId);
+                    const campaign = campaigns.find(c => c.id === work.campaignId);
+                    
+                    workCard.innerHTML = `
+                        <div class="work-submission-header">
+                            <div>
+                                <h4 class="font-medium">${influencer ? influencer.name : 'Unknown Influencer'}</h4>
+                                <p class="text-sm text-gray-600">${campaign ? campaign.name : 'Unknown Campaign'}</p>
+                            </div>
+                            <span class="status-badge status-pending">Pending</span>
+                        </div>
+                        <div class="work-links">
+                            ${work.links.map(link => `
+                                <a href="${link}" target="_blank" class="work-link">${link}</a>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    workCard.addEventListener('click', () => {
+                        showWorkApprovalModal(work);
+                    });
+                    
+                    pendingWorkList.appendChild(workCard);
+                });
+                
+                if (pendingWork.length > 3) {
+                    const viewAll = document.createElement('div');
+                    viewAll.className = 'text-center mt-2';
+                    viewAll.innerHTML = `<a href="#" class="text-dark-azure font-medium">View all pending work</a>`;
+                    pendingWorkList.appendChild(viewAll);
+                }
+            }
+        }
+        
+        // Show campaign approval modal
+        function showCampaignApprovalModal(campaign) {
+            currentCampaign = campaign;
+            
+            // Find brand details
+            const brand = brands.find(b => b.id === campaign.brandId);
+            
+            campaignApprovalContent.innerHTML = `
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-800 mb-2">${campaign.name}</h4>
+                    <p class="text-gray-600 mb-4">${campaign.description}</p>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Brand</p>
+                            <p class="font-medium">${brand ? brand.brandName : 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Niche</p>
+                            <p class="font-medium capitalize">${campaign.niche}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Tier</p>
+                            <p class="font-medium capitalize">${campaign.tier}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Influencers</p>
+                            <p class="font-medium">${campaign.influencerCount}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500">Campaign Goal</p>
+                        <p class="font-medium capitalize">${campaign.goal}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500">Total Cost</p>
+                        <p class="font-medium">Ksh ${campaign.totalCost.toLocaleString()}</p>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500">Payment Method</p>
+                        <p class="font-medium capitalize">${campaign.paymentMethod}</p>
+                    </div>
+                </div>
+            `;
+            
+            campaignApprovalModal.classList.add('active');
+        }
+        
+        // Show work approval modal
+        function showWorkApprovalModal(work) {
+            currentWork = work;
+            
+            // Find influencer and campaign details
+            const influencer = influencers.find(i => i.id === work.influencerId);
+            const campaign = campaigns.find(c => c.id === work.campaignId);
+            
+            workApprovalContent.innerHTML = `
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-800 mb-2">Work Submission</h4>
+                    
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <p class="text-sm text-gray-500">Influencer</p>
+                            <p class="font-medium">${influencer ? influencer.name : 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Campaign</p>
+                            <p class="font-medium">${campaign ? campaign.name : 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Submission Date</p>
+                            <p class="font-medium">${work.submittedAt ? new Date(work.submittedAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-500">Status</p>
+                            <p class="font-medium capitalize">${work.status}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-500 mb-2">Submitted Links</p>
+                        <div class="work-links">
+                            ${work.links.map(link => `
+                                <a href="${link}" target="_blank" class="work-link">${link}</a>
+                            `).join('')}
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            workApprovalModal.classList.add('active');
+        }
+        
+        // Approve campaign
+        async function approveCampaign(campaignId) {
+            try {
+                await db.collection('campaigns').doc(campaignId).update({
+                    status: 'active',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update UI
+                await loadDashboardData();
+                campaignApprovalModal.classList.remove('active');
+                
+                alert('Campaign approved successfully!');
+            } catch (error) {
+                console.error('Error approving campaign:', error);
+                alert('Error approving campaign: ' + error.message);
+            }
+        }
+        
+        // Reject campaign
+        async function rejectCampaign(campaignId) {
+            try {
+                await db.collection('campaigns').doc(campaignId).update({
+                    status: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update UI
+                await loadDashboardData();
+                campaignApprovalModal.classList.remove('active');
+                
+                alert('Campaign rejected successfully!');
+            } catch (error) {
+                console.error('Error rejecting campaign:', error);
+                alert('Error rejecting campaign: ' + error.message);
+            }
+        }
+        
+        // Approve work
+        async function approveWork(workId) {
+            try {
+                // Update work status
+                await db.collection('pendingWork').doc(workId).update({
+                    status: 'approved',
+                    approvedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Add to pending payments
+                const work = pendingWork.find(w => w.id === workId);
+                const influencer = influencers.find(i => i.id === work.influencerId);
+                
+                if (work && influencer) {
+                    // Calculate payment amount based on tier
+                    let paymentAmount = 0;
+                    switch (influencer.category) {
+                        case 'nano':
+                            paymentAmount = 1000;
+                            break;
+                        case 'micro':
+                            paymentAmount = 2500;
+                            break;
+                        case 'macro':
+                            paymentAmount = 5000;
+                            break;
+                        case 'mega':
+                            paymentAmount = 10000; // Default amount for mega
+                            break;
+                    }
+                    
+                    await db.collection('pendingPayments').add({
+                        workId: workId,
+                        influencerId: work.influencerId,
+                        campaignId: work.campaignId,
+                        amount: paymentAmount,
+                        status: 'pending',
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+                
+                // Update UI
+                await loadDashboardData();
+                workApprovalModal.classList.remove('active');
+                
+                alert('Work approved successfully! Influencer added to payment queue.');
+            } catch (error) {
+                console.error('Error approving work:', error);
+                alert('Error approving work: ' + error.message);
+            }
+        }
+        
+        // Reject work
+        async function rejectWork(workId) {
+            try {
+                await db.collection('pendingWork').doc(workId).update({
+                    status: 'rejected',
+                    rejectedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update UI
+                await loadDashboardData();
+                workApprovalModal.classList.remove('active');
+                
+                alert('Work rejected successfully!');
+            } catch (error) {
+                console.error('Error rejecting work:', error);
+                alert('Error rejecting work: ' + error.message);
+            }
+        }
+        
+        // Load campaigns page
+        async function loadCampaignsPage() {
+            try {
+                // Show loading state
+                document.getElementById('campaignsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Load campaigns if not already loaded
+                if (campaigns.length === 0) {
+                    const campaignsSnapshot = await db.collection('campaigns').get();
+                    campaigns = [];
+                    campaignsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        campaigns.push({ 
+                            id: doc.id, 
+                            ...data,
+                            name: data.name || 'Unnamed Campaign',
+                            brandName: data.brandName || 'Unknown Brand',
+                            niche: data.niche || 'Unknown',
+                            tier: data.tier || 'Unknown',
+                            status: data.status || 'pending'
+                        });
+                    });
+                }
+                
+                // Filter campaigns based on active tab
+                const activeTab = document.querySelector('#campaignsPage .tab.active').dataset.tab;
+                filterCampaigns(activeTab);
+                
+            } catch (error) {
+                console.error('Error loading campaigns page:', error);
+                document.getElementById('campaignsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error Loading Data</h3>
+                                <p>There was an error loading campaigns. Please try again.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Load influencers page
+        async function loadInfluencersPage() {
+            try {
+                // Show loading state
+                document.getElementById('influencersTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Load influencers if not already loaded
+                if (influencers.length === 0) {
+                    const influencersSnapshot = await db.collection('influencers').get();
+                    influencers = [];
+                    influencersSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        influencers.push({ 
+                            id: doc.id, 
+                            ...data,
+                            name: data.name || 'Unknown Influencer',
+                            niches: data.niches || [],
+                            totalFollowers: data.totalFollowers || 0,
+                            category: data.category || 'Unknown',
+                            campaigns: data.campaigns || []
+                        });
+                    });
+                }
+                
+                // Filter influencers based on active tab
+                const activeTab = document.querySelector('#influencersPage .tab.active').dataset.tab;
+                filterInfluencers(activeTab);
+                
+            } catch (error) {
+                console.error('Error loading influencers page:', error);
+                document.getElementById('influencersTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error Loading Data</h3>
+                                <p>There was an error loading influencers. Please try again.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Load brands page
+        async function loadBrandsPage() {
+            try {
+                // Show loading state
+                document.getElementById('brandsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">
+                            <div class="loading-spinner">
+                                <i class="fas fa-spinner"></i>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+                
+                // Load brands if not already loaded
+                if (brands.length === 0) {
+                    const brandsSnapshot = await db.collection('brands').get();
+                    brands = [];
+                    brandsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        brands.push({ 
+                            id: doc.id, 
+                            ...data,
+                            brandName: data.brandName || 'Unknown Brand',
+                            description: data.description || '',
+                            campaigns: data.campaigns || 0
+                        });
+                    });
+                }
+                
+                // Update brands table
+                const tableBody = document.getElementById('brandsTableBody');
+                if (brands.length === 0) {
+                    tableBody.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center py-8 text-gray-500">
+                                No brands found
+                            </td>
+                        </tr>
+                    `;
+                } else {
+                    tableBody.innerHTML = '';
+                    brands.forEach(brand => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td class="font-medium">${brand.brandName}</td>
+                            <td>${brand.description}</td>
+                            <td>${brand.campaigns}</td>
+                            <td>
+                                <span class="status-badge status-active">Active</span>
+                            </td>
+                            <td>
+                                <button class="text-dark-azure text-sm font-medium view-brand" data-id="${brand.id}">View</button>
+                            </td>
+                        `;
+                        
+                        // Add event listener to view button
+                        row.querySelector('.view-brand').addEventListener('click', () => {
+                            // For now, just show an alert
+                            alert(`Viewing brand: ${brand.brandName}`);
+                        });
+                        
+                        tableBody.appendChild(row);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading brands page:', error);
+                document.getElementById('brandsTableBody').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="text-center py-8 text-gray-500">
+                            <div class="empty-state">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <h3>Error Loading Data</h3>
+                                <p>There was an error loading brands. Please try again.</p>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }
+        }
+        
+        // Load work approval page
+        async function loadWorkApprovalPage() {
+            try {
+                // Show loading state
+                document.getElementById('workApprovalList').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+                
+                // Load pending work if not already loaded
+                if (pendingWork.length === 0) {
+                    const pendingWorkSnapshot = await db.collection('pendingWork').get();
+                    pendingWork = [];
+                    pendingWorkSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        pendingWork.push({ 
+                            id: doc.id, 
+                            ...data,
+                            influencerId: data.influencerId || '',
+                            campaignId: data.campaignId || '',
+                            links: data.links || [],
+                            status: data.status || 'pending'
+                        });
+                    });
+                }
+                
+                // Filter work based on active tab
+                const activeTab = document.querySelector('#workApprovalPage .tab.active').dataset.tab;
+                filterWorkApprovals(activeTab);
+                
+            } catch (error) {
+                console.error('Error loading work approval page:', error);
+                document.getElementById('workApprovalList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>There was an error loading work approvals. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Load payments page
+        async function loadPaymentsPage() {
+            try {
+                // Show loading state
+                document.getElementById('paymentsList').innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner"></i></div>';
+                
+                // Load pending payments if not already loaded
+                if (pendingPayments.length === 0) {
+                    const pendingPaymentsSnapshot = await db.collection('pendingPayments').get();
+                    pendingPayments = [];
+                    pendingPaymentsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        pendingPayments.push({ 
+                            id: doc.id, 
+                            ...data,
+                            workId: data.workId || '',
+                            influencerId: data.influencerId || '',
+                            campaignId: data.campaignId || '',
+                            amount: data.amount || 0,
+                            status: data.status || 'pending'
+                        });
+                    });
+                }
+                
+                // Update payments list
+                const paymentsList = document.getElementById('paymentsList');
+                if (pendingPayments.length === 0) {
+                    paymentsList.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-money-check-alt"></i>
+                            <h3>No pending payments</h3>
+                            <p>All influencers have been paid for their completed campaigns.</p>
+                        </div>
+                    `;
+                } else {
+                    paymentsList.innerHTML = '';
+                    pendingPayments.forEach(payment => {
+                        const influencer = influencers.find(i => i.id === payment.influencerId);
+                        const campaign = campaigns.find(c => c.id === payment.campaignId);
+                        
+                        const paymentCard = document.createElement('div');
+                        paymentCard.className = 'work-submission';
+                        paymentCard.innerHTML = `
+                            <div class="work-submission-header">
+                                <div>
+                                    <h4 class="font-medium">${influencer ? influencer.name : 'Unknown Influencer'}</h4>
+                                    <p class="text-sm text-gray-600">${campaign ? campaign.name : 'Unknown Campaign'}</p>
+                                </div>
+                                <span class="status-badge status-payment-pending">Pending Payment</span>
+                            </div>
+                            <div class="mt-2">
+                                <p class="text-sm text-gray-500">Amount: <span class="font-medium">Ksh ${payment.amount.toLocaleString()}</span></p>
+                            </div>
+                        `;
+                        
+                        paymentsList.appendChild(paymentCard);
+                    });
+                }
+                
+            } catch (error) {
+                console.error('Error loading payments page:', error);
+                document.getElementById('paymentsList').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Data</h3>
+                        <p>There was an error loading payments. Please try again.</p>
+                    </div>
+                `;
+            }
+        }
+        
+        // Filter content based on tab
+        function filterContent(tabContainer, tabName) {
+            const pageId = tabContainer.closest('.page-content').id;
+            
+            switch (pageId) {
+                case 'campaignsPage':
+                    filterCampaigns(tabName);
+                    break;
+                case 'influencersPage':
+                    filterInfluencers(tabName);
+                    break;
+                case 'workApprovalPage':
+                    filterWorkApprovals(tabName);
+                    break;
+            }
+        }
+        
+        // Filter campaigns
+        function filterCampaigns(tabName) {
+            const tableBody = document.getElementById('campaignsTableBody');
+            let filteredCampaigns = campaigns;
+            
+            if (tabName !== 'all') {
+                filteredCampaigns = campaigns.filter(c => c.status === tabName);
+            }
+            
+            if (filteredCampaigns.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            No campaigns found
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = '';
+                filteredCampaigns.forEach(campaign => {
+                    const brand = brands.find(b => b.id === campaign.brandId);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${campaign.name}</td>
+                        <td>${brand ? brand.brandName : 'Unknown'}</td>
+                        <td class="capitalize">${campaign.niche}</td>
+                        <td class="capitalize">${campaign.tier}</td>
+                        <td>
+                            <span class="status-badge status-${campaign.status}">${campaign.status}</span>
+                        </td>
+                        <td>
+                            <button class="text-dark-azure text-sm font-medium view-campaign" data-id="${campaign.id}">View</button>
+                        </td>
+                    `;
+                    
+                    // Add event listener to view button
+                    row.querySelector('.view-campaign').addEventListener('click', () => {
+                        showCampaignApprovalModal(campaign);
+                    });
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        
+        // Filter influencers
+        function filterInfluencers(tabName) {
+            const tableBody = document.getElementById('influencersTableBody');
+            let filteredInfluencers = influencers;
+            
+            if (tabName !== 'all') {
+                filteredInfluencers = influencers.filter(i => i.category === tabName);
+            }
+            
+            if (filteredInfluencers.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="6" class="text-center py-8 text-gray-500">
+                            No influencers found
+                        </td>
+                    </tr>
+                `;
+            } else {
+                tableBody.innerHTML = '';
+                filteredInfluencers.forEach(influencer => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td class="font-medium">${influencer.name}</td>
+                        <td>${influencer.niches ? influencer.niches.join(', ') : 'Unknown'}</td>
+                        <td>${influencer.totalFollowers ? influencer.totalFollowers.toLocaleString() : 'Unknown'}</td>
+                        <td>
+                            <span class="tier-badge tier-${influencer.category}">${influencer.category}</span>
+                        </td>
+                        <td>${influencer.campaigns ? influencer.campaigns.length : 0}</td>
+                        <td>
+                            <button class="text-dark-azure text-sm font-medium view-influencer" data-id="${influencer.id}">View</button>
+                        </td>
+                    `;
+                    
+                    // Add event listener to view button
+                    row.querySelector('.view-influencer').addEventListener('click', () => {
+                        // For now, just show an alert
+                        alert(`Viewing influencer: ${influencer.name}`);
+                    });
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+        }
+        
+        // Filter work approvals
+        function filterWorkApprovals(tabName) {
+            const workApprovalList = document.getElementById('workApprovalList');
+            let filteredWork = pendingWork;
+            
+            if (tabName === 'approved') {
+                // For now, we don't have approved work in our data structure
+                filteredWork = [];
+            }
+            
+            if (filteredWork.length === 0) {
+                workApprovalList.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-clipboard-check"></i>
+                        <h3>No ${tabName} work</h3>
+                        <p>No ${tabName} work found.</p>
+                    </div>
+                `;
+            } else {
+                workApprovalList.innerHTML = '';
+                filteredWork.forEach(work => {
+                    const influencer = influencers.find(i => i.id === work.influencerId);
+                    const campaign = campaigns.find(c => c.id === work.campaignId);
+                    
+                    const workCard = document.createElement('div');
+                    workCard.className = 'work-submission';
+                    
+                    workCard.innerHTML = `
+                        <div class="work-submission-header">
+                            <div>
+                                <h4 class="font-medium">${influencer ? influencer.name : 'Unknown Influencer'}</h4>
+                                <p class="text-sm text-gray-600">${campaign ? campaign.name : 'Unknown Campaign'}</p>
+                            </div>
+                            <span class="status-badge status-${work.status}">${work.status}</span>
+                        </div>
+                        <div class="work-links">
+                            ${work.links.map(link => `
+                                <a href="${link}" target="_blank" class="work-link">${link}</a>
+                            `).join('')}
+                        </div>
+                    `;
+                    
+                    workCard.addEventListener('click', () => {
+                        showWorkApprovalModal(work);
+                    });
+                    
+                    workApprovalList.appendChild(workCard);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

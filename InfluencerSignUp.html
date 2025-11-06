@@ -3,29 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Join as Influencer | LiveX - Connect with Brands</title>
+    <title>Influencer Sign Up - LiveX</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <!-- Custom Styles -->
     <style>
         :root {
-            --primary-blue: #2563eb;
-            --primary-orange: #ea580c;
-            --primary-gradient: linear-gradient(135deg, #2563eb 0%, #ea580c 100%);
-            --light-blue: #dbeafe;
-            --light-orange: #fed7aa;
-            --dark-blue: #1e40af;
-            --dark-orange: #c2410c;
+            --light-azure: #d2e4ee;
+            --dull-orange: #e67e22;
+            --electric-blue: #00a8ff;
+            --neon-pink: #ff2e63;
         }
         
         * {
@@ -38,244 +33,108 @@
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: #f8fafc;
             overflow-x: hidden;
-            color: #334155;
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #f0f9ff 0%, #fffbeb 50%, #f0f9ff 100%);
+            background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(120deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
         
         .btn-primary {
-            background: var(--primary-gradient);
+            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
             color: white;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            font-weight: 600;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
         }
         
         .btn-secondary {
             background: transparent;
-            border: 2px solid var(--primary-blue);
-            color: var(--primary-blue);
+            border: 2px solid var(--electric-blue);
+            color: var(--electric-blue);
             transition: all 0.3s ease;
-            font-weight: 600;
         }
         
         .btn-secondary:hover {
-            background: rgba(37, 99, 235, 0.1);
-            transform: translateY(-2px);
+            background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-3px);
         }
         
-        .form-input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background-color: white;
-        }
-        
-        .form-input:focus {
-            outline: none;
-            border-color: var(--primary-blue);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-        
-        .phone-input-group {
-            display: flex;
-            align-items: center;
-        }
-        
-        .country-code {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-right: none;
-            border-radius: 8px 0 0 8px;
-            padding: 12px 15px;
-            font-weight: 500;
-            color: #475569;
-            min-width: 100px;
-        }
-        
-        .phone-input {
-            border-radius: 0 8px 8px 0;
-            flex: 1;
-        }
-        
-        .step-indicator {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 40px;
-            position: relative;
-        }
-        
-        .step {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: #e2e8f0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin: 0 10px;
-            position: relative;
-            transition: all 0.3s ease;
-            z-index: 2;
-            color: #64748b;
-        }
-        
-        .step.active {
-            background: var(--primary-blue);
+        .btn-demo {
+            background: linear-gradient(90deg, var(--electric-blue) 0%, #4dc9ff 100%);
             color: white;
-            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.3);
-        }
-        
-        .step.completed {
-            background: var(--primary-orange);
-            color: white;
-            box-shadow: 0 4px 10px rgba(234, 88, 12, 0.3);
-        }
-        
-        .step-label {
-            position: absolute;
-            top: 100%;
-            margin-top: 10px;
-            font-size: 14px;
-            color: #64748b;
-            white-space: nowrap;
-            font-weight: 500;
-        }
-        
-        .step.active .step-label {
-            color: var(--primary-blue);
-            font-weight: 600;
-        }
-        
-        .step.completed .step-label {
-            color: var(--primary-orange);
-        }
-        
-        .step::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 100%;
-            width: 60px;
-            height: 3px;
-            background: #e2e8f0;
-            transform: translateY(-50%);
-        }
-        
-        .step:last-child::after {
-            display: none;
-        }
-        
-        .step.completed::after {
-            background: var(--primary-orange);
-        }
-        
-        .form-section {
-            display: none;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .form-section.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .social-platform {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            padding: 20px;
             transition: all 0.3s ease;
-            background-color: white;
         }
         
-        .social-platform:hover {
-            border-color: var(--primary-blue);
-            box-shadow: 0 5px 15px rgba(0, 168, 255, 0.1);
+        .btn-demo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 168, 255, 0.3);
         }
         
-        .social-platform.connected {
-            border-color: var(--primary-orange);
-            background-color: rgba(234, 88, 12, 0.05);
+        .floating {
+            animation: floating 3s ease-in-out infinite;
         }
         
-        .niche-tag {
-            padding: 10px 18px;
-            border-radius: 20px;
-            background: #f1f5f9;
-            border: 2px solid transparent;
-            cursor: pointer;
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 15px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 168, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+        }
+        
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+        }
+        
+        .card-hover {
             transition: all 0.3s ease;
-            font-weight: 500;
         }
         
-        .niche-tag:hover {
-            background: #e2e8f0;
-        }
-        
-        .niche-tag.selected {
-            background: var(--primary-blue);
-            color: white;
-            border-color: var(--primary-blue);
-        }
-        
-        .error-message {
-            color: #ef4444;
-            font-size: 14px;
-            margin-top: 5px;
-            display: none;
-        }
-        
-        .success-message {
-            display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 20px;
-            border-radius: 12px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .loading {
-            display: none;
-            text-align: center;
-            padding: 20px;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary-blue);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
         
         .nav-link {
             position: relative;
-            font-weight: 500;
         }
         
         .nav-link::after {
@@ -285,7 +144,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--primary-blue);
+            background: var(--electric-blue);
             transition: width 0.3s ease;
         }
         
@@ -293,161 +152,257 @@
             width: 100%;
         }
         
-        .country-highlight {
-            background: #f0f9ff;
-            border: 2px solid var(--primary-blue);
-            border-radius: 8px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
+        .section-title {
+            position: relative;
+            display: inline-block;
         }
         
-        .social-connect-btn {
-            background: #f1f5f9;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            padding: 12px 15px;
-            width: 100%;
-            text-align: left;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            font-weight: 500;
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--dull-orange);
+            border-radius: 2px;
         }
         
-        .social-connect-btn:hover {
-            background: #e2e8f0;
-        }
-        
-        .social-connect-btn.connected {
-            background: rgba(234, 88, 12, 0.1);
-            border-color: var(--primary-orange);
-        }
-        
-        .follower-count {
-            font-size: 14px;
-            color: #64748b;
-        }
-        
-        .error-container {
-            background-color: #fef2f2;
-            border: 1px solid #fecaca;
-            border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .password-requirements {
-            font-size: 12px;
-            color: #64748b;
-            margin-top: 5px;
-        }
-        
-        .requirement {
-            display: flex;
-            align-items: center;
-            margin-top: 3px;
-        }
-        
-        .requirement i {
-            margin-right: 5px;
-            font-size: 12px;
-        }
-        
-        .requirement.met {
-            color: #10b981;
-        }
-        
-        .requirement.unmet {
-            color: #ef4444;
-        }
-        
-        .card {
-            background: white;
+        .dashboard-preview {
             border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-            padding: 32px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .dashboard-preview:hover {
+            transform: perspective(1000px) rotateY(0) rotateX(0);
+        }
+        
+        .tier-card {
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .tier-card:hover {
+            transform: translateY(-10px);
+            border-top: 4px solid var(--electric-blue);
+        }
+        
+        .platform-icon {
             transition: all 0.3s ease;
         }
         
-        .card:hover {
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        .platform-icon:hover {
+            transform: scale(1.2);
+            color: var(--electric-blue);
         }
         
-        .benefit-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 16px;
+        .stats-counter {
+            font-weight: 700;
+            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        .benefit-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: var(--light-blue);
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .step-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .step-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
             display: flex;
             align-items: center;
             justify-content: center;
-            margin-right: 16px;
-            color: var(--primary-blue);
-            font-size: 18px;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
         }
         
-        .testimonial {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        .step-number::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            z-index: -1;
+            opacity: 0.2;
+            transform: scale(1.2);
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .form-group {
             margin-bottom: 20px;
         }
         
-        .testimonial-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            margin-right: 16px;
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
         }
         
-        .progress-bar {
-            height: 6px;
-            background: #e2e8f0;
-            border-radius: 3px;
-            overflow: hidden;
-            margin: 20px 0;
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
         }
         
-        .progress-fill {
-            height: 100%;
-            background: var(--primary-orange);
-            width: 0%;
-            transition: width 0.5s ease;
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--electric-blue);
         }
         
-        .stats-container {
+        .password-requirements {
+            margin-top: 10px;
+        }
+        
+        .password-requirements ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        
+        .password-requirements li {
+            margin-bottom: 5px;
+            font-size: 0.875rem;
+        }
+        
+        .social-input-group {
             display: flex;
-            justify-content: space-between;
-            margin-top: 30px;
+            margin-bottom: 15px;
         }
         
-        .stat-item {
-            text-align: center;
-            flex: 1;
-            padding: 0 10px;
+        .social-input-group input {
+            flex-grow: 1;
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
         }
         
-        .stat-number {
-            font-size: 24px;
-            font-weight: 700;
-            color: var(--primary-blue);
+        .social-input-group button {
+            border-top-left-radius: 0;
+            border-bottom-left-radius: 0;
+            background: var(--electric-blue);
+            color: white;
+            border: none;
+            padding: 0 15px;
+            cursor: pointer;
         }
         
-        .stat-label {
-            font-size: 14px;
-            color: #64748b;
-            margin-top: 5px;
+        .social-input-group button:hover {
+            background: #0090e0;
+        }
+        
+        .follower-summary {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        
+        .niche-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .niche-item {
+            display: flex;
+            align-items: center;
+        }
+        
+        .niche-item input {
+            margin-right: 8px;
+        }
+        
+        .header-gradient {
+            background: linear-gradient(120deg, var(--electric-blue) 0%, #2c5e7a 100%);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c5e7a;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .form-section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--dull-orange);
+            border-radius: 2px;
         }
     </style>
 </head>
@@ -457,30 +412,22 @@
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
             <!-- Logo -->
             <div class="flex items-center">
-                <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
-                    <img 
-                        src="assets/images/logo.jpg" 
-                        alt="Logo" 
-                        class="h-full w-full object-cover"
-                    />
-                </div>
-
-                <span class="text-xl font-bold text-slate-800">LiveX</span>
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
             </div>
             
             <!-- Desktop Navigation -->
             <div class="hidden md:flex space-x-8">
-                <a href="index.html" class="nav-link">Home</a>
                 <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#influencers" class="nav-link">For Influencers</a>
+                <a href="index.html#brands" class="nav-link">For Brands</a>
                 <a href="index.html#pricing" class="nav-link">Pricing</a>
             </div>
             
             <!-- CTA Buttons -->
             <div class="hidden md:flex items-center space-x-4">
                 <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
-                <a href="BrandSignUp.html" class="px-6 py-2 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all shadow-sm">
-                    Join as Brand
-                </a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full btn-primary">Get Started</a>
             </div>
             
             <!-- Mobile Menu Button -->
@@ -490,454 +437,290 @@
         </nav>
     </header>
 
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
+                <a href="InfluencerSignUp.html" class="w-full mb-3 px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
+            </div>
+        </div>
+    </div>
+
     <!-- Main Content -->
-    <main class="pt-24 pb-20">
-        <div class="container mx-auto px-6 max-w-6xl">
-            <!-- Page Header -->
-            <div class="text-center mb-12">
-                <h1 class="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-orange-500 bg-clip-text text-transparent">Join as Influencer</h1>
-                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Start monetizing your influence with authentic brand partnerships. Join thousands of creators already earning with LiveX.</p>
-                
-                <!-- Stats -->
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <div class="stat-number">10K+</div>
-                        <div class="stat-label">Active Influencers</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">Ksh 1.5M+</div>
-                        <div class="stat-label">Paid to Creators</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Brand Partners</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Progress Bar -->
-            <div class="max-w-4xl mx-auto mb-8">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progress-fill"></div>
-                </div>
-            </div>
-
-            <!-- Error Container -->
-            <div class="error-container" id="error-container">
-                <p class="text-red-600"><i class="fas fa-exclamation-circle mr-2"></i><span id="error-message"></span></p>
-            </div>
-
-            <div class="flex flex-col lg:flex-row gap-8">
-                <!-- Main Form Column -->
-                <div class="lg:w-2/3">
-                    <!-- Step Indicators -->
-                    <div class="step-indicator">
-                        <div class="step active" id="step1">
-                            1
-                        </div>
-                        <div class="step" id="step2">
-                            2
-                        </div>
-                        <div class="step" id="step3">
-                            3
-                        </div>
-                        <div class="step" id="step4">
-                            4
-                        </div>
-                    </div>
-
-                    <!-- Sign Up Form -->
-                    <form id="influencer-signup-form">
-                        <!-- Step 1: Personal Information -->
-                        <div class="form-section active" id="section1">
-                            <div class="card">
-                                <h2 class="text-2xl font-bold mb-6 text-slate-800">Personal Information</h2>
-                                
-                                <div class="country-highlight mb-6">
-                                    <p class="text-sm text-blue-700 flex items-center">
-                                        <i class="fas fa-info-circle mr-2"></i>
-                                        Select your country first to automatically add the correct country code to your phone number
-                                    </p>
-                                </div>
-                                
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Country comes first -->
-                                    <div class="md:col-span-2">
-                                        <label class="block text-gray-700 font-medium mb-2">Country *</label>
-                                        <select id="country" class="form-input" required onchange="updateCountryCode()">
-                                            <option value="">Select Country</option>
-                                            <option value="Kenya" data-code="+254">Kenya</option>
-                                            <option value="Nigeria" data-code="+234">Nigeria</option>
-                                            <option value="South Africa" data-code="+27">South Africa</option>
-                                            <option value="Ghana" data-code="+233">Ghana</option>
-                                            <option value="Uganda" data-code="+256">Uganda</option>
-                                            <option value="Tanzania" data-code="+255">Tanzania</option>
-                                            <option value="Rwanda" data-code="+250">Rwanda</option>
-                                            <option value="Ethiopia" data-code="+251">Ethiopia</option>
-                                            <option value="Egypt" data-code="+20">Egypt</option>
-                                            <option value="Morocco" data-code="+212">Morocco</option>
-                                            <option value="Other" data-code="">Other</option>
-                                        </select>
-                                        <span class="error-message" id="countryError">Please select your country</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">First Name *</label>
-                                        <input type="text" id="firstName" class="form-input" required>
-                                        <span class="error-message" id="firstNameError">Please enter your first name</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Last Name *</label>
-                                        <input type="text" id="lastName" class="form-input" required>
-                                        <span class="error-message" id="lastNameError">Please enter your last name</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Email Address *</label>
-                                        <input type="email" id="email" class="form-input" required>
-                                        <span class="error-message" id="emailError">Please enter a valid email</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Phone Number *</label>
-                                        <div class="phone-input-group">
-                                            <div class="country-code" id="countryCode">+254</div>
-                                            <input type="tel" id="phone" class="form-input phone-input" placeholder="712345678" required>
-                                        </div>
-                                        <span class="error-message" id="phoneError">Please enter your phone number</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Date of Birth *</label>
-                                        <input type="date" id="dob" class="form-input" required>
-                                        <span class="error-message" id="dobError">You must be at least 18 years old</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Password *</label>
-                                        <input type="password" id="password" class="form-input" required oninput="checkPasswordRequirements()">
-                                        <div class="password-requirements">
-                                            <div class="requirement unmet" id="length-req">
-                                                <i class="fas fa-times-circle"></i> At least 8 characters
-                                            </div>
-                                            <div class="requirement unmet" id="uppercase-req">
-                                                <i class="fas fa-times-circle"></i> At least one uppercase letter
-                                            </div>
-                                            <div class="requirement unmet" id="lowercase-req">
-                                                <i class="fas fa-times-circle"></i> At least one lowercase letter
-                                            </div>
-                                            <div class="requirement unmet" id="number-req">
-                                                <i class="fas fa-times-circle"></i> At least one number
-                                            </div>
-                                        </div>
-                                        <span class="error-message" id="passwordError">Please enter a valid password</span>
-                                    </div>
-                                    
-                                    <div>
-                                        <label class="block text-gray-700 font-medium mb-2">Confirm Password *</label>
-                                        <input type="password" id="confirmPassword" class="form-input" required oninput="checkPasswordMatch()">
-                                        <span class="error-message" id="confirmPasswordError">Passwords do not match</span>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-8 flex justify-end">
-                                    <button type="button" onclick="nextStep(1)" class="px-8 py-3 rounded-full btn-primary">
-                                        Next Step <i class="fas fa-arrow-right ml-2"></i>
-                                    </button>
-                                </div>
+    <section class="pt-32 pb-20 hero-gradient">
+        <div class="container mx-auto px-6">
+            <div class="max-w-5xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="md:flex">
+                        <!-- Left Panel -->
+                        <div class="md:w-2/5 header-gradient p-8 text-white">
+                            <div class="flex items-center mb-10">
+                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                <span class="text-2xl font-bold">LiveX</span>
                             </div>
-                        </div>
-
-                        <!-- Step 2: Social Media Accounts -->
-                        <div class="form-section" id="section2">
-                            <div class="card">
-                                <h2 class="text-2xl font-bold mb-6 text-slate-800">Social Media Accounts</h2>
-                                <p class="text-gray-600 mb-6">Connect at least one social media account to continue. More connections increase your chances of getting brand deals.</p>
-                                
-                                <!-- Instagram -->
-                                <div class="social-platform mb-6" id="instagram-platform">
-                                    <div class="flex items-center mb-4">
-                                        <i class="fab fa-instagram text-2xl text-pink-600 mr-3"></i>
-                                        <h3 class="text-lg font-semibold">Instagram</h3>
-                                    </div>
-                                    <div class="social-connect-btn" id="instagram-connect" onclick="connectSocial('instagram')">
-                                        <span>Add your Instagram account</span>
-                                        <i class="fas fa-plus-circle"></i>
-                                    </div>
-                                    <div id="instagram-info" style="display: none;" class="mt-4">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="font-medium" id="instagram-username">@username</p>
-                                                <p class="follower-count" id="instagram-followers">0 followers</p>
-                                            </div>
-                                            <button type="button" class="text-red-500" onclick="disconnectSocial('instagram')">
-                                                <i class="fas fa-times-circle"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- TikTok -->
-                                <div class="social-platform mb-6" id="tiktok-platform">
-                                    <div class="flex items-center mb-4">
-                                        <i class="fab fa-tiktok text-2xl text-black mr-3"></i>
-                                        <h3 class="text-lg font-semibold">TikTok</h3>
-                                    </div>
-                                    <div class="social-connect-btn" id="tiktok-connect" onclick="connectSocial('tiktok')">
-                                        <span>Add your TikTok account</span>
-                                        <i class="fas fa-plus-circle"></i>
-                                    </div>
-                                    <div id="tiktok-info" style="display: none;" class="mt-4">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="font-medium" id="tiktok-username">@username</p>
-                                                <p class="follower-count" id="tiktok-followers">0 followers</p>
-                                            </div>
-                                            <button type="button" class="text-red-500" onclick="disconnectSocial('tiktok')">
-                                                <i class="fas fa-times-circle"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Facebook -->
-                                <div class="social-platform mb-6" id="facebook-platform">
-                                    <div class="flex items-center mb-4">
-                                        <i class="fab fa-facebook text-2xl text-blue-600 mr-3"></i>
-                                        <h3 class="text-lg font-semibold">Facebook</h3>
-                                    </div>
-                                    <div class="social-connect-btn" id="facebook-connect" onclick="connectSocial('facebook')">
-                                        <span>Add your Facebook account</span>
-                                        <i class="fas fa-plus-circle"></i>
-                                    </div>
-                                    <div id="facebook-info" style="display: none;" class="mt-4">
-                                        <div class="flex items-center justify-between">
-                                            <div>
-                                                <p class="font-medium" id="facebook-username">Page Name</p>
-                                                <p class="follower-count" id="facebook-followers">0 followers</p>
-                                            </div>
-                                            <button type="button" class="text-red-500" onclick="disconnectSocial('facebook')">
-                                                <i class="fas fa-times-circle"></i>
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-8 flex justify-between">
-                                    <button type="button" onclick="prevStep(2)" class="px-8 py-3 rounded-full btn-secondary">
-                                        <i class="fas fa-arrow-left mr-2"></i> Previous
-                                    </button>
-                                    <button type="button" onclick="nextStep(2)" class="px-8 py-3 rounded-full btn-primary">
-                                        Next Step <i class="fas fa-arrow-right ml-2"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 3: Niche & Content -->
-                        <div class="form-section" id="section3">
-                            <div class="card">
-                                <h2 class="text-2xl font-bold mb-6 text-slate-800">Your Niche & Content</h2>
-                                
-                                <div class="mb-6">
-                                    <label class="block text-gray-700 font-medium mb-3">Select Your Primary Niches (Select up to 3)</label>
-                                    <div class="flex flex-wrap gap-3">
-                                        <div class="niche-tag" data-niche="fashion">Fashion</div>
-                                        <div class="niche-tag" data-niche="beauty">Beauty</div>
-                                        <div class="niche-tag" data-niche="lifestyle">Lifestyle</div>
-                                        <div class="niche-tag" data-niche="travel">Travel</div>
-                                        <div class="niche-tag" data-niche="food">Food</div>
-                                        <div class="niche-tag" data-niche="fitness">Fitness</div>
-                                        <div class="niche-tag" data-niche="technology">Technology</div>
-                                        <div class="niche-tag" data-niche="gaming">Gaming</div>
-                                        <div class="niche-tag" data-niche="business">Business</div>
-                                        <div class="niche-tag" data-niche="education">Education</div>
-                                        <div class="niche-tag" data-niche="entertainment">Entertainment</div>
-                                        <div class="niche-tag" data-niche="parenting">Parenting</div>
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <label class="block text-gray-700 font-medium mb-2">Bio/About You *</label>
-                                    <textarea id="bio" class="form-input" rows="4" placeholder="Tell us about yourself and your content. This will be visible to brands looking for influencers..." required></textarea>
-                                    <span class="error-message" id="bioError">Please tell us about yourself</span>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <label class="block text-gray-700 font-medium mb-2">Content Types You Create</label>
-                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="photos"> Photos
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="videos"> Videos
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="stories"> Stories
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="reels"> Reels
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="blogs"> Blogs
-                                        </label>
-                                        <label class="flex items-center">
-                                            <input type="checkbox" class="mr-2" value="podcasts"> Podcasts
-                                        </label>
-                                    </div>
-                                </div>
-                                
-                                <div class="mt-8 flex justify-between">
-                                    <button type="button" onclick="prevStep(3)" class="px-8 py-3 rounded-full btn-secondary">
-                                        <i class="fas fa-arrow-left mr-2"></i> Previous
-                                    </button>
-                                    <button type="button" onclick="nextStep(3)" class="px-8 py-3 rounded-full btn-primary">
-                                        Next Step <i class="fas fa-arrow-right ml-2"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Step 4: Review & Submit -->
-                        <div class="form-section" id="section4">
-                            <div class="card">
-                                <h2 class="text-2xl font-bold mb-6 text-slate-800">Review & Submit</h2>
-                                
-                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                                    <h3 class="text-lg font-semibold mb-4">Personal Information</h3>
-                                    <div id="reviewPersonal" class="text-gray-600">
-                                        <!-- Will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                                    <h3 class="text-lg font-semibold mb-4">Social Media Accounts</h3>
-                                    <div id="reviewSocial" class="text-gray-600">
-                                        <!-- Will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                                
-                                <div class="bg-gray-50 rounded-xl p-6 mb-6">
-                                    <h3 class="text-lg font-semibold mb-4">Niche & Content</h3>
-                                    <div id="reviewNiche" class="text-gray-600">
-                                        <!-- Will be populated by JavaScript -->
-                                    </div>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <label class="flex items-start">
-                                        <input type="checkbox" id="terms" class="mt-1 mr-3" required>
-                                        <span class="text-gray-700">
-                                            I agree to the <a href="#" class="text-blue-600 hover:underline">Terms and Conditions</a> and 
-                                            <a href="#" class="text-blue-600 hover:underline">Privacy Policy</a> *
-                                        </span>
-                                    </label>
-                                    <span class="error-message" id="termsError">You must accept the terms and conditions</span>
-                                </div>
-                                
-                                <div class="mb-6">
-                                    <label class="flex items-start">
-                                        <input type="checkbox" id="newsletter" class="mt-1 mr-3">
-                                        <span class="text-gray-700">
-                                            I'd like to receive newsletter with tips and opportunities
-                                        </span>
-                                    </label>
-                                </div>
-                                
-                                <div class="mt-8 flex justify-between">
-                                    <button type="button" onclick="prevStep(4)" class="px-8 py-3 rounded-full btn-secondary">
-                                        <i class="fas fa-arrow-left mr-2"></i> Previous
-                                    </button>
-                                    <button type="submit" class="px-8 py-3 rounded-full btn-primary">
-                                        Submit Application <i class="fas fa-check ml-2"></i>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </form>
-
-                    <!-- Loading State -->
-                    <div class="loading" id="loading">
-                        <div class="spinner"></div>
-                        <p class="mt-4 text-gray-600">Submitting your application...</p>
-                    </div>
-
-                    <!-- Success Message -->
-                    <div class="success-message" id="success-message">
-                        <i class="fas fa-check-circle text-3xl text-green-500 mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Application Submitted Successfully!</h3>
-                        <p>Thank you for joining LiveX! We've sent a verification email to your registered email address. Please verify your account to complete the registration process.</p>
-                        <button onclick="window.location.href='index.html'" class="mt-4 px-6 py-2 rounded-full btn-primary">
-                            Back to Home
-                        </button>
-                    </div>
-                </div>
-                
-                <!-- Sidebar with Benefits -->
-                <div class="lg:w-1/3">
-                    <div class="card sticky top-32">
-                        <h3 class="text-xl font-bold mb-6 text-slate-800">Why Join LiveX?</h3>
-                        
-                        <div class="benefit-item">
-                            <div class="benefit-icon">
-                                <i class="fas fa-dollar-sign"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">Get Paid for Your Influence</h4>
-                                <p class="text-sm text-gray-600 mt-1">Earn money from brand partnerships that match your style</p>
-                            </div>
-                        </div>
-                        
-                        <div class="benefit-item">
-                            <div class="benefit-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">Grow Your Audience</h4>
-                                <p class="text-sm text-gray-600 mt-1">Access tools and insights to expand your reach</p>
-                            </div>
-                        </div>
-                        
-                        <div class="benefit-item">
-                            <div class="benefit-icon">
-                                <i class="fas fa-handshake"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">Authentic Partnerships</h4>
-                                <p class="text-sm text-gray-600 mt-1">Work with brands that align with your values</p>
-                            </div>
-                        </div>
-                        
-                        <div class="benefit-item">
-                            <div class="benefit-icon">
-                                <i class="fas fa-shield-alt"></i>
-                            </div>
-                            <div>
-                                <h4 class="font-semibold">Secure Payments</h4>
-                                <p class="text-sm text-gray-600 mt-1">Get paid on time with our secure payment system</p>
-                            </div>
-                        </div>
-                        
-                        <div class="mt-8 pt-6 border-t border-gray-200">
-                            <h4 class="font-semibold mb-4">What Our Influencers Say</h4>
                             
-                            <div class="testimonial">
-                                <div class="flex items-center mb-3">
-                                    <img src="assets/images/Third.jpg" alt="Sarah K." class="testimonial-avatar">
-                                    <div>
-                                        <h5 class="font-semibold">Hawa Adam</h5>
-                                        <p class="text-sm text-gray-600">Fashion Influencer</p>
+                            <div class="mb-8">
+                                <h2 class="text-3xl font-bold mb-4">Join Our Creator Community</h2>
+                                <p class="opacity-90">Connect with brands that value your influence. Create your profile and start collaborating.</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Brand collaborations</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Fair compensation</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Creative freedom</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Weekly payments</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-12">
+                                <p class="text-sm opacity-80">Already have an account?</p>
+                                <a href="login.html" class="inline-block mt-2 px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Sign In</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel - Form -->
+                        <div class="md:w-3/5 p-8">
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Your Account</h2>
+                                <p class="text-gray-600">Join as an influencer</p>
+                            </div>
+                            
+                            <form id="signupForm" class="space-y-6">
+                                <!-- Personal Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Personal Information</h3>
+                                    <div class="space-y-4">
+                                        <div class="form-group">
+                                            <label for="name">Full Name</label>
+                                            <input type="text" id="name" name="name" required>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="email">Email Address</label>
+                                            <input type="email" id="email" name="email" required>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="phone">Phone Number</label>
+                                            <input type="tel" id="phone" name="phone" required>
+                                        </div>
                                     </div>
                                 </div>
-                                <p class="text-sm">"LiveX helped me turn my passion into a career. I've worked with amazing brands and doubled my income in just 6 months!"</p>
-                            </div>
+                                
+                                <!-- Password -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Create Password</h3>
+                                    <div class="space-y-4">
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <div class="relative">
+                                                <input type="password" id="password" name="password" required>
+                                                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                    <i class="fas fa-eye text-gray-400"></i>
+                                                </button>
+                                            </div>
+                                            <div id="passwordRequirements" class="password-requirements">
+                                                <p class="mb-1 text-sm text-gray-600">Password must contain:</p>
+                                                <ul>
+                                                    <li id="length" class="text-red-500">At least 8 characters</li>
+                                                    <li id="capital" class="text-red-500">One capital letter</li>
+                                                    <li id="number" class="text-red-500">One number</li>
+                                                    <li id="special" class="text-red-500">One special character</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirm Password</label>
+                                            <input type="password" id="confirmPassword" name="confirmPassword" required>
+                                            <p id="passwordMatch" class="mt-1 text-sm text-red-500 hidden">Passwords do not match</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Social Media -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Social Media Accounts</h3>
+                                    <p class="text-sm text-gray-600 mb-3">Enter your usernames to fetch follower counts</p>
+                                    
+                                    <div class="space-y-4">
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-3">
+                                                <i class="fab fa-instagram text-white"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label for="instagram" class="block text-sm font-medium text-gray-700 mb-1">Instagram Username</label>
+                                                <div class="social-input-group">
+                                                    <input type="text" id="instagram" name="instagram" placeholder="@yourusername">
+                                                    <button type="button" id="fetchInstagram">
+                                                        Fetch
+                                                    </button>
+                                                </div>
+                                                <div id="instagramResult" class="mt-1 text-sm text-gray-600 hidden">
+                                                    <span id="instagramCount" class="font-medium"></span> followers
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-3">
+                                                <i class="fab fa-facebook-f text-white"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Facebook Username</label>
+                                                <div class="social-input-group">
+                                                    <input type="text" id="facebook" name="facebook" placeholder="yourusername">
+                                                    <button type="button" id="fetchFacebook">
+                                                        Fetch
+                                                    </button>
+                                                </div>
+                                                <div id="facebookResult" class="mt-1 text-sm text-gray-600 hidden">
+                                                    <span id="facebookCount" class="font-medium"></span> followers
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center">
+                                            <div class="w-10 h-10 rounded-full bg-black flex items-center justify-center mr-3">
+                                                <i class="fab fa-tiktok text-white"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">TikTok Username</label>
+                                                <div class="social-input-group">
+                                                    <input type="text" id="tiktok" name="tiktok" placeholder="@yourusername">
+                                                    <button type="button" id="fetchTikTok">
+                                                        Fetch
+                                                    </button>
+                                                </div>
+                                                <div id="tiktokResult" class="mt-1 text-sm text-gray-600 hidden">
+                                                    <span id="tiktokCount" class="font-medium"></span> followers
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Follower Summary -->
+                                    <div class="follower-summary">
+                                        <h4 class="font-medium text-gray-800 mb-2">Follower Summary</h4>
+                                        <div class="grid grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Total Followers</p>
+                                                <p id="totalFollowers" class="text-xl font-bold">0</p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Influencer Category</p>
+                                                <p id="influencerCategory" class="text-xl font-bold">-</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Niches -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Your Niches</h3>
+                                    <p class="text-sm text-gray-600 mb-3">Select up to 3 categories that best describe your content</p>
+                                    
+                                    <div class="niche-grid">
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="beauty" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Beauty</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="fashion" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Fashion</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="fitness" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Fitness</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="travel" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Travel</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="food" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Food</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="tech" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Tech</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="lifestyle" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Lifestyle</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="gaming" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Gaming</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="parenting" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Parenting</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="business" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Business</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="music" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Music</span>
+                                        </label>
+                                        <label class="niche-item cursor-pointer">
+                                            <input type="checkbox" name="niche" value="art" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
+                                            <span>Art</span>
+                                        </label>
+                                    </div>
+                                    <p id="nicheError" class="mt-2 text-sm text-red-500 hidden">Please select 1 to 3 niches</p>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="pt-4">
+                                    <button type="submit" id="submitBtn" class="w-full btn-primary font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                        <span>Create Account</span>
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </main>
+    </section>
 
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
@@ -945,43 +728,46 @@
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <div class="flex items-center mb-4">
-                        <div class="h-8 w-8 rounded-full flex items-center justify-center mr-2 overflow-hidden">
-                             <img 
-                                src="assets/images/logo.jpg" 
-                                 alt="Logo" 
-                                 class="h-full w-full object-cover"
-                            />
-                        </div>
-
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
                         <span class="text-xl font-bold">LiveX</span>
                     </div>
-                    <p class="text-gray-400">Connecting influencers with brands for authentic partnerships.</p>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4">For Influencers</h4>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">How It Works</a></li>
-                        <li><a href="#" class="hover:text-white transition">Success Stories</a></li>
-                        <li><a href="#" class="hover:text-white transition">Resources</a></li>
-                </div>
-                
-                <div>
-                    <h4 class="font-semibold mb-4">For Brands</h4>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">Find Influencers</a></li>
-                        <li><a href="#" class="hover:text-white transition">Campaigns</a></li>
-                        <li><a href="#" class="hover:text-white transition">Pricing</a></li>
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
                     </ul>
                 </div>
                 
                 <div>
-                    <h4 class="font-semibold mb-4">Company</h4>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">About Us</a></li>
-                        <li><a href="#" class="hover:text-white transition">Contact</a></li>
-                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
                     </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
                 </div>
             </div>
             
@@ -991,7 +777,281 @@
         </div>
     </footer>
 
-    <!-- JavaScript -->
-    <script src="InfluencerSignup.js"></script>
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        
+        // DOM Elements
+        const signupForm = document.getElementById('signupForm');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const passwordRequirements = {
+            length: document.getElementById('length'),
+            capital: document.getElementById('capital'),
+            number: document.getElementById('number'),
+            special: document.getElementById('special')
+        };
+        const passwordMatch = document.getElementById('passwordMatch');
+        const totalFollowersEl = document.getElementById('totalFollowers');
+        const influencerCategoryEl = document.getElementById('influencerCategory');
+        const nicheCheckboxes = document.querySelectorAll('.niche-checkbox');
+        const nicheError = document.getElementById('nicheError');
+        const submitBtn = document.getElementById('submitBtn');
+        
+        // Social media fetch buttons
+        const fetchInstagram = document.getElementById('fetchInstagram');
+        const fetchFacebook = document.getElementById('fetchFacebook');
+        const fetchTikTok = document.getElementById('fetchTikTok');
+        
+        // Social media inputs
+        const instagramInput = document.getElementById('instagram');
+        const facebookInput = document.getElementById('facebook');
+        const tiktokInput = document.getElementById('tiktok');
+        
+        // Social media result displays
+        const instagramResult = document.getElementById('instagramResult');
+        const facebookResult = document.getElementById('facebookResult');
+        const tiktokResult = document.getElementById('tiktokResult');
+        const instagramCount = document.getElementById('instagramCount');
+        const facebookCount = document.getElementById('facebookCount');
+        const tiktokCount = document.getElementById('tiktokCount');
+        
+        // Follower counts
+        let followerCounts = {
+            instagram: 0,
+            facebook: 0,
+            tiktok: 0
+        };
+        
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            confirmPasswordInput.setAttribute('type', type);
+            
+            const icon = togglePasswordBtn.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+        
+        // Password validation
+        passwordInput.addEventListener('input', validatePassword);
+        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
+        
+        function validatePassword() {
+            const password = passwordInput.value;
+            
+            // Check length
+            if (password.length >= 8) {
+                passwordRequirements.length.classList.remove('text-red-500');
+                passwordRequirements.length.classList.add('text-green-500');
+            } else {
+                passwordRequirements.length.classList.remove('text-green-500');
+                passwordRequirements.length.classList.add('text-red-500');
+            }
+            
+            // Check capital letter
+            if (/[A-Z]/.test(password)) {
+                passwordRequirements.capital.classList.remove('text-red-500');
+                passwordRequirements.capital.classList.add('text-green-500');
+            } else {
+                passwordRequirements.capital.classList.remove('text-green-500');
+                passwordRequirements.capital.classList.add('text-red-500');
+            }
+            
+            // Check number
+            if (/[0-9]/.test(password)) {
+                passwordRequirements.number.classList.remove('text-red-500');
+                passwordRequirements.number.classList.add('text-green-500');
+            } else {
+                passwordRequirements.number.classList.remove('text-green-500');
+                passwordRequirements.number.classList.add('text-red-500');
+            }
+            
+            // Check special character
+            if (/[^A-Za-z0-9]/.test(password)) {
+                passwordRequirements.special.classList.remove('text-red-500');
+                passwordRequirements.special.classList.add('text-green-500');
+            } else {
+                passwordRequirements.special.classList.remove('text-green-500');
+                passwordRequirements.special.classList.add('text-red-500');
+            }
+        }
+        
+        function checkPasswordMatch() {
+            if (passwordInput.value !== confirmPasswordInput.value) {
+                passwordMatch.classList.remove('hidden');
+            } else {
+                passwordMatch.classList.add('hidden');
+            }
+        }
+        
+        // Generate random follower count
+        function generateRandomFollowers() {
+            // Generate a random number between 500 and 2,000,000
+            return Math.floor(Math.random() * 1999500) + 500;
+        }
+        
+        // Fetch Instagram followers
+        fetchInstagram.addEventListener('click', () => {
+            if (instagramInput.value.trim() !== '') {
+                // Generate random follower count
+                followerCounts.instagram = generateRandomFollowers();
+                
+                // Update display
+                instagramCount.textContent = followerCounts.instagram.toLocaleString();
+                instagramResult.classList.remove('hidden');
+                
+                // Update summary
+                updateFollowerSummary();
+            }
+        });
+        
+        // Fetch Facebook followers
+        fetchFacebook.addEventListener('click', () => {
+            if (facebookInput.value.trim() !== '') {
+                // Generate random follower count
+                followerCounts.facebook = generateRandomFollowers();
+                
+                // Update display
+                facebookCount.textContent = followerCounts.facebook.toLocaleString();
+                facebookResult.classList.remove('hidden');
+                
+                // Update summary
+                updateFollowerSummary();
+            }
+        });
+        
+        // Fetch TikTok followers
+        fetchTikTok.addEventListener('click', () => {
+            if (tiktokInput.value.trim() !== '') {
+                // Generate random follower count
+                followerCounts.tiktok = generateRandomFollowers();
+                
+                // Update display
+                tiktokCount.textContent = followerCounts.tiktok.toLocaleString();
+                tiktokResult.classList.remove('hidden');
+                
+                // Update summary
+                updateFollowerSummary();
+            }
+        });
+        
+        function updateFollowerSummary() {
+            const total = followerCounts.instagram + followerCounts.facebook + followerCounts.tiktok;
+            totalFollowersEl.textContent = total.toLocaleString();
+            
+            // Determine influencer category
+            let category = '';
+            if (total < 10000) {
+                category = 'Nano';
+            } else if (total < 100000) {
+                category = 'Micro';
+            } else if (total < 500000) {
+                category = 'Macro';
+            } else {
+                category = 'Mega';
+            }
+            
+            influencerCategoryEl.textContent = category;
+        }
+        
+        // Niche selection validation
+        nicheCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                const checkedCount = document.querySelectorAll('.niche-checkbox:checked').length;
+                
+                if (checkedCount > 3) {
+                    checkbox.checked = false;
+                    nicheError.classList.remove('hidden');
+                } else {
+                    nicheError.classList.add('hidden');
+                }
+            });
+        });
+        
+        // Form submission
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Validate niches
+            const selectedNiches = Array.from(nicheCheckboxes)
+                .filter(checkbox => checkbox.checked)
+                .map(checkbox => checkbox.value);
+                
+            if (selectedNiches.length === 0) {
+                nicheError.classList.remove('hidden');
+                return;
+            }
+            
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Account...';
+            
+            try {
+                // Create user with Firebase Auth
+                const userCredential = await auth.createUserWithEmailAndPassword(
+                    document.getElementById('email').value,
+                    passwordInput.value
+                );
+                
+                const user = userCredential.user;
+                
+                // Save additional user data to Firestore
+                await db.collection('influencers').doc(user.uid).set({
+                    name: document.getElementById('name').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    instagram: instagramInput.value,
+                    facebook: facebookInput.value,
+                    tiktok: tiktokInput.value,
+                    followerCounts: followerCounts,
+                    totalFollowers: followerCounts.instagram + followerCounts.facebook + followerCounts.tiktok,
+                    category: influencerCategoryEl.textContent,
+                    niches: selectedNiches,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Redirect to dashboard
+                window.location.href = 'influencer_dashboard.html';
+                
+            } catch (error) {
+                console.error("Error creating account:", error);
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Create Account</span><i class="fas fa-arrow-right ml-2"></i>';
+                
+                // Show error message
+                alert(`Error: ${error.message}`);
+            }
+        });
+        
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+        
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
+    </script>
 </body>
 </html>

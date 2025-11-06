@@ -3,15 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login | LiveX</title>
+    <title>Login - LiveX</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- GSAP for animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <!-- Custom Styles -->
     <style>
         :root {
             --light-azure: #d2e4ee;
@@ -20,24 +23,58 @@
             --neon-pink: #ff2e63;
         }
         
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: #f8fafc;
+            overflow-x: hidden;
         }
         
         .gradient-bg {
             background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
         }
         
+        .hero-gradient {
+            background: linear-gradient(120deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
         .btn-primary {
             background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
             color: white;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(230, 126, 34, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
         }
         
         .btn-secondary {
@@ -49,23 +86,18 @@
         
         .btn-secondary:hover {
             background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-3px);
         }
         
-        .form-input:focus {
-            border-color: var(--electric-blue);
-            box-shadow: 0 0 0 3px rgba(0, 168, 255, 0.1);
+        .btn-demo {
+            background: linear-gradient(90deg, var(--electric-blue) 0%, #4dc9ff 100%);
+            color: white;
+            transition: all 0.3s ease;
         }
         
-        .error-message {
-            color: #ef4444;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
-        }
-        
-        .success-message {
-            color: #10b981;
-            font-size: 0.875rem;
-            margin-top: 0.25rem;
+        .btn-demo:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 168, 255, 0.3);
         }
         
         .floating {
@@ -78,196 +110,511 @@
             100% { transform: translate(0, -0px); }
         }
         
-        .password-toggle {
-            cursor: pointer;
+        .pulse {
+            animation: pulse 2s infinite;
         }
         
-        .hidden {
-            display: none;
+        @keyframes pulse {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 168, 255, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
         }
         
-        .user-type-selector {
-            display: flex;
-            border-radius: 8px;
-            overflow: hidden;
-            border: 1px solid #e2e8f0;
-            margin-bottom: 20px;
+        .glow {
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
         }
         
-        .user-type-option {
-            flex: 1;
-            padding: 12px 16px;
-            text-align: center;
-            cursor: pointer;
-            background: white;
+        .card-hover {
             transition: all 0.3s ease;
         }
         
-        .user-type-option.active {
-            background: var(--electric-blue);
-            color: white;
+        .card-hover:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
         }
         
-        .user-type-option:not(.active):hover {
-            background: #f8fafc;
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--electric-blue);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 60px;
+            height: 4px;
+            background: var(--dull-orange);
+            border-radius: 2px;
+        }
+        
+        .dashboard-preview {
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            transition: transform 0.5s ease;
+        }
+        
+        .dashboard-preview:hover {
+            transform: perspective(1000px) rotateY(0) rotateX(0);
+        }
+        
+        .tier-card {
+            transition: all 0.3s ease;
+            border-top: 4px solid transparent;
+        }
+        
+        .tier-card:hover {
+            transform: translateY(-10px);
+            border-top: 4px solid var(--electric-blue);
+        }
+        
+        .platform-icon {
+            transition: all 0.3s ease;
+        }
+        
+        .platform-icon:hover {
+            transform: scale(1.2);
+            color: var(--electric-blue);
+        }
+        
+        .stats-counter {
+            font-weight: 700;
+            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .parallax-bg {
+            background-attachment: fixed;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: cover;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .step-card {
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+        }
+        
+        .step-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s ease;
+        }
+        
+        .step-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .step-number {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin: 0 auto 20px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .step-number::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: inherit;
+            z-index: -1;
+            opacity: 0.2;
+            transform: scale(1.2);
+        }
+        
+        .success-message {
+            display: none;
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        
+        .success-message.show {
+            display: block;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(120deg, var(--electric-blue) 0%, #2c5e7a 100%);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c5e7a;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .form-section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--dull-orange);
+            border-radius: 2px;
+        }
+        
+        .role-selector {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .role-option {
+            flex: 1;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .role-option:hover {
+            border-color: var(--electric-blue);
+            background: rgba(0, 168, 255, 0.05);
+        }
+        
+        .role-option.active {
+            border-color: var(--electric-blue);
+            background: rgba(0, 168, 255, 0.1);
+            color: var(--electric-blue);
+        }
+        
+        .role-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            display: block;
         }
     </style>
 </head>
-<body class="gradient-bg min-h-screen flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-    <!-- Background Elements -->
-    <div class="absolute top-0 left-0 w-full h-full overflow-hidden">
-        <div class="absolute -top-40 -right-40 w-80 h-80 rounded-full bg-white opacity-20 floating"></div>
-        <div class="absolute top-1/4 -left-20 w-60 h-60 rounded-full bg-orange-400 opacity-10 floating" style="animation-delay: 1s;"></div>
-        <div class="absolute bottom-20 right-1/4 w-40 h-40 rounded-full bg-blue-400 opacity-10 floating" style="animation-delay: 2s;"></div>
-    </div>
-    
-    <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-2xl shadow-xl z-10">
-        <!-- Header -->
-        <div class="text-center">
-            <div class="flex items-center justify-center mb-6">
-                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-12 w-12 rounded-full mr-3">
-                <span class="text-2xl font-bold">LiveX</span>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
             </div>
-            <h2 class="text-3xl font-bold text-gray-900">Sign In to Your Account</h2>
-            <p class="mt-2 text-gray-600">Welcome back to Africa's leading influencer marketing platform</p>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#influencers" class="nav-link">For Influencers</a>
+                <a href="index.html#brands" class="nav-link">For Brands</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full btn-primary">Get Started</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
         </div>
         
-        <!-- User Type Selector -->
-        <div class="user-type-selector">
-            <div class="user-type-option active" data-type="influencer">Influencer</div>
-            <div class="user-type-option" data-type="brand">Brand</div>
+        <div class="flex flex-col space-y-6">
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
+                <a href="InfluencerSignUp.html" class="w-full mb-3 px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
+            </div>
         </div>
-        
-        <!-- Login Form -->
-        <form class="mt-8 space-y-6" id="login-form">
-            <div class="space-y-4">
-                <!-- Email -->
-                <div>
-                    <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input id="email" name="email" type="email" required 
-                           class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 form-input"
-                           placeholder="Enter your email address">
-                    <div id="email-error" class="error-message"></div>
-                </div>
-                
-                <!-- Password -->
-                <div>
-                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
-                    <div class="relative">
-                        <input id="password" name="password" type="password" required 
-                               class="mt-1 appearance-none relative block w-full px-3 py-3 pr-10 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 form-input"
-                               placeholder="Enter your password">
-                        <div id="password-toggle" class="absolute inset-y-0 right-0 pr-3 flex items-center password-toggle">
-                            <i id="toggle-icon" class="fas fa-eye text-gray-400"></i>
+    </div>
+
+    <!-- Main Content -->
+    <section class="pt-32 pb-20 hero-gradient">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="md:flex">
+                        <!-- Left Panel -->
+                        <div class="md:w-2/5 header-gradient p-8 text-white">
+                            <div class="flex items-center mb-10">
+                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                <span class="text-2xl font-bold">LiveX</span>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h2 class="text-3xl font-bold mb-4">Welcome Back</h2>
+                                <p class="opacity-90">Sign in to access your dashboard and manage your account.</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Secure access</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Role-based dashboard</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Real-time analytics</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Collaboration tools</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-12">
+                                <p class="text-sm opacity-80">Don't have an account?</p>
+                                <div class="mt-2 space-y-2">
+                                    <a href="InfluencerSignUp.html" class="block px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Join as Influencer</a>
+                                    <a href="BrandSignUp.html" class="block px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Join as Brand</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel - Form -->
+                        <div class="md:w-3/5 p-8">
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Sign In</h2>
+                                <p class="text-gray-600">Enter your credentials to continue</p>
+                            </div>
+                            
+                            <form id="loginForm" class="space-y-6">
+                                <!-- Login Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Account Information</h3>
+                                    <div class="space-y-4">
+                                        <div class="form-group">
+                                            <label for="email">Email Address</label>
+                                            <input type="email" id="email" name="email" required>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <div class="relative">
+                                                <input type="password" id="password" name="password" required>
+                                                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center">
+                                                    <i class="fas fa-eye text-gray-400"></i>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Remember Me & Forgot Password -->
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center">
+                                        <input type="checkbox" id="remember" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                                        <label for="remember" class="ml-2 block text-sm text-gray-700">Remember me</label>
+                                    </div>
+                                    <div class="text-sm">
+                                        <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">Forgot your password?</a>
+                                    </div>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="pt-4">
+                                    <button type="submit" id="submitBtn" class="w-full btn-primary font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                        <span>Sign In</span>
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Error Message -->
+                                <div id="errorMessage" class="hidden bg-red-50 border-l-4 border-red-500 p-4">
+                                    <div class="flex">
+                                        <div class="flex-shrink-0">
+                                            <i class="fas fa-exclamation-circle text-red-400"></i>
+                                        </div>
+                                        <div class="ml-3">
+                                            <p class="text-sm text-red-700" id="errorText"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </form>
                         </div>
                     </div>
-                    <div id="password-error" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
                 </div>
                 
-                <!-- Remember Me & Forgot Password -->
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center">
-                        <input id="remember-me" name="remember-me" type="checkbox" 
-                               class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                        <label for="remember-me" class="ml-2 block text-sm text-gray-700">
-                            Remember me
-                        </label>
-                    </div>
-                    
-                    <div class="text-sm">
-                        <a href="#" id="forgot-password" class="font-medium text-blue-600 hover:text-blue-500">
-                            Forgot your password?
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="#" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
                         </a>
                     </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
                 </div>
-            </div>
-
-            <!-- Submit Button -->
-            <div>
-                <button type="submit" id="submit-button" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white btn-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span id="button-text">Sign In</span>
-                    <span id="button-spinner" class="hidden ml-2">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </span>
-                </button>
             </div>
             
-            <!-- Sign Up Links -->
-            <div class="text-center space-y-2">
-                <p class="text-sm text-gray-600">
-                    Don't have an account? 
-                    <a href="InfluencerSignUp.html" class="font-medium text-blue-600 hover:text-blue-500">Sign up as Influencer</a>
-                </p>
-                <p class="text-sm text-gray-600">
-                    or
-                    <a href="BrandSignUp.html" class="font-medium text-blue-600 hover:text-blue-500">Sign up as Brand</a>
-                </p>
-            </div>
-        </form>
-        
-        <!-- Password Reset Form (Hidden by default) -->
-        <form id="reset-form" class="mt-8 space-y-6 hidden">
-            <div class="space-y-4">
-                <div>
-                    <label for="reset-email" class="block text-sm font-medium text-gray-700">Email Address</label>
-                    <input id="reset-email" name="reset-email" type="email" required 
-                           class="mt-1 appearance-none relative block w-full px-3 py-3 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:z-10 form-input"
-                           placeholder="Enter your email address">
-                    <div id="reset-email-error" class="error-message"></div>
-                </div>
-            </div>
-
-            <div>
-                <button type="submit" id="reset-button" 
-                        class="group relative w-full flex justify-center py-3 px-4 border border-transparent text-sm font-medium rounded-lg text-white btn-primary focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                    <span id="reset-button-text">Send Reset Email</span>
-                    <span id="reset-button-spinner" class="hidden ml-2">
-                        <i class="fas fa-spinner fa-spin"></i>
-                    </span>
-                </button>
-            </div>
-            
-            <div class="text-center">
-                <a href="#" id="back-to-login" class="font-medium text-blue-600 hover:text-blue-500">
-                    <i class="fas fa-arrow-left mr-1"></i> Back to Login
-                </a>
-            </div>
-        </form>
-        
-        <!-- Success Message (Hidden by default) -->
-        <div id="success-message" class="hidden p-4 bg-green-50 rounded-lg">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-check-circle text-green-400"></i>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-green-800">Success!</h3>
-                    <div class="mt-2 text-sm text-green-700">
-                        <p id="success-text">You have successfully logged in.</p>
-                    </div>
-                </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
             </div>
         </div>
-        
-        <!-- Error Message (Hidden by default) -->
-        <div id="error-message" class="hidden p-4 bg-red-50 rounded-lg">
-            <div class="flex">
-                <div class="flex-shrink-0">
-                    <i class="fas fa-exclamation-circle text-red-400"></i>
-                </div>
-                <div class="ml-3">
-                    <h3 class="text-sm font-medium text-red-800">Error</h3>
-                    <div class="mt-2 text-sm text-red-700">
-                        <p id="error-text">An error occurred. Please try again.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+    </footer>
 
     <script>
-        // Firebase configuration
+        // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
             authDomain: "livex-b1c25.firebaseapp.com",
@@ -277,328 +624,117 @@
             appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
             measurementId: "G-GNQLPMEJWX"
         };
-
-        // Initialize Firebase
-        try {
-            firebase.initializeApp(firebaseConfig);
-            console.log("Firebase initialized successfully");
-        } catch (error) {
-            console.error("Error initializing Firebase:", error);
-        }
-
+        
+        firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-
-        // User type selection
-        let userType = 'influencer'; // Default to influencer
         
-        // Admin credentials
-        const ADMIN_EMAIL = 'admin@livexafrica.co';
-        const ADMIN_PASSWORD = 'Admin1@123';
+        // DOM Elements
+        const loginForm = document.getElementById('loginForm');
+        const passwordInput = document.getElementById('password');
+        const togglePasswordBtn = document.getElementById('togglePassword');
+        const submitBtn = document.getElementById('submitBtn');
+        const errorMessage = document.getElementById('errorMessage');
+        const errorText = document.getElementById('errorText');
         
-        document.addEventListener('DOMContentLoaded', function() {
-            // User type selection
-            const userTypeOptions = document.querySelectorAll('.user-type-option');
-            userTypeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    userTypeOptions.forEach(opt => opt.classList.remove('active'));
-                    this.classList.add('active');
-                    userType = this.getAttribute('data-type');
-                });
-            });
-
-            // Form validation function
-            function validateLoginForm() {
-                let isValid = true;
-                
-                // Get form values
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                
-                // Reset error messages
-                document.querySelectorAll('.error-message').forEach(el => {
-                    el.textContent = '';
-                });
-                
-                // Validate email
-                if (!email) {
-                    document.getElementById('email-error').textContent = 'Email is required';
-                    isValid = false;
-                } else if (!/\S+@\S+\.\S+/.test(email)) {
-                    document.getElementById('email-error').textContent = 'Email is invalid';
-                    isValid = false;
-                }
-                
-                // Validate password
-                if (!password) {
-                    document.getElementById('password-error').textContent = 'Password is required';
-                    isValid = false;
-                }
-                
-                return isValid;
-            }
-
-            // Handle login form submission
-            document.getElementById('login-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                if (!validateLoginForm()) {
-                    return;
-                }
-                
-                // Get form values
-                const email = document.getElementById('email').value.trim();
-                const password = document.getElementById('password').value;
-                const rememberMe = document.getElementById('remember-me').checked;
-                
-                // Show loading state
-                document.getElementById('button-text').textContent = 'Signing In...';
-                document.getElementById('button-spinner').classList.remove('hidden');
-                document.getElementById('submit-button').disabled = true;
-                
-                try {
-                    // Check if this is an admin login
-                    if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                        // Set persistence based on remember me checkbox
-                        const persistence = rememberMe ? 
-                            firebase.auth.Auth.Persistence.LOCAL : 
-                            firebase.auth.Auth.Persistence.SESSION;
-                        
-                        await auth.setPersistence(persistence);
-                        
-                        // Sign in with Firebase Auth using admin credentials
-                        const userCredential = await auth.signInWithEmailAndPassword(ADMIN_EMAIL, ADMIN_PASSWORD);
-                        
-                        // Show success message
-                        document.getElementById('success-text').textContent = 'You have successfully logged in as Admin. Redirecting...';
-                        document.getElementById('success-message').classList.remove('hidden');
-                        
-                        // Redirect to admin dashboard after a short delay
-                        setTimeout(() => {
-                            window.location.href = 'admin-dashboard.html';
-                        }, 2000);
-                        
-                        return;
-                    }
-                    
-                    // Regular user login flow
-                    // Set persistence based on remember me checkbox
-                    const persistence = rememberMe ? 
-                        firebase.auth.Auth.Persistence.LOCAL : 
-                        firebase.auth.Auth.Persistence.SESSION;
-                    
-                    await auth.setPersistence(persistence);
-                    
-                    // Sign in with Firebase Auth
-                    const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                    const user = userCredential.user;
-                    
-                    // Check if email is verified (skip for admin)
-                    if (!user.emailVerified) {
-                        // Show error message
-                        document.getElementById('error-text').textContent = 'Please verify your email before signing in. Check your inbox for the verification link.';
-                        document.getElementById('error-message').classList.remove('hidden');
-                        
-                        // Reset button state
-                        document.getElementById('button-text').textContent = 'Sign In';
-                        document.getElementById('button-spinner').classList.add('hidden');
-                        document.getElementById('submit-button').disabled = false;
-                        
-                        return;
-                    }
-                    
-                    // Check if user exists in the appropriate collection
-                    let userExists = false;
-                    
-                    if (userType === 'influencer') {
-                        const influencerDoc = await db.collection('influencers').doc(user.uid).get();
-                        userExists = influencerDoc.exists;
-                    } else if (userType === 'brand') {
-                        const brandDoc = await db.collection('brands').doc(user.uid).get();
-                        userExists = brandDoc.exists;
-                    }
-                    
-                    if (!userExists) {
-                        // Show error message
-                        document.getElementById('error-text').textContent = `No ${userType} account found with this email. Please sign up first.`;
-                        document.getElementById('error-message').classList.remove('hidden');
-                        
-                        // Reset button state
-                        document.getElementById('button-text').textContent = 'Sign In';
-                        document.getElementById('button-spinner').classList.add('hidden');
-                        document.getElementById('submit-button').disabled = false;
-                        
-                        return;
-                    }
-                    
-                    // Show success message
-                    document.getElementById('success-text').textContent = 'You have successfully logged in. Redirecting...';
-                    document.getElementById('success-message').classList.remove('hidden');
-                    
-                    // Redirect to appropriate dashboard after a short delay
-                    setTimeout(() => {
-                        if (userType === 'influencer') {
-                            window.location.href = 'influencer-dashboard.html';
-                        } else if (userType === 'brand') {
-                            window.location.href = 'brand-dashboard.html';
-                        }
-                    }, 2000);
-                    
-                } catch (error) {
-                    // Handle errors
-                    console.error('Error signing in:', error);
-                    
-                    let errorMessage = 'An error occurred. Please try again.';
-                    
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage = 'No account found with this email address.';
-                            document.getElementById('email-error').textContent = errorMessage;
-                            break;
-                        case 'auth/wrong-password':
-                            errorMessage = 'Incorrect password. Please try again.';
-                            document.getElementById('password-error').textContent = errorMessage;
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'The email address is invalid.';
-                            document.getElementById('email-error').textContent = errorMessage;
-                            break;
-                        case 'auth/user-disabled':
-                            errorMessage = 'This account has been disabled. Please contact support.';
-                            break;
-                        case 'auth/too-many-requests':
-                            errorMessage = 'Too many failed login attempts. Please try again later.';
-                            break;
-                        default:
-                            errorMessage = error.message;
-                    }
-                    
-                    // Show error message
-                    document.getElementById('error-text').textContent = errorMessage;
-                    document.getElementById('error-message').classList.remove('hidden');
-                    
-                    // Reset button state
-                    document.getElementById('button-text').textContent = 'Sign In';
-                    document.getElementById('button-spinner').classList.add('hidden');
-                    document.getElementById('submit-button').disabled = false;
-                }
-            });
-
-            // Password visibility toggle
-            document.getElementById('password-toggle').addEventListener('click', function() {
-                const passwordInput = document.getElementById('password');
-                const toggleIcon = document.getElementById('toggle-icon');
-                
-                if (passwordInput.type === 'password') {
-                    passwordInput.type = 'text';
-                    toggleIcon.classList.remove('fa-eye');
-                    toggleIcon.classList.add('fa-eye-slash');
-                } else {
-                    passwordInput.type = 'password';
-                    toggleIcon.classList.remove('fa-eye-slash');
-                    toggleIcon.classList.add('fa-eye');
-                }
-            });
-
-            // Show/hide password reset form
-            document.getElementById('forgot-password').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('login-form').classList.add('hidden');
-                document.getElementById('reset-form').classList.remove('hidden');
-                document.getElementById('success-message').classList.add('hidden');
-                document.getElementById('error-message').classList.add('hidden');
-            });
-
-            document.getElementById('back-to-login').addEventListener('click', function(e) {
-                e.preventDefault();
-                document.getElementById('reset-form').classList.add('hidden');
-                document.getElementById('login-form').classList.remove('hidden');
-                document.getElementById('success-message').classList.add('hidden');
-                document.getElementById('error-message').classList.add('hidden');
-            });
-
-            // Handle password reset form submission
-            document.getElementById('reset-form').addEventListener('submit', async (e) => {
-                e.preventDefault();
-                
-                const email = document.getElementById('reset-email').value.trim();
-                
-                // Reset error messages
-                document.getElementById('reset-email-error').textContent = '';
-                
-                // Validate email
-                if (!email) {
-                    document.getElementById('reset-email-error').textContent = 'Email is required';
-                    return;
-                } else if (!/\S+@\S+\.\S+/.test(email)) {
-                    document.getElementById('reset-email-error').textContent = 'Email is invalid';
-                    return;
-                }
-                
-                // Show loading state
-                document.getElementById('reset-button-text').textContent = 'Sending...';
-                document.getElementById('reset-button-spinner').classList.remove('hidden');
-                document.getElementById('reset-button').disabled = true;
-                
-                try {
-                    // Send password reset email
-                    await auth.sendPasswordResetEmail(email);
-                    
-                    // Show success message
-                    document.getElementById('success-text').textContent = 'Password reset email sent! Please check your inbox.';
-                    document.getElementById('success-message').classList.remove('hidden');
-                    
-                    // Reset form
-                    document.getElementById('reset-form').reset();
-                    
-                    // Reset button state
-                    document.getElementById('reset-button-text').textContent = 'Send Reset Email';
-                    document.getElementById('reset-button-spinner').classList.add('hidden');
-                    document.getElementById('reset-button').disabled = false;
-                    
-                } catch (error) {
-                    console.error('Error sending password reset email:', error);
-                    
-                    let errorMessage = 'An error occurred. Please try again.';
-                    
-                    switch (error.code) {
-                        case 'auth/user-not-found':
-                            errorMessage = 'No account found with this email address.';
-                            document.getElementById('reset-email-error').textContent = errorMessage;
-                            break;
-                        case 'auth/invalid-email':
-                            errorMessage = 'The email address is invalid.';
-                            document.getElementById('reset-email-error').textContent = errorMessage;
-                            break;
-                        default:
-                            errorMessage = error.message;
-                    }
-                    
-                    // Show error message
-                    document.getElementById('error-text').textContent = errorMessage;
-                    document.getElementById('error-message').classList.remove('hidden');
-                    
-                    // Reset button state
-                    document.getElementById('reset-button-text').textContent = 'Send Reset Email';
-                    document.getElementById('reset-button-spinner').classList.add('hidden');
-                    document.getElementById('reset-button').disabled = false;
-                }
-            });
+        // Toggle password visibility
+        togglePasswordBtn.addEventListener('click', () => {
+            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+            passwordInput.setAttribute('type', type);
+            
+            const icon = togglePasswordBtn.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
         });
-
-        // Function to show error messages
-        function showError(message) {
-            document.getElementById('error-text').textContent = message;
-            document.getElementById('error-message').classList.remove('hidden');
+        
+        // Form submission
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            // Scroll to top to show error
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            // Hide any previous error messages
+            errorMessage.classList.add('hidden');
             
-            // Hide error after 5 seconds
-            setTimeout(() => {
-                document.getElementById('error-message').classList.add('hidden');
-            }, 5000);
+            // Disable submit button
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Signing In...';
+            
+            try {
+                // Sign in with Firebase Auth
+                const userCredential = await auth.signInWithEmailAndPassword(
+                    document.getElementById('email').value,
+                    passwordInput.value
+                );
+                
+                const user = userCredential.user;
+                
+                // Check user role and redirect accordingly
+                await checkUserRoleAndRedirect(user.uid);
+                
+            } catch (error) {
+                console.error("Error signing in:", error);
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right ml-2"></i>';
+                
+                // Show error message
+                errorText.textContent = error.message;
+                errorMessage.classList.remove('hidden');
+            }
+        });
+        
+        // Function to check user role and redirect
+        async function checkUserRoleAndRedirect(userId) {
+            try {
+                // Check if user is an admin
+                const adminDoc = await db.collection('admins').doc(userId).get();
+                if (adminDoc.exists) {
+                    window.location.href = 'adminDashboard.html';
+                    return;
+                }
+                
+                // Check if user is an influencer
+                const influencerDoc = await db.collection('influencers').doc(userId).get();
+                if (influencerDoc.exists) {
+                    window.location.href = 'influencer_dashboard.html';
+                    return;
+                }
+                
+                // Check if user is a brand
+                const brandDoc = await db.collection('brands').doc(userId).get();
+                if (brandDoc.exists) {
+                    window.location.href = 'BrandDashboard.html';
+                    return;
+                }
+                
+                // If user is not found in any collection
+                throw new Error('User role not found. Please contact support.');
+                
+            } catch (error) {
+                console.error("Error checking user role:", error);
+                
+                // Re-enable submit button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right ml-2"></i>';
+                
+                // Show error message
+                errorText.textContent = error.message;
+                errorMessage.classList.remove('hidden');
+            }
         }
+        
+        // Mobile menu functionality
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenuButton = document.getElementById('close-menu');
+        
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.add('open');
+        });
+        
+        closeMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.remove('open');
+        });
     </script>
 </body>
 </html>
