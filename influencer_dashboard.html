@@ -46,19 +46,7 @@
             overflow-x: hidden;
         }
         
-        .sidebar {
-            background: linear-gradient(180deg, var(--primary-dark) 0%, var(--dark-azure) 100%);
-            width: 260px;
-            min-height: 100vh;
-            position: fixed;
-            left: 0;
-            top: 0;
-            z-index: 100;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
-        }
-        
         .main-content {
-            margin-left: 260px;
             padding: 20px;
         }
         
@@ -161,29 +149,26 @@
         .nav-item {
             display: flex;
             align-items: center;
-            padding: 14px 20px;
-            color: rgba(255, 255, 255, 0.8);
+            padding: 10px 16px;
+            color: var(--dark-azure);
             transition: all 0.2s ease;
             cursor: pointer;
-            border-left: 3px solid transparent;
+            border-radius: 8px;
+            margin-right: 8px;
         }
         
         .nav-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-left: 3px solid var(--light-azure);
+            background: rgba(44, 94, 122, 0.1);
         }
         
         .nav-item.active {
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border-left: 3px solid var(--light-azure);
+            background: rgba(44, 94, 122, 0.15);
+            color: var(--dark-azure);
+            font-weight: 600;
         }
         
         .nav-item i {
-            margin-right: 12px;
-            width: 20px;
-            text-align: center;
+            margin-right: 8px;
         }
         
         .stats-card {
@@ -411,6 +396,12 @@
             display: flex;
             align-items: center;
             margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .social-platform:hover {
+            transform: translateY(-2px);
         }
         
         .social-platform i {
@@ -511,27 +502,6 @@
         .hero-stat-label {
             font-size: 14px;
             opacity: 0.9;
-        }
-        
-        .tab {
-            padding: 10px 20px;
-            cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s ease;
-            font-weight: 500;
-            border-radius: 8px 8px 0 0;
-        }
-        
-        .tab:hover {
-            color: var(--dark-azure);
-            background: rgba(44, 94, 122, 0.05);
-        }
-        
-        .tab.active {
-            border-bottom: 3px solid var(--dark-azure);
-            color: var(--dark-azure);
-            font-weight: 600;
-            background: rgba(44, 94, 122, 0.05);
         }
         
         .campaign-grid {
@@ -706,8 +676,8 @@
         .niche-tag {
             display: inline-block;
             padding: 4px 10px;
-            background: rgba(44, 94, 122, 0.1);
-            color: var(--dark-azure);
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
             border-radius: 20px;
             font-size: 0.75rem;
             font-weight: 500;
@@ -717,16 +687,6 @@
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: relative;
-            }
-            
-            .main-content {
-                margin-left: 0;
-            }
-            
             .hero-section {
                 padding: 20px;
             }
@@ -758,50 +718,32 @@
     </style>
 </head>
 <body>
-    <!-- Sidebar -->
-    <div class="sidebar">
-        <div class="p-6">
-            <div class="flex items-center mb-10">
-                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
-                <span class="text-xl font-bold text-white">LiveX</span>
-            </div>
-            <div class="text-sm text-white text-opacity-80 mb-1">Influencer Dashboard</div>
-        </div>
-        
-        <nav>
-            <div class="nav-item active" data-page="dashboard">
-                <i class="fas fa-tachometer-alt"></i>
-                <span>Dashboard</span>
-            </div>
-            <div class="nav-item" data-page="campaigns">
-                <i class="fas fa-bullhorn"></i>
-                <span>Available Campaigns</span>
-            </div>
-            <div class="nav-item" data-page="my-campaigns">
-                <i class="fas fa-tasks"></i>
-                <span>My Campaigns</span>
-            </div>
-            <div class="nav-item" data-page="payments">
-                <i class="fas fa-money-bill-wave"></i>
-                <span>Payments</span>
-            </div>
-        </nav>
-        
-        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-white border-opacity-20">
-            <button id="logoutBtn" class="nav-item">
-                <i class="fas fa-sign-out-alt"></i>
-                <span>Logout</span>
-            </button>
-        </div>
-    </div>
-    
     <!-- Main Content -->
     <div class="main-content">
         <!-- Top Bar -->
         <div class="top-bar">
-            <div>
+            <div class="flex items-center">
+                <div class="flex items-center mr-8">
+                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                    <span class="text-xl font-bold text-gray-800">LiveX</span>
+                </div>
                 <h1 class="text-2xl font-bold text-gray-800">Influencer Dashboard</h1>
-                <p class="text-gray-600">Manage your campaigns and track your earnings</p>
+                
+                <!-- Navigation -->
+                <div class="flex ml-8">
+                    <div class="nav-item active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" data-page="campaigns">
+                        <i class="fas fa-bullhorn"></i>
+                        <span>Available Campaigns</span>
+                    </div>
+                    <div class="nav-item" data-page="my-campaigns">
+                        <i class="fas fa-tasks"></i>
+                        <span>My Active Campaigns</span>
+                    </div>
+                </div>
             </div>
             
             <div class="flex items-center">
@@ -815,9 +757,16 @@
                         <div class="text-sm text-gray-500" id="influencerTierHeader">Tier</div>
                     </div>
                 </div>
-                <a href="login.html" class="ml-6 px-4 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition">
-                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
-                </a>
+                
+                <div class="nav-item" data-page="payments">
+                    <i class="fas fa-money-bill-wave"></i>
+                    <span>Payments</span>
+                </div>
+                
+                <button id="logoutBtn" class="nav-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Logout</span>
+                </button>
             </div>
         </div>
         
@@ -860,6 +809,14 @@
                                 <div class="hero-stat">
                                     <div class="hero-stat-value" id="totalFollowers">0</div>
                                     <div class="hero-stat-label">Total</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Social Media Links -->
+                            <div class="mt-4">
+                                <p class="text-sm opacity-80 mb-2">Social Media Profiles:</p>
+                                <div id="socialMediaLinks">
+                                    <!-- Social media links will be inserted here -->
                                 </div>
                             </div>
                             
@@ -927,13 +884,6 @@
         <div id="campaignsPage" class="page-content hidden">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold text-gray-800">Available Campaigns</h2>
-                <div class="flex space-x-2">
-                    <button class="tab active" data-tab="all">All Campaigns</button>
-                    <button class="tab" data-tab="beauty">Beauty</button>
-                    <button class="tab" data-tab="fashion">Fashion</button>
-                    <button class="tab" data-tab="fitness">Fitness</button>
-                    <button class="tab" data-tab="travel">Travel</button>
-                </div>
             </div>
             
             <div class="campaign-grid" id="campaignsGrid">
@@ -946,7 +896,7 @@
         <!-- My Campaigns Page -->
         <div id="myCampaignsPage" class="page-content hidden">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-xl font-bold text-gray-800">My Campaigns</h2>
+                <h2 class="text-xl font-bold text-gray-800">My Active Campaigns</h2>
                 <div class="flex space-x-2">
                     <button class="tab active" data-tab="active">Active</button>
                     <button class="tab" data-tab="pending">Pending Approval</button>
@@ -1100,6 +1050,8 @@
             navItems.forEach(item => {
                 item.addEventListener('click', () => {
                     const page = item.dataset.page;
+                    if (!page) return; // Skip items without page data (like logout)
+                    
                     navItems.forEach(nav => nav.classList.remove('active'));
                     item.classList.add('active');
                     
@@ -1245,6 +1197,60 @@
                             (currentInfluencer.totalFollowers || 0).toLocaleString();
                     }
                     
+                    // Update social media links
+                    const socialMediaLinks = document.getElementById('socialMediaLinks');
+                    socialMediaLinks.innerHTML = '';
+                    
+                    if (currentInfluencer.socialLinks) {
+                        if (currentInfluencer.socialLinks.instagram) {
+                            const instagramLink = document.createElement('div');
+                            instagramLink.className = 'social-platform instagram';
+                            instagramLink.innerHTML = `
+                                <i class="fab fa-instagram"></i>
+                                <div>
+                                    <div class="font-medium">${currentInfluencer.socialLinks.instagramUsername || '@username'}</div>
+                                    <div class="text-sm opacity-80">${(currentInfluencer.followerCounts?.instagram || 0).toLocaleString()} followers</div>
+                                </div>
+                            `;
+                            instagramLink.addEventListener('click', () => {
+                                window.open(`https://instagram.com/${currentInfluencer.socialLinks.instagramUsername || ''}`, '_blank');
+                            });
+                            socialMediaLinks.appendChild(instagramLink);
+                        }
+                        
+                        if (currentInfluencer.socialLinks.tiktok) {
+                            const tiktokLink = document.createElement('div');
+                            tiktokLink.className = 'social-platform tiktok';
+                            tiktokLink.innerHTML = `
+                                <i class="fab fa-tiktok"></i>
+                                <div>
+                                    <div class="font-medium">${currentInfluencer.socialLinks.tiktokUsername || '@username'}</div>
+                                    <div class="text-sm opacity-80">${(currentInfluencer.followerCounts?.tiktok || 0).toLocaleString()} followers</div>
+                                </div>
+                            `;
+                            tiktokLink.addEventListener('click', () => {
+                                window.open(`https://tiktok.com/@${currentInfluencer.socialLinks.tiktokUsername || ''}`, '_blank');
+                            });
+                            socialMediaLinks.appendChild(tiktokLink);
+                        }
+                        
+                        if (currentInfluencer.socialLinks.facebook) {
+                            const facebookLink = document.createElement('div');
+                            facebookLink.className = 'social-platform facebook';
+                            facebookLink.innerHTML = `
+                                <i class="fab fa-facebook-f"></i>
+                                <div>
+                                    <div class="font-medium">${currentInfluencer.socialLinks.facebookUsername || 'username'}</div>
+                                    <div class="text-sm opacity-80">${(currentInfluencer.followerCounts?.facebook || 0).toLocaleString()} followers</div>
+                                </div>
+                            `;
+                            facebookLink.addEventListener('click', () => {
+                                window.open(`https://facebook.com/${currentInfluencer.socialLinks.facebookUsername || ''}`, '_blank');
+                            });
+                            socialMediaLinks.appendChild(facebookLink);
+                        }
+                    }
+                    
                     // Update niches
                     const nichesContainer = document.getElementById('influencerNiches');
                     nichesContainer.innerHTML = '';
@@ -1282,7 +1288,7 @@
                         description: data.description || '',
                         brandName: data.brandName || 'Unknown Brand',
                         niches: data.niches || [],
-                        tier: data.tier || 'Unknown',
+                        tier: data.tier || 'nano',
                         status: data.status || 'pending'
                     });
                 });
@@ -1379,48 +1385,86 @@
             let availableCampaigns = campaigns;
             
             if (currentInfluencer) {
-                // Filter by tier
-                availableCampaigns = availableCampaigns.filter(c => 
-                    c.tier === currentInfluencer.category || c.tier === 'all'
-                );
+                console.log("=== CAMPAIGN FILTERING DEBUG ===");
+                console.log("Current influencer:", {
+                    category: currentInfluencer.category,
+                    niches: currentInfluencer.niches,
+                    totalFollowers: currentInfluencer.totalFollowers
+                });
                 
-                // Filter by niches (if campaign has niches and influencer has niches)
+                // Filter by tier - IMPROVED MATCHING
+                availableCampaigns = availableCampaigns.filter(c => {
+                    const campaignTier = (c.tier || 'nano').toLowerCase();
+                    const influencerCategory = (currentInfluencer.category || 'nano').toLowerCase();
+                    
+                    console.log(`Campaign: ${c.name}, Tier: ${campaignTier}, Influencer Category: ${influencerCategory}`);
+                    
+                    // Allow tier matching with fuzzy logic
+                    const tierMatch = campaignTier === influencerCategory;
+                    console.log(`Tier match for ${c.name}: ${tierMatch}`);
+                    return tierMatch;
+                });
+
+                console.log(`After tier filtering: ${availableCampaigns.length} campaigns`);
+
+                // Filter by niches - MORE FLEXIBLE MATCHING
                 if (currentInfluencer.niches && currentInfluencer.niches.length > 0) {
-                    // Normalize influencer niches: trim and lower case
-                    const influencerNiches = currentInfluencer.niches.map(n => n.trim().toLowerCase());
+                    // Normalize influencer niches
+                    const influencerNiches = currentInfluencer.niches.map(n => 
+                        n.toString().trim().toLowerCase()
+                    );
+                    
+                    console.log("Influencer niches:", influencerNiches);
+
                     availableCampaigns = availableCampaigns.filter(c => {
-                        // If the campaign has no niches specified, include it
-                        if (!c.niches || !Array.isArray(c.niches) || c.niches.length === 0) {
+                        // If campaign has no niches specified, include it
+                        if (!c.niches || c.niches.length === 0) {
+                            console.log(`Campaign ${c.name} has no niches, including`);
                             return true;
                         }
-                        
-                        // Ensure campaign niches is an array
+
+                        // Normalize campaign niches
                         let campaignNiches = c.niches;
                         if (typeof campaignNiches === 'string') {
                             campaignNiches = campaignNiches.split(',').map(n => n.trim());
-                        } else if (!Array.isArray(campaignNiches)) {
-                            // If it's not a string or array, treat as no niches
-                            return true;
                         }
                         
-                        // Normalize campaign niches
-                        campaignNiches = campaignNiches.map(n => n.trim().toLowerCase());
+                        // Ensure it's an array
+                        if (!Array.isArray(campaignNiches)) {
+                            campaignNiches = [campaignNiches];
+                        }
                         
+                        // Normalize to lowercase
+                        campaignNiches = campaignNiches.map(n => n.toString().toLowerCase().trim());
+                        console.log(`Campaign ${c.name} niches:`, campaignNiches);
+
                         // Check if at least one of the campaign's niches is in the influencer's niches
-                        return campaignNiches.some(niche => 
+                        const hasMatchingNiche = campaignNiches.some(niche => 
                             influencerNiches.includes(niche)
                         );
+                        
+                        console.log(`Campaign ${c.name} niche match: ${hasMatchingNiche}`);
+                        return hasMatchingNiche;
                     });
+                } else {
+                    console.log("Influencer has no niches specified, showing all campaigns for their tier");
                 }
-                
+
+                console.log(`After niche filtering: ${availableCampaigns.length} campaigns`);
+
                 // Filter out campaigns the influencer has already joined
                 const joinedCampaignIds = myCampaigns.map(mc => mc.campaignId);
                 availableCampaigns = availableCampaigns.filter(c => 
                     !joinedCampaignIds.includes(c.id)
                 );
-                
+
+                console.log(`After removing joined campaigns: ${availableCampaigns.length} campaigns`);
+
                 // Only show active campaigns
                 availableCampaigns = availableCampaigns.filter(c => c.status === 'active');
+
+                console.log(`After active filter: ${availableCampaigns.length} campaigns`);
+                console.log("Final available campaigns:", availableCampaigns.map(c => c.name));
             }
             
             if (availableCampaigns.length === 0) {
@@ -1836,57 +1880,110 @@
                         description: data.description || '',
                         brandName: data.brandName || 'Unknown Brand',
                         niches: data.niches || [],
-                        tier: data.tier || 'Unknown',
+                        tier: data.tier || 'nano',
                         status: data.status || 'pending'
                     });
                 });
                 
-                // Filter campaigns based on influencer's tier and niches
+                // Reload myCampaigns
+                if (currentInfluencer) {
+                    const myCampaignsSnapshot = await db.collection('influencers').doc(currentInfluencer.id).collection('myCampaigns').get();
+                    myCampaigns = [];
+                    myCampaignsSnapshot.forEach(doc => {
+                        const data = doc.data();
+                        myCampaigns.push({ 
+                            id: doc.id, 
+                            ...data,
+                            campaignId: data.campaignId || '',
+                            status: data.status || 'active'
+                        });
+                    });
+                }
+                
+                // Filter campaigns based on influencer's tier and niches - FIXED VERSION
                 let availableCampaigns = campaigns;
                 
                 if (currentInfluencer) {
-                    // Filter by tier
-                    availableCampaigns = availableCampaigns.filter(c => 
-                        c.tier === currentInfluencer.category || c.tier === 'all'
-                    );
+                    console.log("=== CAMPAIGN FILTERING DEBUG ===");
+                    console.log("Current influencer:", {
+                        category: currentInfluencer.category,
+                        niches: currentInfluencer.niches,
+                        totalFollowers: currentInfluencer.totalFollowers
+                    });
                     
-                    // Filter by niches (if campaign has niches and influencer has niches)
+                    // Filter by tier - IMPROVED MATCHING
+                    availableCampaigns = availableCampaigns.filter(c => {
+                        const campaignTier = (c.tier || 'nano').toLowerCase();
+                        const influencerCategory = (currentInfluencer.category || 'nano').toLowerCase();
+                        
+                        console.log(`Campaign: ${c.name}, Tier: ${campaignTier}, Influencer Category: ${influencerCategory}`);
+                        
+                        // Allow tier matching with fuzzy logic
+                        const tierMatch = campaignTier === influencerCategory;
+                        console.log(`Tier match for ${c.name}: ${tierMatch}`);
+                        return tierMatch;
+                    });
+
+                    console.log(`After tier filtering: ${availableCampaigns.length} campaigns`);
+
+                    // Filter by niches - MORE FLEXIBLE MATCHING
                     if (currentInfluencer.niches && currentInfluencer.niches.length > 0) {
-                        // Normalize influencer niches: trim and lower case
-                        const influencerNiches = currentInfluencer.niches.map(n => n.trim().toLowerCase());
+                        // Normalize influencer niches
+                        const influencerNiches = currentInfluencer.niches.map(n => 
+                            n.toString().trim().toLowerCase()
+                        );
+                        
+                        console.log("Influencer niches:", influencerNiches);
+
                         availableCampaigns = availableCampaigns.filter(c => {
-                            // If the campaign has no niches specified, include it
-                            if (!c.niches || !Array.isArray(c.niches) || c.niches.length === 0) {
+                            // If campaign has no niches specified, include it
+                            if (!c.niches || c.niches.length === 0) {
+                                console.log(`Campaign ${c.name} has no niches, including`);
                                 return true;
                             }
-                            
-                            // Ensure campaign niches is an array
+
+                            // Normalize campaign niches
                             let campaignNiches = c.niches;
                             if (typeof campaignNiches === 'string') {
                                 campaignNiches = campaignNiches.split(',').map(n => n.trim());
-                            } else if (!Array.isArray(campaignNiches)) {
-                                // If it's not a string or array, treat as no niches
-                                return true;
                             }
                             
-                            // Normalize campaign niches
-                            campaignNiches = campaignNiches.map(n => n.trim().toLowerCase());
+                            // Ensure it's an array
+                            if (!Array.isArray(campaignNiches)) {
+                                campaignNiches = [campaignNiches];
+                            }
                             
+                            // Normalize to lowercase
+                            campaignNiches = campaignNiches.map(n => n.toString().toLowerCase().trim());
+                            console.log(`Campaign ${c.name} niches:`, campaignNiches);
+
                             // Check if at least one of the campaign's niches is in the influencer's niches
-                            return campaignNiches.some(niche => 
+                            const hasMatchingNiche = campaignNiches.some(niche => 
                                 influencerNiches.includes(niche)
                             );
+                            
+                            console.log(`Campaign ${c.name} niche match: ${hasMatchingNiche}`);
+                            return hasMatchingNiche;
                         });
+                    } else {
+                        console.log("Influencer has no niches specified, showing all campaigns for their tier");
                     }
-                    
+
+                    console.log(`After niche filtering: ${availableCampaigns.length} campaigns`);
+
                     // Filter out campaigns the influencer has already joined
                     const joinedCampaignIds = myCampaigns.map(mc => mc.campaignId);
                     availableCampaigns = availableCampaigns.filter(c => 
                         !joinedCampaignIds.includes(c.id)
                     );
-                    
+
+                    console.log(`After removing joined campaigns: ${availableCampaigns.length} campaigns`);
+
                     // Only show active campaigns
                     availableCampaigns = availableCampaigns.filter(c => c.status === 'active');
+
+                    console.log(`After active filter: ${availableCampaigns.length} campaigns`);
+                    console.log("Final available campaigns:", availableCampaigns.map(c => c.name));
                 }
                 
                 // Update campaigns grid
@@ -1951,7 +2048,7 @@
                         description: data.description || '',
                         brandName: data.brandName || 'Unknown Brand',
                         niches: data.niches || [],
-                        tier: data.tier || 'Unknown',
+                        tier: data.tier || 'nano',
                         status: data.status || 'pending'
                     });
                 });
@@ -2066,20 +2163,10 @@
             const pageId = tabContainer.closest('.page-content').id;
             
             switch (pageId) {
-                case 'campaignsPage':
-                    filterCampaigns(tabName);
-                    break;
                 case 'myCampaignsPage':
                     filterMyCampaigns(tabName);
                     break;
             }
-        }
-        
-        // Filter campaigns
-        function filterCampaigns(tabName) {
-            // This function would filter campaigns by niche
-            // For simplicity, we'll just reload the page
-            loadCampaignsPage();
         }
         
         // Filter my campaigns
