@@ -304,6 +304,39 @@
             color: white;
             font-size: 2.5rem;
         }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+        
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
+        }
+        
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-completed {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #fca5a5;
+            color: #991b1b;
+        }
+        
+        .status-paid {
+            background-color: #059669;
+            color: white;
+        }
     </style>
 </head>
 <body class="min-h-screen gradient-bg">
@@ -479,6 +512,70 @@
         </div>
     </div>
 
+    <!-- Submission Modal -->
+    <div id="submission-modal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800">Submit Your Work</h2>
+                        <p id="submission-campaign-name" class="text-gray-600">Campaign Name</p>
+                    </div>
+                    <button onclick="closeSubmissionModal()" class="p-3 hover:bg-gray-100 rounded-full transition-colors">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+
+                <div id="submission-content" class="space-y-6">
+                    <div>
+                        <p class="text-gray-600 mb-4">Please provide at least one URL to your social media post</p>
+                        
+                        <div class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fab fa-instagram mr-2 text-pink-600"></i>
+                                    Instagram Post URL
+                                </label>
+                                <input type="url" id="instagram-url" placeholder="https://instagram.com/p/..." class="input-focus">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fab fa-facebook mr-2 text-blue-600"></i>
+                                    Facebook Post URL
+                                </label>
+                                <input type="url" id="facebook-url" placeholder="https://facebook.com/..." class="input-focus">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    <i class="fab fa-tiktok mr-2 text-gray-800"></i>
+                                    TikTok Post URL
+                                </label>
+                                <input type="url" id="tiktok-url" placeholder="https://tiktok.com/..." class="input-focus">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-orange-50 p-4 rounded-lg">
+                        <p class="text-sm text-orange-800">
+                            <strong>Note:</strong> Payment will be processed on the Saturday following your submission date.
+                        </p>
+                    </div>
+
+                    <div class="flex space-x-4">
+                        <button onclick="closeSubmissionModal()" class="flex-1 btn-secondary py-3 rounded-lg">
+                            Cancel
+                        </button>
+                        <button onclick="submitWork()" class="flex-1 btn-primary py-3 rounded-lg">
+                            Submit Work
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Firebase Configuration -->
     <script>
         // Firebase configuration
@@ -503,6 +600,8 @@
         let currentProfile = null;
         let allCampaigns = [];
         let selectedCampaign = null;
+        let myCampaigns = [];
+        let mySubmissions = [];
 
         // Check authentication on page load
         auth.onAuthStateChanged(async (user) => {
@@ -510,6 +609,7 @@
                 currentUser = user;
                 await loadProfile();
                 await loadCampaigns();
+                await loadMyCampaigns();
                 document.getElementById('loading-screen').style.display = 'none';
             } else {
                 // Redirect to login if not authenticated
@@ -574,176 +674,127 @@
             }
         }
 
-        // Load campaigns - FIXED VERSION
+        // Load available campaigns - FIXED VERSION
         async function loadCampaigns() {
             try {
-                console.log('Loading campaigns for influencer...');
+                console.log('Loading available campaigns...');
                 
-                // Try multiple statuses to find approved campaigns
-                const statuses = ['active', 'available', 'approved', 'published'];
-                let availableCampaigns = [];
+                // Load all active campaigns
+                const snapshot = await db.collection('campaigns')
+                    .where('status', '==', 'active')
+                    .get();
                 
-                for (const status of statuses) {
-                    try {
-                        const snapshot = await db.collection('campaigns')
-                            .where('status', '==', status)
-                            .where('spotsAvailable', '>', 0)
-                            .get();
-                        
-                        const campaigns = snapshot.docs.map(doc => ({
-                            id: doc.id,
-                            ...doc.data()
-                        }));
-                        
-                        availableCampaigns = [...availableCampaigns, ...campaigns];
-                        console.log(`Found ${campaigns.length} campaigns with status: ${status}`);
-                    } catch (error) {
-                        console.log(`No campaigns found with status: ${status}`, error.message);
-                    }
-                }
-                
-                // If no campaigns found with specific statuses, try without status filter
-                if (availableCampaigns.length === 0) {
-                    console.log('Trying to load all campaigns without status filter...');
-                    const allSnapshot = await db.collection('campaigns')
-                        .where('spotsAvailable', '>', 0)
-                        .get();
-                    
-                    availableCampaigns = allSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    console.log(`Found ${availableCampaigns.length} campaigns without status filter`);
-                }
+                allCampaigns = snapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
 
-                // Fetch campaigns the influencer has joined
-                let joinedCampaigns = [];
-                try {
-                    const joinedSnapshot = await db.collection('campaigns')
-                        .where('influencers', 'array-contains', currentUser.uid)
-                        .get();
-                    
-                    joinedCampaigns = joinedSnapshot.docs.map(doc => ({
-                        id: doc.id,
-                        ...doc.data()
-                    }));
-                    console.log(`Found ${joinedCampaigns.length} joined campaigns`);
-                } catch (error) {
-                    console.log('Error loading joined campaigns:', error);
-                    // Alternative approach: look for submissions
-                    try {
-                        const submissionsSnapshot = await db.collection('submissions')
-                            .where('influencerId', '==', currentUser.uid)
-                            .get();
-                        
-                        const submissionCampaignIds = submissionsSnapshot.docs.map(doc => doc.data().campaignId);
-                        
-                        // Fetch campaign details for each submission
-                        for (const campaignId of submissionCampaignIds) {
-                            const campaignDoc = await db.collection('campaigns').doc(campaignId).get();
-                            if (campaignDoc.exists) {
-                                joinedCampaigns.push({
-                                    id: campaignDoc.id,
-                                    ...campaignDoc.data()
-                                });
-                            }
-                        }
-                        console.log(`Found ${joinedCampaigns.length} campaigns via submissions`);
-                    } catch (submissionError) {
-                        console.log('Error loading campaigns via submissions:', submissionError);
-                    }
-                }
-
-                // Filter available campaigns based on influencer's profile
-                const filteredAvailable = availableCampaigns.filter(campaign => {
-                    // Skip campaigns already joined
-                    if (joinedCampaigns.some(jc => jc.id === campaign.id)) {
-                        return false;
-                    }
-                    
-                    // Check category match
-                    const categoryMatch = campaign.category === currentProfile.category;
-                    
-                    // Check niche match if niches exist
-                    let nicheMatch = true;
-                    if (campaign.niches && currentProfile.niches) {
-                        nicheMatch = campaign.niches.some(niche => 
-                            currentProfile.niches.includes(niche)
-                        );
-                    }
-                    
-                    return categoryMatch && nicheMatch;
-                });
-
-                allCampaigns = [...filteredAvailable, ...joinedCampaigns];
-                console.log('Total campaigns to display:', allCampaigns.length);
-                displayCampaigns();
-                updateStats();
+                console.log('Loaded campaigns:', allCampaigns.length);
+                displayAvailableCampaigns();
             } catch (error) {
                 console.error('Error loading campaigns:', error);
-                // Show error message to user
-                document.getElementById('available-campaigns').innerHTML = `
-                    <div class="text-center py-12">
-                        <i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>
-                        <p class="text-gray-500 mb-2">Error loading campaigns</p>
-                        <p class="text-sm text-gray-400">Please refresh the page or try again later</p>
-                    </div>
-                `;
+                // Try without the where clause if the query fails
+                try {
+                    const snapshot = await db.collection('campaigns').get();
+                    allCampaigns = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    
+                    // Filter for active campaigns manually
+                    allCampaigns = allCampaigns.filter(campaign => campaign.status === 'active');
+                    
+                    console.log('Loaded campaigns (fallback):', allCampaigns.length);
+                    displayAvailableCampaigns();
+                } catch (fallbackError) {
+                    console.error('Error loading campaigns (fallback):', fallbackError);
+                    document.getElementById('available-campaigns').innerHTML = `
+                        <div class="text-center py-12">
+                            <i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>
+                            <p class="text-gray-500 mb-2">Error loading campaigns</p>
+                            <p class="text-sm text-gray-400">Please refresh the page or try again later</p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Load my campaigns (campaigns the influencer has joined) - FIXED VERSION
+        async function loadMyCampaigns() {
+            try {
+                console.log('Loading my campaigns...');
+                
+                // Get all submissions by this influencer
+                const submissionsSnapshot = await db.collectionGroup('submissions')
+                    .where('influencerId', '==', currentUser.uid)
+                    .get();
+                
+                mySubmissions = [];
+                submissionsSnapshot.forEach(doc => {
+                    mySubmissions.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Fetch campaign details for each submission
+                myCampaigns = [];
+                for (const submission of mySubmissions) {
+                    if (submission.campaignId) {
+                        const campaignDoc = await db.collection('campaigns').doc(submission.campaignId).get();
+                        if (campaignDoc.exists) {
+                            myCampaigns.push({
+                                id: campaignDoc.id,
+                                ...campaignDoc.data(),
+                                submissionStatus: submission.status,
+                                submissionId: submission.id
+                            });
+                        }
+                    }
+                }
+                
+                console.log('Loaded my campaigns:', myCampaigns.length);
+                displayMyCampaigns();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading my campaigns:', error);
             }
         }
 
         // Update stats
         function updateStats() {
-            const joinedCampaigns = allCampaigns.filter(c => {
-                // Check if influencer has joined this campaign
-                return c.influencers && c.influencers.includes(currentUser.uid);
-            });
-            
             // Calculate pending payment
-            const pendingCampaigns = joinedCampaigns.filter(c => 
-                c.status === 'submitted' || c.status === 'pending_payment' || c.status === 'completed'
+            let pendingAmount = 0;
+            
+            // Get all submissions with pending payment status
+            const pendingSubmissions = mySubmissions.filter(sub => 
+                sub.status === 'submitted' || sub.status === 'pending_payment'
             );
             
-            let pendingAmount = 0;
-            pendingCampaigns.forEach(campaign => {
-                pendingAmount += getPaymentAmount(campaign.category);
+            pendingSubmissions.forEach(submission => {
+                pendingAmount += submission.amount || getPaymentAmount(submission.campaignCategory);
             });
             
             document.getElementById('pending-payment').textContent = `Ksh ${pendingAmount.toLocaleString()}`;
             
             // Calculate completed campaigns
-            const completedCampaigns = joinedCampaigns.filter(c => 
-                c.status === 'paid' || c.status === 'completed'
+            const completedCampaigns = myCampaigns.filter(campaign => 
+                campaign.submissionStatus === 'paid' || campaign.status === 'completed'
             ).length;
             
             document.getElementById('profile-completed').textContent = `${completedCampaigns} Campaigns`;
         }
 
-        // Display campaigns
-        function displayCampaigns() {
+        // Display available campaigns - FIXED VERSION
+        function displayAvailableCampaigns() {
             const availableContainer = document.getElementById('available-campaigns');
-            const myContainer = document.getElementById('my-campaigns');
-            const paymentsContainer = document.getElementById('upcoming-payments');
             
-            // Clear existing content
-            availableContainer.innerHTML = '';
-            myContainer.innerHTML = '';
-            paymentsContainer.innerHTML = '';
-            
-            // Separate available and joined campaigns
+            // Filter out campaigns the influencer has already joined
+            const joinedCampaignIds = myCampaigns.map(campaign => campaign.id);
             const availableCampaigns = allCampaigns.filter(campaign => {
-                // Campaign is available if influencer hasn't joined it
-                return !campaign.influencers || !campaign.influencers.includes(currentUser.uid);
+                // Only show campaigns with available spots and not already joined
+                return (campaign.spotsAvailable > 0) && !joinedCampaignIds.includes(campaign.id);
             });
-            
-            const joinedCampaigns = allCampaigns.filter(campaign => {
-                // Campaign is joined if influencer is in the influencers array
-                return campaign.influencers && campaign.influencers.includes(currentUser.uid);
-            });
-            
-            const pendingPayments = joinedCampaigns.filter(c => 
-                c.status === 'submitted' || c.status === 'pending_payment' || c.status === 'completed'
-            );
             
             // Display available campaigns
             if (availableCampaigns.length === 0) {
@@ -755,13 +806,26 @@
                     </div>
                 `;
             } else {
-                availableCampaigns.forEach(campaign => {
-                    availableContainer.appendChild(createCampaignCard(campaign, 'available'));
-                });
+                availableContainer.innerHTML = availableCampaigns.map(campaign => createCampaignCard(campaign, 'available')).join('');
             }
+        }
+
+        // Display my campaigns - FIXED VERSION
+        function displayMyCampaigns() {
+            const myContainer = document.getElementById('my-campaigns');
+            const paymentsContainer = document.getElementById('upcoming-payments');
+            
+            // Clear existing content
+            myContainer.innerHTML = '';
+            paymentsContainer.innerHTML = '';
+            
+            // Get pending payments
+            const pendingPayments = mySubmissions.filter(sub => 
+                sub.status === 'submitted' || sub.status === 'pending_payment'
+            );
             
             // Display my campaigns
-            if (joinedCampaigns.length === 0) {
+            if (myCampaigns.length === 0) {
                 myContainer.innerHTML = `
                     <div class="text-center py-8">
                         <i class="fas fa-briefcase text-gray-300 text-4xl mb-3"></i>
@@ -769,93 +833,92 @@
                     </div>
                 `;
             } else {
-                joinedCampaigns.forEach(campaign => {
-                    myContainer.appendChild(createCampaignCard(campaign, 'joined'));
+                myCampaigns.forEach(campaign => {
+                    myContainer.innerHTML += createCampaignCard(campaign, 'joined');
                 });
             }
             
-            // Display upcoming payments
-            if (pendingPayments.length === 0) {
+            // Display pending payments
+            displayPendingPayments(pendingPayments);
+        }
+
+        // Display pending payments
+        function displayPendingPayments(payments) {
+            const paymentsContainer = document.getElementById('upcoming-payments');
+            
+            if (payments.length === 0) {
                 paymentsContainer.innerHTML = `
                     <div class="text-center py-4">
                         <p class="text-gray-500 text-sm">No upcoming payments</p>
                     </div>
                 `;
             } else {
-                pendingPayments.forEach(campaign => {
-                    paymentsContainer.appendChild(createPaymentCard(campaign));
-                });
+                paymentsContainer.innerHTML = payments.map(payment => createPaymentCard(payment)).join('');
             }
         }
 
-        // Create campaign card
+        // Create campaign card - FIXED VERSION
         function createCampaignCard(campaign, type) {
-            const card = document.createElement('div');
-            card.className = 'campaign-card bg-white p-5';
-            
             const paymentAmount = getPaymentAmount(campaign.category);
-            const statusBadge = getStatusBadge(campaign.status, type);
+            const statusBadge = getStatusBadge(type === 'available' ? 'available' : (campaign.submissionStatus || 'joined'));
             
-            card.innerHTML = `
-                <div class="flex justify-between items-start mb-3">
-                    <div class="flex-1">
-                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${campaign.name || 'Unnamed Campaign'}</h3>
-                        <p class="text-gray-600 text-sm mb-2">by ${campaign.brand || 'Unknown Brand'}</p>
-                        <div class="flex items-center space-x-2 mb-3">
-                            ${statusBadge}
-                            ${type === 'available' ? `
-                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                                    ${campaign.spotsAvailable || 0} spots left
-                                </span>
-                            ` : ''}
+            return `
+                <div class="campaign-card bg-white p-5">
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <h3 class="text-lg font-semibold text-gray-800 mb-1">${campaign.name || 'Unnamed Campaign'}</h3>
+                            <p class="text-gray-600 text-sm mb-2">by ${campaign.brand || 'Unknown Brand'}</p>
+                            <div class="flex items-center space-x-2 mb-3">
+                                ${statusBadge}
+                                ${type === 'available' ? `
+                                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                        ${campaign.spotsAvailable || 0} spots left
+                                    </span>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-lg font-bold text-orange-600">Ksh ${paymentAmount.toLocaleString()}</p>
+                            <p class="text-xs text-gray-500">Payment</p>
                         </div>
                     </div>
-                    <div class="text-right">
-                        <p class="text-lg font-bold text-orange-600">Ksh ${paymentAmount}</p>
-                        <p class="text-xs text-gray-500">Payment</p>
+                    
+                    <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-bullseye text-blue-500"></i>
+                            <span>${campaign.goal || 'Brand Awareness'}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-calendar text-green-500"></i>
+                            <span>${campaign.deadline || '7 days'}</span>
+                        </div>
                     </div>
+                    
+                    <button onclick="${type === 'available' ? `showCampaignDetails('${campaign.id}')` : `showSubmissionForm('${campaign.id}')`}" class="w-full btn-primary py-2 rounded-lg">
+                        ${type === 'available' ? 'View Details' : 'Submit Work'}
+                    </button>
                 </div>
-                
-                <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
-                    <div class="flex items-center space-x-1">
-                        <i class="fas fa-bullseye text-blue-500"></i>
-                        <span>${campaign.goal || 'Brand Awareness'}</span>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <i class="fas fa-calendar text-green-500"></i>
-                        <span>${campaign.deadline || '7 days'}</span>
-                    </div>
-                </div>
-                
-                <button onclick="showCampaignDetails('${campaign.id}')" class="w-full btn-primary py-2 rounded-lg">
-                    ${type === 'available' ? 'View Details' : 'View Progress'}
-                </button>
             `;
-            
-            return card;
         }
 
         // Create payment card
-        function createPaymentCard(campaign) {
-            const card = document.createElement('div');
-            card.className = 'border border-gray-200 rounded-lg p-4 mb-3';
+        function createPaymentCard(payment) {
+            const paymentAmount = payment.amount || getPaymentAmount(payment.campaignCategory);
             
-            const paymentAmount = getPaymentAmount(campaign.category);
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-center">
-                    <div>
-                        <h4 class="font-medium text-gray-800">${campaign.name || 'Unnamed Campaign'}</h4>
-                        <p class="text-sm text-gray-600">${campaign.brand || 'Unknown Brand'}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="font-bold text-green-600">Ksh ${paymentAmount}</p>
-                        <p class="text-xs text-gray-500">${campaign.paymentDate || 'Processing...'}</p>
+            return `
+                <div class="border border-gray-200 rounded-lg p-4 mb-3">
+                    <div class="flex justify-between items-center">
+                        <div>
+                            <h4 class="font-medium text-gray-800">${payment.campaignName || 'Unnamed Campaign'}</h4>
+                            <p class="text-sm text-gray-600">${payment.campaignBrand || 'Unknown Brand'}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="font-bold text-green-600">Ksh ${paymentAmount.toLocaleString()}</p>
+                            <p class="text-xs text-gray-500">${payment.paymentDate || 'Processing...'}</p>
+                        </div>
                     </div>
                 </div>
             `;
-            
-            return card;
         }
 
         // Get payment amount based on category
@@ -870,20 +933,17 @@
         }
 
         // Get status badge
-        function getStatusBadge(status, type) {
-            if (type === 'available') {
-                return '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Available</span>';
-            }
-            
+        function getStatusBadge(status) {
             const badges = {
-                'joined': '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Joined</span>',
-                'submitted': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Submitted</span>',
-                'pending_payment': '<span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">Pending Payment</span>',
-                'paid': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Paid</span>',
-                'completed': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Completed</span>',
-                'active': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Active</span>'
+                'available': '<span class="status-badge status-active">Available</span>',
+                'joined': '<span class="status-badge status-pending">Joined</span>',
+                'submitted': '<span class="status-badge status-pending">Submitted</span>',
+                'pending_payment': '<span class="status-badge status-pending">Pending Payment</span>',
+                'paid': '<span class="status-badge status-paid">Paid</span>',
+                'completed': '<span class="status-badge status-completed">Completed</span>',
+                'active': '<span class="status-badge status-active">Active</span>'
             };
-            return badges[status] || '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">' + (status || 'Unknown') + '</span>';
+            return badges[status] || '<span class="status-badge status-pending">' + (status || 'Unknown') + '</span>';
         }
 
         // Show campaign details
@@ -898,145 +958,111 @@
             document.getElementById('modal-campaign-brand').textContent = selectedCampaign.brand || 'Unknown Brand';
             
             const paymentAmount = getPaymentAmount(selectedCampaign.category);
-            const hasJoined = selectedCampaign.influencers && selectedCampaign.influencers.includes(currentUser.uid);
             
-            if (!hasJoined) {
-                modalContent.innerHTML = `
-                    <div class="space-y-6">
-                        <div class="bg-blue-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-sm text-blue-800">Payment Amount</p>
-                                    <p class="text-xl font-bold text-blue-800">Ksh ${paymentAmount}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-blue-800">Spots Available</p>
-                                    <p class="text-xl font-bold text-blue-800">${selectedCampaign.spotsAvailable || 0}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Campaign Goal</h3>
-                            <p class="text-gray-600">${selectedCampaign.goal || 'Not specified'}</p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Instructions</h3>
-                            <p class="text-gray-600">${selectedCampaign.instructions || 'No specific instructions provided.'}</p>
-                        </div>
-
-                        ${selectedCampaign.caption ? `
+            modalContent.innerHTML = `
+                <div class="space-y-6">
+                    <div class="bg-blue-50 p-4 rounded-lg">
+                        <div class="flex justify-between items-center">
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Caption</h3>
-                                <div class="bg-gray-50 p-3 rounded-lg">
-                                    <p class="text-gray-700">${selectedCampaign.caption}</p>
-                                </div>
+                                <p class="text-sm text-blue-800">Payment Amount</p>
+                                <p class="text-xl font-bold text-blue-800">Ksh ${paymentAmount.toLocaleString()}</p>
                             </div>
-                        ` : ''}
-
-                        ${selectedCampaign.hashtags && selectedCampaign.hashtags.length > 0 ? `
                             <div>
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Hashtags</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    ${selectedCampaign.hashtags.map(tag => `
-                                        <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                            <i class="fas fa-hash text-xs"></i>
-                                            <span>${tag.replace('#', '')}</span>
-                                        </span>
-                                    `).join('')}
-                                </div>
+                                <p class="text-sm text-blue-800">Spots Available</p>
+                                <p class="text-xl font-bold text-blue-800">${selectedCampaign.spotsAvailable || 0}</p>
                             </div>
-                        ` : ''}
-
-                        ${selectedCampaign.mentions && selectedCampaign.mentions.length > 0 ? `
-                            <div>
-                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Accounts to Tag</h3>
-                                <div class="flex flex-wrap gap-2">
-                                    ${selectedCampaign.mentions.map(mention => `
-                                        <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                            <i class="fas fa-at text-xs"></i>
-                                            <span>${mention.replace('@', '')}</span>
-                                        </span>
-                                    `).join('')}
-                                </div>
-                            </div>
-                        ` : ''}
-
-                        <button onclick="joinCampaign()" class="w-full btn-primary py-3 rounded-lg">
-                            Join This Campaign
-                        </button>
-                    </div>
-                `;
-            } else {
-                modalContent.innerHTML = `
-                    <div class="space-y-6">
-                        <div class="bg-orange-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-sm text-orange-800">Payment Amount</p>
-                                    <p class="text-xl font-bold text-orange-800">Ksh ${paymentAmount}</p>
-                                </div>
-                                <div>
-                                    <p class="text-sm text-orange-800">Status</p>
-                                    <p class="text-xl font-bold text-orange-800">${getStatusText(selectedCampaign.status)}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Submit Your Work</h3>
-                            <p class="text-gray-600 mb-4">Please provide at least one URL to your social media post</p>
-                            
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fab fa-instagram mr-2 text-pink-600"></i>
-                                        Instagram Post URL
-                                    </label>
-                                    <input type="url" id="instagram-url" placeholder="https://instagram.com/p/..." class="input-focus">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fab fa-facebook mr-2 text-blue-600"></i>
-                                        Facebook Post URL
-                                    </label>
-                                    <input type="url" id="facebook-url" placeholder="https://facebook.com/..." class="input-focus">
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-2">
-                                        <i class="fab fa-tiktok mr-2 text-gray-800"></i>
-                                        TikTok Post URL
-                                    </label>
-                                    <input type="url" id="tiktok-url" placeholder="https://tiktok.com/..." class="input-focus">
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-orange-50 p-4 rounded-lg">
-                            <p class="text-sm text-orange-800">
-                                <strong>Note:</strong> Payment will be processed on the Saturday following your submission date.
-                            </p>
-                        </div>
-
-                        <div class="flex space-x-4">
-                            <button onclick="closeModal()" class="flex-1 btn-secondary py-3 rounded-lg">
-                                Cancel
-                            </button>
-                            <button onclick="submitWork()" class="flex-1 btn-primary py-3 rounded-lg">
-                                Submit Work
-                            </button>
                         </div>
                     </div>
-                `;
-            }
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Campaign Goal</h3>
+                        <p class="text-gray-600">${selectedCampaign.goal || 'Not specified'}</p>
+                    </div>
+
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-2">Instructions</h3>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${selectedCampaign.instructions ? selectedCampaign.instructions.map(instruction => `
+                                    <li class="text-gray-800">${instruction}</li>
+                                `).join('') : '<li class="text-gray-500">No instructions provided</li>'}
+                            </ul>
+                        </div>
+                    </div>
+
+                    ${selectedCampaign.caption ? `
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Caption</h3>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="text-gray-700">${selectedCampaign.caption}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${selectedCampaign.hashtags && selectedCampaign.hashtags.length > 0 ? `
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Hashtags</h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${selectedCampaign.hashtags.map(tag => `
+                                    <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                        <i class="fas fa-hash text-xs"></i>
+                                        <span>${tag.replace('#', '')}</span>
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${selectedCampaign.mentions && selectedCampaign.mentions.length > 0 ? `
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Accounts to Tag</h3>
+                            <div class="flex flex-wrap gap-2">
+                                ${selectedCampaign.mentions.map(mention => `
+                                    <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                        <i class="fas fa-at text-xs"></i>
+                                        <span>${mention.replace('@', '')}</span>
+                                    </span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    ${selectedCampaign.resources && selectedCampaign.resources.length > 0 ? `
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Resources</h3>
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                ${selectedCampaign.resources.map(resource => `
+                                    <img src="${resource}" alt="Campaign resource" class="w-full h-20 object-cover rounded-lg">
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+
+                    <button onclick="joinCampaign()" class="w-full btn-primary py-3 rounded-lg">
+                        Join This Campaign
+                    </button>
+                </div>
+            `;
             
             modal.classList.add('active');
         }
 
-        // Profile picture upload functionality - FIXED VERSION
+        // Show submission form
+        function showSubmissionForm(campaignId) {
+            selectedCampaign = myCampaigns.find(c => c.id === campaignId);
+            if (!selectedCampaign) return;
+            
+            document.getElementById('submission-campaign-name').textContent = selectedCampaign.name || 'Unnamed Campaign';
+            
+            // Clear form fields
+            document.getElementById('instagram-url').value = '';
+            document.getElementById('facebook-url').value = '';
+            document.getElementById('tiktok-url').value = '';
+            
+            document.getElementById('submission-modal').classList.add('active');
+        }
+
+        // Profile picture upload functionality with WebP conversion
         function openProfilePicUpload() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1055,12 +1081,30 @@
             profilePic.innerHTML = '<div class="loading-spinner"></div>';
 
             try {
+                // Delete previous profile picture if exists
+                if (currentProfile.profilePictureUrl) {
+                    try {
+                        // Extract the file path from the URL
+                        const url = new URL(currentProfile.profilePictureUrl);
+                        const filePath = decodeURIComponent(url.pathname.split('/o/')[1].split('?')[0]);
+                        const oldPicRef = storage.ref().child(filePath);
+                        await oldPicRef.delete();
+                        console.log('Previous profile picture deleted');
+                    } catch (deleteError) {
+                        console.error('Error deleting previous profile picture:', deleteError);
+                        // Continue with upload even if deletion fails
+                    }
+                }
+
+                // Convert image to WebP
+                const webpBlob = await convertToWebP(file);
+                
                 // Create a storage reference
                 const storageRef = storage.ref();
-                const profilePicRef = storageRef.child(`influencer-profiles/${currentUser.uid}/profile-picture`);
+                const profilePicRef = storageRef.child(`influencer-profiles/${currentUser.uid}/profile-picture.webp`);
                 
-                // Upload the file
-                const snapshot = await profilePicRef.put(file);
+                // Upload the WebP file
+                const snapshot = await profilePicRef.put(webpBlob);
                 
                 // Get the download URL
                 const downloadURL = await snapshot.ref.getDownloadURL();
@@ -1091,17 +1135,33 @@
             }
         }
 
-        // Get status text
-        function getStatusText(status) {
-            const statusMap = {
-                'joined': 'Joined',
-                'submitted': 'Submitted',
-                'pending_payment': 'Pending Payment',
-                'paid': 'Paid',
-                'completed': 'Completed',
-                'active': 'Active'
-            };
-            return statusMap[status] || status || 'Unknown';
+        // Convert image to WebP format
+        function convertToWebP(file) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Failed to convert image to WebP'));
+                        }
+                    }, 'image/webp', 0.8);
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
         }
 
         // Close modal
@@ -1109,27 +1169,62 @@
             document.getElementById('campaign-modal').classList.remove('active');
         }
 
+        // Close submission modal
+        function closeSubmissionModal() {
+            document.getElementById('submission-modal').classList.remove('active');
+        }
+
         // Join campaign - FIXED VERSION
         async function joinCampaign() {
+            if (!selectedCampaign) return;
+            
             try {
-                // Add influencer to campaign's influencers array
-                const campaignRef = db.collection('campaigns').doc(selectedCampaign.id);
-                await campaignRef.update({
-                    influencers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
-                    spotsAvailable: (selectedCampaign.spotsAvailable || 0) - 1,
-                    status: 'active' // Ensure campaign is marked as active
+                // Check if there are spots available
+                if (selectedCampaign.spotsAvailable <= 0) {
+                    alert('Sorry, this campaign is full!');
+                    closeModal();
+                    return;
+                }
+
+                // Create submission document in the campaign's submissions subcollection
+                const submissionData = {
+                    campaignId: selectedCampaign.id,
+                    campaignName: selectedCampaign.name,
+                    campaignBrand: selectedCampaign.brand,
+                    campaignCategory: selectedCampaign.category,
+                    influencerId: currentUser.uid,
+                    influencerName: currentProfile.name,
+                    influencerInstagram: currentProfile.socialMedia?.instagram?.username,
+                    status: 'joined',
+                    amount: getPaymentAmount(selectedCampaign.category),
+                    joinedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Add submission to the campaign's submissions subcollection
+                const submissionRef = await db.collection('campaigns')
+                    .doc(selectedCampaign.id)
+                    .collection('submissions')
+                    .add(submissionData);
+
+                // Update campaign spots available
+                await db.collection('campaigns').doc(selectedCampaign.id).update({
+                    spotsAvailable: (selectedCampaign.spotsAvailable || 0) - 1
                 });
 
                 // Update local data
-                if (!selectedCampaign.influencers) {
-                    selectedCampaign.influencers = [];
-                }
-                selectedCampaign.influencers.push(currentUser.uid);
                 selectedCampaign.spotsAvailable = (selectedCampaign.spotsAvailable || 0) - 1;
-                selectedCampaign.status = 'active';
-
+                
+                // Add to my campaigns
+                myCampaigns.push({
+                    ...selectedCampaign,
+                    submissionStatus: 'joined',
+                    submissionId: submissionRef.id
+                });
+                
                 // Refresh campaigns display
-                displayCampaigns();
+                displayAvailableCampaigns();
+                displayMyCampaigns();
                 updateStats();
                 
                 // Show success message and close modal
@@ -1143,6 +1238,8 @@
 
         // Submit work - FIXED VERSION
         async function submitWork() {
+            if (!selectedCampaign) return;
+            
             const instagramUrl = document.getElementById('instagram-url').value;
             const facebookUrl = document.getElementById('facebook-url').value;
             const tiktokUrl = document.getElementById('tiktok-url').value;
@@ -1153,46 +1250,56 @@
             }
 
             try {
-                const today = new Date().toISOString().split('T')[0];
+                const today = new Date();
                 const paymentDate = calculatePaymentDate(today);
 
-                // Create submission document
-                const submissionData = {
-                    campaignId: selectedCampaign.id,
-                    campaignName: selectedCampaign.name,
-                    influencerId: currentUser.uid,
-                    influencerName: currentProfile.name,
-                    influencerInstagram: currentProfile.socialMedia?.instagram?.username,
-                    submittedUrls: {
-                        instagram: instagramUrl,
-                        facebook: facebookUrl,
-                        tiktok: tiktokUrl
-                    },
-                    submissionDate: today,
-                    paymentDate: paymentDate,
-                    status: 'submitted',
-                    amount: getPaymentAmount(selectedCampaign.category),
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                };
+                // Find the submission for this campaign
+                const submission = mySubmissions.find(sub => 
+                    sub.campaignId === selectedCampaign.id && sub.influencerId === currentUser.uid
+                );
 
-                // Add submission to submissions collection
-                await db.collection('submissions').add(submissionData);
+                if (!submission) {
+                    alert('Error: Could not find your campaign submission. Please try joining the campaign again.');
+                    return;
+                }
 
-                // Update campaign status
-                await db.collection('campaigns').doc(selectedCampaign.id).update({
-                    status: 'submitted'
-                });
+                // Update submission with work details
+                await db.collection('campaigns')
+                    .doc(selectedCampaign.id)
+                    .collection('submissions')
+                    .doc(submission.id)
+                    .update({
+                        submittedUrls: {
+                            instagram: instagramUrl,
+                            facebook: facebookUrl,
+                            tiktok: tiktokUrl
+                        },
+                        submissionDate: firebase.firestore.FieldValue.serverTimestamp(),
+                        paymentDate: paymentDate.toISOString().split('T')[0],
+                        status: 'submitted'
+                    });
 
                 // Update local data
-                selectedCampaign.status = 'submitted';
-                selectedCampaign.submissionDate = today;
-                selectedCampaign.paymentDate = paymentDate;
+                submission.status = 'submitted';
+                submission.submittedUrls = {
+                    instagram: instagramUrl,
+                    facebook: facebookUrl,
+                    tiktok: tiktokUrl
+                };
+                submission.submissionDate = today;
+                submission.paymentDate = paymentDate;
+
+                // Update the campaign in myCampaigns
+                const campaignIndex = myCampaigns.findIndex(c => c.id === selectedCampaign.id);
+                if (campaignIndex !== -1) {
+                    myCampaigns[campaignIndex].submissionStatus = 'submitted';
+                }
 
                 // Refresh campaigns display
-                displayCampaigns();
+                displayMyCampaigns();
                 updateStats();
                 
-                closeModal();
+                closeSubmissionModal();
                 alert('Work submitted successfully! It will be reviewed by the admin.');
             } catch (error) {
                 console.error('Error submitting work:', error);
@@ -1200,7 +1307,7 @@
             }
         }
 
-        // Calculate payment date
+        // Calculate payment date (next Saturday)
         function calculatePaymentDate(submissionDate) {
             const submitDate = new Date(submissionDate);
             const dayOfWeek = submitDate.getDay(); // 0 = Sunday, 6 = Saturday
@@ -1215,7 +1322,7 @@
             const paymentDate = new Date(submitDate);
             paymentDate.setDate(submitDate.getDate() + daysUntilSaturday);
             
-            return paymentDate.toISOString().split('T')[0];
+            return paymentDate;
         }
 
         // Handle logout
@@ -1228,11 +1335,10 @@
             }
         }
 
-        // Close modal when clicking outside
+        // Close modals when clicking outside
         window.onclick = function(event) {
-            const modal = document.getElementById('campaign-modal');
-            if (event.target === modal) {
-                closeModal();
+            if (event.target.classList.contains('modal')) {
+                event.target.classList.remove('active');
             }
         }
     </script>

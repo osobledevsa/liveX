@@ -174,8 +174,45 @@
         }
         
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+            border-bottom: 3px solid transparent;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            border-bottom: 3px solid var(--dull-orange);
+            color: var(--dull-orange);
+        }
+        
+        .campaign-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .campaign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--dull-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
@@ -183,7 +220,7 @@
     <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
         <div class="text-center">
-            <div class="w-12 h-12 border-4 border-red-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <div class="loading-spinner mx-auto mb-4"></div>
             <p class="text-gray-600">Loading admin dashboard...</p>
         </div>
     </div>
@@ -192,11 +229,11 @@
     <header class="w-full py-4 px-6 bg-white shadow-sm">
         <div class="container mx-auto flex justify-between items-center">
             <div class="flex items-center">
-                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <div class="h-10 w-10 bg-blue-500 rounded-full mr-3 flex items-center justify-center text-white font-bold">LX</div>
                 <span class="text-xl font-bold text-gray-800">LiveX</span>
                 <div class="ml-3 flex items-center">
                     <i class="fas fa-shield-alt text-red-600 text-lg"></i>
-                    <span class="text-lg font-semibold text-gray-800">Admin</span>
+                    <span class="text-lg font-semibold text-gray-800 ml-1">Admin</span>
                 </div>
             </div>
             
@@ -285,15 +322,15 @@
                         </div>
 
                         <!-- Campaign Lists -->
-                        <div id="pending-campaigns" class="p-6 grid gap-4">
+                        <div id="pending-campaigns-container" class="p-6 grid gap-4">
                             <!-- Pending campaigns will be loaded here -->
                         </div>
                         
-                        <div id="active-campaigns" class="p-6 grid gap-4 hidden">
+                        <div id="active-campaigns-container" class="p-6 grid gap-4 hidden">
                             <!-- Active campaigns will be loaded here -->
                         </div>
                         
-                        <div id="all-campaigns" class="p-6 grid gap-4 hidden">
+                        <div id="all-campaigns-container" class="p-6 grid gap-4 hidden">
                             <!-- All campaigns will be loaded here -->
                         </div>
                     </div>
@@ -306,10 +343,10 @@
                             <div class="flex items-center justify-between">
                                 <h2 class="text-2xl font-bold text-gray-800">Payment Management</h2>
                                 <div class="flex items-center space-x-4">
-                                    <button onclick="switchPaymentTab('pending')" class="tab-button active py-4 font-medium text-gray-700" data-tab="pending">
+                                    <button onclick="switchPaymentTab('pending')" class="payment-tab-button active py-4 font-medium text-gray-700" data-tab="pending">
                                         Pending Payments
                                     </button>
-                                    <button onclick="switchPaymentTab('approved')" class="tab-button py-4 font-medium text-gray-700" data-tab="approved">
+                                    <button onclick="switchPaymentTab('approved')" class="payment-tab-button py-4 font-medium text-gray-700" data-tab="approved">
                                         Approved
                                     </button>
                                 </div>
@@ -317,11 +354,11 @@
                         </div>
 
                         <!-- Payment Lists -->
-                        <div id="pending-payments" class="p-6 grid gap-4">
+                        <div id="pending-payments-container" class="p-6 grid gap-4">
                             <!-- Pending payments will be loaded here -->
                         </div>
                         
-                        <div id="approved-payments" class="p-6 grid gap-4 hidden">
+                        <div id="approved-payments-container" class="p-6 grid gap-4 hidden">
                             <!-- Approved payments will be loaded here -->
                         </div>
                     </div>
@@ -395,12 +432,14 @@
         let currentTab = 'pending';
         let selectedCampaign = null;
         let selectedPayment = null;
+        let allSubmissions = [];
 
         // Check authentication on page load
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 await loadCampaigns();
+                await loadSubmissions();
                 document.getElementById('loading-screen').style.display = 'none';
             } else {
                 window.location.href = 'login.html';
@@ -423,6 +462,56 @@
                 updateStats();
             } catch (error) {
                 console.error('Error loading campaigns:', error);
+                // Try without ordering if index doesn't exist
+                try {
+                    const snapshot = await db.collection('campaigns').get();
+                    
+                    allCampaigns = snapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+
+                    displayCampaigns();
+                    updateStats();
+                } catch (fallbackError) {
+                    console.error('Error loading campaigns (fallback):', fallbackError);
+                }
+            }
+        }
+
+        // Load submissions for payment management
+        async function loadSubmissions() {
+            try {
+                allSubmissions = [];
+                
+                // Get all campaigns
+                const campaignsSnapshot = await db.collection('campaigns').get();
+                
+                // For each campaign, get its submissions
+                for (const campaignDoc of campaignsSnapshot.docs) {
+                    const campaign = {
+                        id: campaignDoc.id,
+                        ...campaignDoc.data()
+                    };
+                    
+                    const submissionsSnapshot = await db.collection('campaigns')
+                        .doc(campaignDoc.id)
+                        .collection('submissions')
+                        .get();
+                    
+                    submissionsSnapshot.forEach(submissionDoc => {
+                        allSubmissions.push({
+                            id: submissionDoc.id,
+                            campaignId: campaignDoc.id,
+                            campaignName: campaign.name,
+                            ...submissionDoc.data()
+                        });
+                    });
+                }
+                
+                displayPayments();
+            } catch (error) {
+                console.error('Error loading submissions:', error);
             }
         }
 
@@ -431,23 +520,22 @@
             const totalCampaigns = allCampaigns.length;
             const activeCampaigns = allCampaigns.filter(c => c.status === 'active').length;
             const pendingCampaigns = allCampaigns.filter(c => c.status === 'pending').length;
-            const completedCampaigns = allCampaigns.filter(c => c.status === 'completed').length;
             
             document.getElementById('total-campaigns').textContent = totalCampaigns;
             document.getElementById('active-campaigns').textContent = activeCampaigns;
             document.getElementById('pending-campaigns').textContent = pendingCampaigns;
-            document.getElementById('completed-campaigns').textContent = completedCampaigns;
             
-            // Calculate total revenue
+            // Calculate total revenue from completed campaigns
+            const completedCampaigns = allCampaigns.filter(c => c.status === 'completed');
             const totalRevenue = completedCampaigns.reduce((sum, c) => sum + (c.totalCost || 0), 0);
             document.getElementById('total-revenue').textContent = `Ksh ${totalRevenue.toLocaleString()}`;
         }
 
         // Display campaigns
         function displayCampaigns() {
-            const pendingContainer = document.getElementById('pending-campaigns');
-            const activeContainer = document.getElementById('active-campaigns');
-            const allContainer = document.getElementById('all-campaigns');
+            const pendingContainer = document.getElementById('pending-campaigns-container');
+            const activeContainer = document.getElementById('active-campaigns-container');
+            const allContainer = document.getElementById('all-campaigns-container');
             
             // Clear existing content
             pendingContainer.innerHTML = '';
@@ -456,7 +544,7 @@
             
             const pendingCampaigns = allCampaigns.filter(c => c.status === 'pending');
             const activeCampaigns = allCampaigns.filter(c => c.status === 'active');
-            const allCampaignsList = [...pendingCampaigns, ...activeCampaigns];
+            const allCampaignsList = [...allCampaigns];
             
             // Display pending campaigns
             if (pendingCampaigns.length === 0) {
@@ -504,12 +592,16 @@
         // Create campaign card
         function createCampaignCard(campaign, type) {
             const card = document.createElement('div');
-            card.className = 'bg-white p-5 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300';
+            card.className = 'campaign-card bg-white p-5';
             
-            const statusClass = type === 'pending' ? 'status-pending' : 
-                               type === 'active' ? 'status-active' : 
-                               type === 'completed' ? 'status-completed' : 
-                               type === 'rejected' ? 'status-rejected' : 'status-paid';
+            const statusColors = {
+                'pending': 'status-pending',
+                'active': 'status-active',
+                'completed': 'status-completed',
+                'rejected': 'status-rejected'
+            };
+            
+            const statusClass = statusColors[campaign.status] || 'status-pending';
             
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-3">
@@ -541,14 +633,14 @@
                 </div>
                 
                 <div class="flex space-x-2">
-                    <button onclick="viewCampaignDetails('${campaign.id}')" class="btn-secondary px-3 py-2 rounded-lg text-sm">
+                    <button onclick="viewCampaignDetails('${campaign.id}')" class="flex-1 btn-secondary py-2 rounded-lg text-sm">
                         <i class="fas fa-eye mr-1"></i> View Details
                     </button>
                     ${type === 'pending' ? `
-                        <button onclick="approveCampaign('${campaign.id}')" class="btn-success px-3 py-2 rounded-lg text-sm ml-2">
+                        <button onclick="approveCampaign('${campaign.id}')" class="flex-1 btn-success py-2 rounded-lg text-sm">
                             <i class="fas fa-check mr-1"></i> Approve
                         </button>
-                        <button onclick="rejectCampaign('${campaign.id}')" class="btn-danger px-3 py-2 rounded-lg text-sm">
+                        <button onclick="rejectCampaign('${campaign.id}')" class="flex-1 btn-danger py-2 rounded-lg text-sm">
                             <i class="fas fa-times mr-1"></i> Reject
                         </button>
                     ` : ''}
@@ -571,9 +663,9 @@
             });
             
             // Show/hide content
-            document.getElementById('pending-campaigns').classList.toggle('hidden', tab !== 'pending');
-            document.getElementById('active-campaigns').classList.toggle('hidden', tab !== 'active');
-            document.getElementById('all-campaigns').classList.toggle('hidden', tab !== 'all');
+            document.getElementById('pending-campaigns-container').classList.toggle('hidden', tab !== 'pending');
+            document.getElementById('active-campaigns-container').classList.toggle('hidden', tab !== 'active');
+            document.getElementById('all-campaigns-container').classList.toggle('hidden', tab !== 'all');
         }
 
         // View campaign details
@@ -604,58 +696,61 @@
                         </div>
                     </div>
                     
-                    <div>
-                        <p class="text-sm text-gray-600">Campaign Goal</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Campaign Goal</p>
                             <p class="font-medium text-gray-800">${selectedCampaign.goal}</p>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <p class="text-sm text-gray-600">Category</p>
+                        <div>
+                            <p class="text-sm text-gray-600">Category</p>
                             <p class="font-medium text-gray-800">${selectedCampaign.category}</p>
                         </div>
                     </div>
                     
-                    <div>
-                        <p class="text-sm text-gray-600">Total Spots</p>
-                            <p class="font-medium text-gray-800">${selectedCampaign.totalSpots}</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Spots</p>
+                            <p class="font-medium text-gray-800">${selectedCampaign.totalSpots || 0}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Spots Available</p>
+                            <p class="font-medium text-gray-800">${selectedCampaign.spotsAvailable || 0}</p>
                         </div>
                     </div>
                     
-                    <div>
-                        <p class="text-sm text-gray-600">Spots Available</p>
-                            <p class="font-medium text-gray-800">${selectedCampaign.spotsAvailable}</p>
-                        </div>
-                    </div>
-                    
-                    <div>
-                        <p class="text-sm text-gray-600">Total Cost</p>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Cost</p>
                             <p class="font-medium text-gray-800">Ksh ${(selectedCampaign.totalCost || 0).toLocaleString()}</p>
                         </div>
-                    </div>
-                    
-                    <div>
-                        <p class="text-sm text-gray-600">Status</p>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
                             <p class="font-medium text-gray-800">${selectedCampaign.status.charAt(0).toUpperCase() + selectedCampaign.status.slice(1)}</p>
                         </div>
                     </div>
                     
                     <div>
                         <p class="text-sm text-gray-600">Created</p>
-                            <p class="font-medium text-gray-800">${new Date(selectedCampaign.createdAt?.toDate()).toLocaleDateString()}</p>
-                        </div>
+                        <p class="font-medium text-gray-800">${selectedCampaign.createdAt ? new Date(selectedCampaign.createdAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
                     </div>
                     
                     <div>
                         <p class="text-sm text-gray-600">Instructions</p>
-                            <p class="font-medium text-gray-800">${selectedCampaign.instructions}</p>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <ul class="list-disc list-inside space-y-1">
+                                ${selectedCampaign.instructions ? selectedCampaign.instructions.map(instruction => `
+                                    <li class="text-gray-800">${instruction}</li>
+                                `).join('') : '<li class="text-gray-500">No instructions provided</li>'}
+                            </ul>
                         </div>
                     </div>
                     
                     ${selectedCampaign.caption ? `
                         <div>
                             <p class="text-sm text-gray-600">Caption</p>
-                            <p class="font-medium text-gray-800">${selectedCampaign.caption}</p>
+                            <div class="bg-gray-50 p-3 rounded-lg">
+                                <p class="font-medium text-gray-800">${selectedCampaign.caption}</p>
+                            </div>
                         </div>
                     ` : ''}
                     
@@ -664,7 +759,7 @@
                             <p class="text-sm text-gray-600">Hashtags</p>
                             <div class="flex flex-wrap gap-2">
                                 ${selectedCampaign.hashtags.map(tag => `
-                                    <span class="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm">#${tag.replace('#', '')}</span>
+                                    <span class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">#${tag.replace('#', '')}</span>
                                 `).join('')}
                             </div>
                         </div>
@@ -675,7 +770,18 @@
                             <p class="text-sm text-gray-600">Mentions</p>
                             <div class="flex flex-wrap gap-2">
                                 ${selectedCampaign.mentions.map(mention => `
-                                    <span class="inline-block bg-gray-100 px-3 py-1 rounded-full text-sm">@${mention.replace('@', '')}</span>
+                                    <span class="inline-block bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm">@${mention.replace('@', '')}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${selectedCampaign.resources && selectedCampaign.resources.length > 0 ? `
+                        <div>
+                            <p class="text-sm text-gray-600">Resources</p>
+                            <div class="grid grid-cols-3 gap-2 mt-2">
+                                ${selectedCampaign.resources.map(resource => `
+                                    <img src="${resource}" alt="Campaign resource" class="w-full h-20 object-cover rounded-lg">
                                 `).join('')}
                             </div>
                         </div>
@@ -752,11 +858,8 @@
 
         // Switch payment tabs
         function switchPaymentTab(tab) {
-            const pendingContainer = document.getElementById('pending-payments');
-            const approvedContainer = document.getElementById('approved-payments');
-            
             // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
+            document.querySelectorAll('.payment-tab-button').forEach(btn => {
                 btn.classList.remove('active');
                 if (btn.dataset.tab === tab) {
                     btn.classList.add('active');
@@ -764,39 +867,24 @@
             });
             
             // Show/hide content
-            pendingContainer.classList.toggle('hidden', tab !== 'pending');
-            approvedContainer.classList.toggle('hidden', tab !== 'approved');
+            document.getElementById('pending-payments-container').classList.toggle('hidden', tab !== 'pending');
+            document.getElementById('approved-payments-container').classList.toggle('hidden', tab !== 'approved');
         }
 
         // Display payments
         function displayPayments() {
-            const pendingContainer = document.getElementById('pending-payments');
-            const approvedContainer = document.getElementById('approved-payments');
+            const pendingContainer = document.getElementById('pending-payments-container');
+            const approvedContainer = document.getElementById('approved-payments-container');
             
             // Clear existing content
             pendingContainer.innerHTML = '';
             approvedContainer.innerHTML = '';
             
-            const allSubmissions = [];
-            allCampaigns.forEach(campaign => {
-                if (campaign.submissions) {
-                    Object.values(campaign.submissions).forEach(submission => {
-                        allSubmissions.push({
-                            campaignId: campaign.id,
-                            campaignName: campaign.name,
-                            influencerName: submission.influencerName,
-                            influencerInstagram: submission.influencerInstagram,
-                            amount: getPaymentAmount(campaign.category),
-                            status: submission.status,
-                            submissionDate: submission.submissionDate,
-                            paymentDate: submission.paymentDate
-                        });
-                    });
-                }
-            });
+            const pendingSubmissions = allSubmissions.filter(s => s.status === 'pending_payment');
+            const approvedSubmissions = allSubmissions.filter(s => s.status === 'paid');
             
             // Display pending payments
-            if (allSubmissions.length === 0) {
+            if (pendingSubmissions.length === 0) {
                 pendingContainer.innerHTML = `
                     <div class="text-center py-12">
                         <i class="fas fa-clock text-gray-300 text-5xl mb-4"></i>
@@ -804,13 +892,13 @@
                     </div>
                 `;
             } else {
-                allSubmissions.forEach(submission => {
+                pendingSubmissions.forEach(submission => {
                     pendingContainer.appendChild(createPaymentCard(submission));
                 });
             }
             
             // Display approved payments
-            if (allSubmissions.length === 0) {
+            if (approvedSubmissions.length === 0) {
                 approvedContainer.innerHTML = `
                     <div class="text-center py-12">
                         <i class="fas fa-check-circle text-gray-300 text-5xl mb-4"></i>
@@ -818,7 +906,7 @@
                     </div>
                 `;
             } else {
-                allSubmissions.forEach(submission => {
+                approvedSubmissions.forEach(submission => {
                     approvedContainer.appendChild(createPaymentCard(submission));
                 });
             }
@@ -827,20 +915,23 @@
         // Create payment card
         function createPaymentCard(submission) {
             const card = document.createElement('div');
-            card.className = 'bg-white p-4 rounded-lg border border-gray-200 hover:shadow-md transition-all duration-300';
+            card.className = 'campaign-card bg-white p-5';
+            
+            const statusClass = submission.status === 'pending_payment' ? 'status-pending' : 'status-paid';
+            const paymentAmount = getPaymentAmount(submission.campaignCategory);
             
             card.innerHTML = `
                 <div class="flex justify-between items-start mb-3">
                     <div class="flex-1">
                         <h4 class="font-medium text-gray-800">${submission.campaignName}</h4>
-                        <p class="text-sm text-gray-600">by ${submission.influencerName}</p>
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="status-badge ${submission.status === 'pending_payment' ? 'status-pending' : 'status-paid'}">${submission.status === 'pending_payment' ? 'Pending Payment' : 'Paid'}</span>
-                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${submission.submissionDate}</span>
+                        <p class="text-sm text-gray-600">by ${submission.influencerName || 'Unknown Influencer'}</p>
+                        <div class="flex items-center space-x-2 mb-2 mt-2">
+                            <span class="status-badge ${statusClass}">${submission.status === 'pending_payment' ? 'Pending Payment' : 'Paid'}</span>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">${submission.submissionDate ? new Date(submission.submissionDate.toDate()).toLocaleDateString() : 'Unknown'}</span>
                         </div>
                     </div>
                     <div class="text-right">
-                        <p class="text-lg font-bold text-green-600">Ksh ${submission.amount.toLocaleString()}</p>
+                        <p class="text-lg font-bold text-green-600">Ksh ${paymentAmount.toLocaleString()}</p>
                         <p class="text-xs text-gray-500">Payment Amount</p>
                     </div>
                 </div>
@@ -848,64 +939,154 @@
                 <div class="flex justify-between text-sm text-gray-600 mb-4">
                     <div class="flex items-center space-x-1">
                         <i class="fab fa-instagram text-pink-600"></i>
-                        <a href="${submission.influencerInstagram}" target="_blank" class="text-blue-600 hover:text-blue-800">${submission.influencerInstagram}</a>
+                        <span>${submission.influencerInstagram || 'N/A'}</span>
                     </div>
                     <div class="flex items-center space-x-1">
                         <i class="fas fa-user text-gray-600"></i>
-                        <span>${submission.influencerName}</span>
+                        <span>${submission.influencerName || 'Unknown'}</span>
                     </div>
                 </div>
                 
-                <div class="flex space-x-2">
-                    <button onclick="approvePayment('${submission.campaignId}', '${submission.influencerId}')" class="btn-success px-3 py-2 rounded-lg text-sm">
-                        <i class="fas fa-check mr-1"></i> Approve Payment
-                    </button>
-                </div>
+                ${submission.status === 'pending_payment' ? `
+                    <div class="flex space-x-2">
+                        <button onclick="approvePayment('${submission.id}', '${submission.campaignId}')" class="flex-1 btn-success py-2 rounded-lg text-sm">
+                            <i class="fas fa-check mr-1"></i> Approve Payment
+                        </button>
+                        <button onclick="viewSubmissionDetails('${submission.id}', '${submission.campaignId}')" class="flex-1 btn-secondary py-2 rounded-lg text-sm">
+                            <i class="fas fa-eye mr-1"></i> View Details
+                        </button>
+                    </div>
+                ` : `
+                    <div class="flex space-x-2">
+                        <button onclick="viewSubmissionDetails('${submission.id}', '${submission.campaignId}')" class="flex-1 btn-secondary py-2 rounded-lg text-sm">
+                            <i class="fas fa-eye mr-1"></i> View Details
+                        </button>
+                    </div>
+                `}
             `;
             
             return card;
         }
 
         // Approve payment
-        async function approvePayment(campaignId, influencerId) {
+        async function approvePayment(submissionId, campaignId) {
             if (!confirm('Are you sure you want to approve this payment?')) {
                 return;
             }
             
             try {
                 // Update submission status
-                await db.collection('campaigns').doc(campaignId).collection('submissions')
-                    .where('influencerId', '==', influencerId)
-                    .get()
-                    .then((querySnapshot) => {
-                        querySnapshot.forEach((doc) => {
-                            return db.collection('campaigns').doc(campaignId).collection('submissions').doc(doc.id).update({
-                                status: 'paid'
-                            });
-                        });
+                await db.collection('campaigns')
+                    .doc(campaignId)
+                    .collection('submissions')
+                    .doc(submissionId)
+                    .update({
+                        status: 'paid',
+                        paymentDate: firebase.firestore.FieldValue.serverTimestamp()
                     });
                 
-                // Update campaign status if all payments are approved
-                const campaignDoc = await db.collection('campaigns').doc(campaignId).get();
-                const campaignData = campaignDoc.data();
-                const submissionsSnapshot = await db.collection('campaigns').doc(campaignId).collection('submissions').get();
-                
-                const allPaid = submissionsSnapshot.docs.every(doc => doc.data().status === 'paid');
-                
-                if (allPaid) {
-                    await db.collection('campaigns').doc(campaignId).update({
-                        status: 'completed'
-                    });
+                // Update local data
+                const submission = allSubmissions.find(s => s.id === submissionId);
+                if (submission) {
+                    submission.status = 'paid';
                 }
                 
                 // Refresh display
                 displayPayments();
-                updateStats();
                 
                 alert('Payment approved successfully!');
             } catch (error) {
                 console.error('Error approving payment:', error);
                 alert('Error approving payment: ' + error.message);
+            }
+        }
+
+        // View submission details
+        async function viewSubmissionDetails(submissionId, campaignId) {
+            try {
+                const submissionDoc = await db.collection('campaigns')
+                    .doc(campaignId)
+                    .collection('submissions')
+                    .doc(submissionId)
+                    .get();
+                
+                if (!submissionDoc.exists) {
+                    alert('Submission not found');
+                    return;
+                }
+                
+                const submission = submissionDoc.data();
+                const modal = document.getElementById('payment-modal');
+                const modalContent = document.getElementById('payment-modal-content');
+                
+                document.getElementById('payment-modal-title').textContent = 'Submission Details';
+                
+                const modalContentHTML = `
+                    <div class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Influencer Name</p>
+                                <p class="font-medium text-gray-800">${submission.influencerName || 'Unknown'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Instagram Handle</p>
+                                <p class="font-medium text-gray-800">${submission.influencerInstagram || 'N/A'}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <p class="text-sm text-gray-600">Submission Date</p>
+                                <p class="font-medium text-gray-800">${submission.submissionDate ? new Date(submission.submissionDate.toDate()).toLocaleDateString() : 'Unknown'}</p>
+                            </div>
+                            <div>
+                                <p class="text-sm text-gray-600">Status</p>
+                                <p class="font-medium text-gray-800">${submission.status === 'pending_payment' ? 'Pending Payment' : 'Paid'}</p>
+                            </div>
+                        </div>
+                        
+                        ${submission.submittedUrls ? `
+                            <div>
+                                <p class="text-sm text-gray-600 mb-2">Submitted URLs</p>
+                                <div class="space-y-2">
+                                    ${submission.submittedUrls.instagram ? `
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fab fa-instagram text-pink-600"></i>
+                                            <a href="${submission.submittedUrls.instagram}" target="_blank" class="text-blue-600 hover:text-blue-800">Instagram Post</a>
+                                        </div>
+                                    ` : ''}
+                                    ${submission.submittedUrls.facebook ? `
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fab fa-facebook text-blue-600"></i>
+                                            <a href="${submission.submittedUrls.facebook}" target="_blank" class="text-blue-600 hover:text-blue-800">Facebook Post</a>
+                                        </div>
+                                    ` : ''}
+                                    ${submission.submittedUrls.tiktok ? `
+                                        <div class="flex items-center space-x-2">
+                                            <i class="fab fa-tiktok text-gray-800"></i>
+                                            <a href="${submission.submittedUrls.tiktok}" target="_blank" class="text-blue-600 hover:text-blue-800">TikTok Post</a>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                            </div>
+                        ` : ''}
+                        
+                        ${submission.notes ? `
+                            <div>
+                                <p class="text-sm text-gray-600">Notes</p>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="font-medium text-gray-800">${submission.notes}</p>
+                                </div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                
+                modalContent.innerHTML = modalContentHTML;
+                modal.classList.add('active');
+            } catch (error) {
+                console.error('Error loading submission details:', error);
+                alert('Error loading submission details: ' + error.message);
             }
         }
 

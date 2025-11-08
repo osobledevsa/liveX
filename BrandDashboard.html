@@ -250,6 +250,14 @@
             color: white;
             font-size: 2.5rem;
         }
+
+        .resource-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
     </style>
 </head>
 <body class="min-h-screen gradient-bg">
@@ -281,7 +289,7 @@
     <main class="container mx-auto px-4 py-8">
         <div class="max-w-7xl mx-auto">
             <!-- Stats Section -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                 <div class="stats-card bg-white p-6 card-shadow">
                     <div class="flex items-center">
                         <div class="p-3 rounded-full bg-blue-100 text-blue-600 mr-4">
@@ -302,18 +310,6 @@
                         <div>
                             <p class="text-sm text-gray-600">Total Influencers</p>
                             <h3 id="total-influencers" class="text-2xl font-bold text-gray-800">0</h3>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="stats-card bg-white p-6 card-shadow">
-                    <div class="flex items-center">
-                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
-                            <i class="fas fa-chart-line text-lg"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm text-gray-600">Total Spent</p>
-                            <h3 id="total-spent" class="text-2xl font-bold text-gray-800">Ksh 0</h3>
                         </div>
                     </div>
                 </div>
@@ -417,9 +413,6 @@
                             <button onclick="openCreateCampaignModal()" class="w-full btn-primary py-3 rounded-lg">
                                 <i class="fas fa-plus mr-2"></i> New Campaign
                             </button>
-                            <button onclick="openAnalyticsModal()" class="w-full btn-secondary py-3 rounded-lg">
-                                <i class="fas fa-chart-bar mr-2"></i> View Analytics
-                            </button>
                         </div>
                     </div>
 
@@ -476,8 +469,14 @@
                         </div>
 
                         <div class="mt-4">
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
-                            <textarea id="campaign-instructions" class="input-focus" rows="4" placeholder="Detailed instructions for influencers" required></textarea>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Instructions (up to 5)</label>
+                            <div class="space-y-2">
+                                <input type="text" id="instruction-1" class="input-focus" placeholder="Instruction 1" required>
+                                <input type="text" id="instruction-2" class="input-focus" placeholder="Instruction 2 (optional)">
+                                <input type="text" id="instruction-3" class="input-focus" placeholder="Instruction 3 (optional)">
+                                <input type="text" id="instruction-4" class="input-focus" placeholder="Instruction 4 (optional)">
+                                <input type="text" id="instruction-5" class="input-focus" placeholder="Instruction 5 (optional)">
+                            </div>
                         </div>
 
                         <div class="mt-4">
@@ -494,6 +493,23 @@
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Mentions (comma separated)</label>
                                 <input type="text" id="campaign-mentions" class="input-focus" placeholder="@brand, @campaign">
                             </div>
+                        </div>
+                    </div>
+
+                    <!-- Resources Section -->
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Resources (Up to 5 images)</h3>
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <input type="file" id="campaign-resources" multiple accept="image/*" class="hidden">
+                            <div id="resources-placeholder" class="mb-4">
+                                <i class="fas fa-cloud-upload-alt text-gray-400 text-4xl mb-2"></i>
+                                <p class="text-gray-600">Click to upload resources for influencers</p>
+                                <p class="text-sm text-gray-500 mt-1">Upload up to 5 images (JPG, PNG, etc.)</p>
+                            </div>
+                            <button type="button" onclick="document.getElementById('campaign-resources').click()" class="btn-secondary px-4 py-2 rounded-lg">
+                                <i class="fas fa-plus mr-2"></i> Select Images
+                            </button>
+                            <div id="resources-preview" class="grid grid-cols-5 gap-4 mt-4 hidden"></div>
                         </div>
                     </div>
 
@@ -669,6 +685,7 @@
         let allCampaigns = [];
         let selectedPaymentMethod = null;
         let currentTab = 'pending';
+        let campaignResources = [];
 
         // Pricing constants
         const PRICING = {
@@ -779,13 +796,9 @@
         function updateStats() {
             const activeCampaigns = allCampaigns.filter(c => c.status === 'active').length;
             const totalInfluencers = allCampaigns.reduce((sum, c) => sum + (c.totalSpots || 0), 0);
-            const totalSpent = allCampaigns
-                .filter(c => c.status === 'completed')
-                .reduce((sum, c) => sum + (c.totalCost || 0), 0);
 
             document.getElementById('active-campaigns').textContent = activeCampaigns;
             document.getElementById('total-influencers').textContent = totalInfluencers;
-            document.getElementById('total-spent').textContent = `Ksh ${totalSpent.toLocaleString()}`;
             document.getElementById('brand-campaigns').textContent = allCampaigns.length;
         }
 
@@ -962,6 +975,12 @@
             document.getElementById('create-campaign-modal').classList.remove('active');
             document.getElementById('create-campaign-form').reset();
             updatePricing();
+            
+            // Reset resources
+            campaignResources = [];
+            document.getElementById('resources-preview').innerHTML = '';
+            document.getElementById('resources-preview').classList.add('hidden');
+            document.getElementById('resources-placeholder').classList.remove('hidden');
         }
 
         // Open analytics modal
@@ -1104,7 +1123,7 @@
             document.querySelector(`input[value="${method}"]`).checked = true;
         }
 
-        // Brand logo upload functionality
+        // Brand logo upload functionality with WebP conversion
         function openLogoUpload() {
             const input = document.createElement('input');
             input.type = 'file';
@@ -1123,12 +1142,30 @@
             logoDiv.innerHTML = '<div class="loading-spinner"></div>';
 
             try {
+                // Delete previous logo if exists
+                if (currentBrand.logoUrl) {
+                    try {
+                        // Extract the file path from the URL
+                        const url = new URL(currentBrand.logoUrl);
+                        const filePath = decodeURIComponent(url.pathname.split('/o/')[1].split('?')[0]);
+                        const oldLogoRef = storage.ref().child(filePath);
+                        await oldLogoRef.delete();
+                        console.log('Previous logo deleted');
+                    } catch (deleteError) {
+                        console.error('Error deleting previous logo:', deleteError);
+                        // Continue with upload even if deletion fails
+                    }
+                }
+
+                // Convert image to WebP
+                const webpBlob = await convertToWebP(file);
+                
                 // Create a storage reference
                 const storageRef = storage.ref();
-                const logoRef = storageRef.child(`brand-logos/${currentUser.uid}/${file.name}`);
+                const logoRef = storageRef.child(`brand-logos/${currentUser.uid}/logo.webp`);
                 
-                // Upload the file
-                const snapshot = await logoRef.put(file);
+                // Upload the WebP file
+                const snapshot = await logoRef.put(webpBlob);
                 
                 // Get the download URL
                 const downloadURL = await snapshot.ref.getDownloadURL();
@@ -1159,6 +1196,102 @@
             }
         }
 
+        // Convert image to WebP format
+        function convertToWebP(file) {
+            return new Promise((resolve, reject) => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const img = new Image();
+                
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    
+                    canvas.toBlob((blob) => {
+                        if (blob) {
+                            resolve(blob);
+                        } else {
+                            reject(new Error('Failed to convert image to WebP'));
+                        }
+                    }, 'image/webp', 0.8);
+                };
+                
+                img.onerror = function() {
+                    reject(new Error('Failed to load image'));
+                };
+                
+                img.src = URL.createObjectURL(file);
+            });
+        }
+
+        // Handle resources upload
+        document.getElementById('campaign-resources').addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            
+            // Limit to 5 files
+            if (files.length > 5) {
+                alert('You can only upload up to 5 images');
+                files.splice(5);
+            }
+            
+            campaignResources = files;
+            
+            // Show preview
+            const previewContainer = document.getElementById('resources-preview');
+            const placeholder = document.getElementById('resources-placeholder');
+            
+            if (files.length > 0) {
+                previewContainer.innerHTML = '';
+                placeholder.classList.add('hidden');
+                previewContainer.classList.remove('hidden');
+                
+                files.forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const img = document.createElement('img');
+                        img.src = e.target.result;
+                        img.className = 'resource-preview';
+                        img.alt = `Resource ${index + 1}`;
+                        previewContainer.appendChild(img);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            } else {
+                previewContainer.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        });
+
+        // Upload resources to Firebase Storage
+        async function uploadResources(campaignId) {
+            const resourceUrls = [];
+            
+            for (let i = 0; i < campaignResources.length; i++) {
+                const file = campaignResources[i];
+                try {
+                    // Convert to WebP
+                    const webpBlob = await convertToWebP(file);
+                    
+                    // Create storage reference
+                    const storageRef = storage.ref();
+                    const resourceRef = storageRef.child(`campaign-resources/${campaignId}/resource-${i}.webp`);
+                    
+                    // Upload file
+                    const snapshot = await resourceRef.put(webpBlob);
+                    
+                    // Get download URL
+                    const downloadURL = await snapshot.ref.getDownloadURL();
+                    resourceUrls.push(downloadURL);
+                } catch (error) {
+                    console.error(`Error uploading resource ${i}:`, error);
+                    throw new Error(`Failed to upload resource ${i + 1}`);
+                }
+            }
+            
+            return resourceUrls;
+        }
+
         // View campaign details
         function viewCampaignDetails(campaignId) {
             const campaign = allCampaigns.find(c => c.id === campaignId);
@@ -1185,12 +1318,26 @@
                 return;
             }
             
+            // Collect instructions
+            const instructions = [];
+            for (let i = 1; i <= 5; i++) {
+                const instruction = document.getElementById(`instruction-${i}`).value.trim();
+                if (instruction) {
+                    instructions.push(instruction);
+                }
+            }
+            
+            if (instructions.length === 0) {
+                alert('Please provide at least one instruction');
+                return;
+            }
+            
             // Collect form data
             const campaignData = {
                 name: document.getElementById('campaign-name').value,
                 brand: document.getElementById('campaign-brand').value,
                 goal: document.getElementById('campaign-goal').value,
-                instructions: document.getElementById('campaign-instructions').value,
+                instructions: instructions,
                 caption: document.getElementById('campaign-caption').value,
                 hashtags: document.getElementById('campaign-hashtags').value.split(',').map(tag => tag.trim()).filter(tag => tag),
                 mentions: document.getElementById('campaign-mentions').value.split(',').map(tag => tag.trim()).filter(tag => tag),
@@ -1208,7 +1355,17 @@
             
             try {
                 // Save campaign to Firestore
-                await db.collection('campaigns').add(campaignData);
+                const campaignRef = await db.collection('campaigns').add(campaignData);
+                
+                // Upload resources if any
+                if (campaignResources.length > 0) {
+                    const resourceUrls = await uploadResources(campaignRef.id);
+                    
+                    // Update campaign with resource URLs
+                    await db.collection('campaigns').doc(campaignRef.id).update({
+                        resources: resourceUrls
+                    });
+                }
                 
                 // Close modal and refresh
                 closeCreateCampaignModal();
