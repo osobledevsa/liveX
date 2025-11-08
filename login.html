@@ -696,7 +696,7 @@
                 // Check if user is an influencer
                 const influencerDoc = await db.collection('influencers').doc(userId).get();
                 if (influencerDoc.exists) {
-                    window.location.href = 'influencer_dashboard.html';
+                    window.location.href = 'InfluencerDashboard.html';
                     return;
                 }
                 
