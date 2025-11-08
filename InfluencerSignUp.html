@@ -3,18 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Influencer Sign Up - LiveX</title>
+    <title>Influencer Signup - LiveX</title>
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- GSAP for animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
-    <!-- Custom Styles -->
     <style>
         :root {
             --light-azure: #d2e4ee;
@@ -32,15 +29,10 @@
         body {
             font-family: 'Inter', 'Segoe UI', sans-serif;
             background-color: #f8fafc;
-            overflow-x: hidden;
         }
         
         .gradient-bg {
             background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
-        }
-        
-        .hero-gradient {
-            background: linear-gradient(120deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
         }
         
         .glass-effect {
@@ -89,696 +81,571 @@
             transform: translateY(-3px);
         }
         
-        .btn-demo {
-            background: linear-gradient(90deg, var(--electric-blue) 0%, #4dc9ff 100%);
-            color: white;
+        .card-shadow {
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        
+        .input-focus {
             transition: all 0.3s ease;
-        }
-        
-        .btn-demo:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 168, 255, 0.3);
-        }
-        
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-        
-        @keyframes floating {
-            0% { transform: translate(0, 0px); }
-            50% { transform: translate(0, 15px); }
-            100% { transform: translate(0, -0px); }
-        }
-        
-        .pulse {
-            animation: pulse 2s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 168, 255, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
-        }
-        
-        .glow {
-            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
-        }
-        
-        .card-hover {
-            transition: all 0.3s ease;
-        }
-        
-        .card-hover:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        
-        .nav-link {
-            position: relative;
-        }
-        
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: var(--electric-blue);
-            transition: width 0.3s ease;
-        }
-        
-        .nav-link:hover::after {
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border-radius: 8px;
             width: 100%;
         }
         
-        .section-title {
-            position: relative;
-            display: inline-block;
+        .input-focus:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(0, 168, 255, 0.1);
+            transform: translateY(-2px);
         }
         
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: var(--dull-orange);
-            border-radius: 2px;
+        .checkbox-custom {
+            transition: all 0.2s ease;
         }
         
-        .dashboard-preview {
-            border-radius: 16px;
+        .checkbox-custom:checked {
+            background-color: var(--dull-orange);
+            border-color: var(--dull-orange);
+        }
+        
+        .strength-bar {
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .step-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
             overflow: hidden;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
-            transition: transform 0.5s ease;
         }
         
-        .dashboard-preview:hover {
-            transform: perspective(1000px) rotateY(0) rotateX(0);
-        }
-        
-        .tier-card {
-            transition: all 0.3s ease;
-            border-top: 4px solid transparent;
-        }
-        
-        .tier-card:hover {
-            transform: translateY(-10px);
-            border-top: 4px solid var(--electric-blue);
-        }
-        
-        .platform-icon {
-            transition: all 0.3s ease;
-        }
-        
-        .platform-icon:hover {
-            transform: scale(1.2);
-            color: var(--electric-blue);
-        }
-        
-        .stats-counter {
-            font-weight: 700;
-            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .gradient-text {
-            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .parallax-bg {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
-        }
-        
-        .mobile-menu {
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-        
-        .step-card {
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
-        }
-        
-        .step-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
+        .progress-fill {
+            height: 100%;
             background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
+            transition: width 0.5s ease;
         }
         
-        .step-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .step-number {
-            width: 60px;
-            height: 60px;
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            border-radius: 50%;
             font-weight: bold;
-            font-size: 1.5rem;
-            margin: 0 auto 20px;
-            position: relative;
-            z-index: 1;
+            transition: all 0.3s ease;
         }
         
-        .step-number::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-            background: inherit;
-            z-index: -1;
-            opacity: 0.2;
-            transform: scale(1.2);
-        }
-        
-        .success-message {
-            display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
-        }
-        
-        .success-message.show {
-            display: block;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--electric-blue);
-        }
-        
-        .password-requirements {
-            margin-top: 10px;
-        }
-        
-        .password-requirements ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-        
-        .password-requirements li {
-            margin-bottom: 5px;
-            font-size: 0.875rem;
-        }
-        
-        .social-input-group {
-            display: flex;
-            margin-bottom: 15px;
-        }
-        
-        .social-input-group input {
-            flex-grow: 1;
-            border-top-right-radius: 0;
-            border-bottom-right-radius: 0;
-        }
-        
-        .social-input-group button {
-            border-top-left-radius: 0;
-            border-bottom-left-radius: 0;
+        .step-indicator.active {
             background: var(--electric-blue);
             color: white;
-            border: none;
-            padding: 0 15px;
-            cursor: pointer;
         }
         
-        .social-input-group button:hover {
-            background: #0090e0;
-        }
-        
-        .follower-summary {
-            background: #f8fafc;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 20px;
-        }
-        
-        .niche-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .niche-item {
-            display: flex;
-            align-items: center;
-        }
-        
-        .niche-item input {
-            margin-right: 8px;
-        }
-        
-        .header-gradient {
-            background: linear-gradient(120deg, var(--electric-blue) 0%, #2c5e7a 100%);
-        }
-        
-        .form-section {
-            margin-bottom: 30px;
-        }
-        
-        .form-section-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            color: #2c5e7a;
-            position: relative;
-            padding-bottom: 8px;
-        }
-        
-        .form-section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 40px;
-            height: 3px;
+        .step-indicator.completed {
             background: var(--dull-orange);
-            border-radius: 2px;
+            color: white;
+        }
+        
+        .niche-tag {
+            display: inline-block;
+            background: var(--light-azure);
+            color: #2c5e7a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .niche-tag.selected {
+            background: var(--electric-blue);
+            color: white;
+        }
+        
+        .success-animation {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
         }
     </style>
 </head>
-<body class="bg-gray-50">
+<body class="min-h-screen gradient-bg">
     <!-- Header -->
-    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
-        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+    <header class="w-full py-4 px-6">
+        <div class="container mx-auto flex justify-between items-center">
             <!-- Logo -->
             <div class="flex items-center">
                 <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
-                <span class="text-xl font-bold">LiveX</span>
+                <span class="text-xl font-bold text-gray-800">LiveX</span>
             </div>
             
-            <!-- Desktop Navigation -->
-            <div class="hidden md:flex space-x-8">
-                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
-                <a href="index.html#influencers" class="nav-link">For Influencers</a>
-                <a href="index.html#brands" class="nav-link">For Brands</a>
-                <a href="index.html#pricing" class="nav-link">Pricing</a>
+            <!-- Navigation -->
+            <div class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-gray-700 hover:text-gray-900 transition-colors">Home</a>
+                <a href="login.html" class="text-gray-700 hover:text-gray-900 transition-colors">Login</a>
+                <a href="BrandSignUp.html" class="text-gray-700 hover:text-gray-900 transition-colors">Brand Signup</a>
             </div>
-            
-            <!-- CTA Buttons -->
-            <div class="hidden md:flex items-center space-x-4">
-                <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
-                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full btn-primary">Get Started</a>
-            </div>
-            
-            <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="md:hidden text-gray-800">
-                <i class="fas fa-bars text-xl"></i>
-            </button>
-        </nav>
+        </div>
     </header>
 
-    <!-- Mobile Menu -->
-    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
-        <div class="flex justify-between items-center mb-10">
-            <div class="flex items-center">
-                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
-                <span class="text-lg font-bold">LiveX</span>
-            </div>
-            <button id="close-menu" class="text-gray-800">
-                <i class="fas fa-times text-xl"></i>
-            </button>
-        </div>
-        
-        <div class="flex flex-col space-y-6">
-            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
-            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
-            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
-            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
-            <div class="pt-4">
-                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
-                <a href="InfluencerSignUp.html" class="w-full mb-3 px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
-            </div>
-        </div>
-    </div>
-
     <!-- Main Content -->
-    <section class="pt-32 pb-20 hero-gradient">
-        <div class="container mx-auto px-6">
-            <div class="max-w-5xl mx-auto">
-                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-                    <div class="md:flex">
-                        <!-- Left Panel -->
-                        <div class="md:w-2/5 header-gradient p-8 text-white">
-                            <div class="flex items-center mb-10">
-                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
-                                <span class="text-2xl font-bold">LiveX</span>
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-4xl mx-auto">
+            <!-- Progress Bar -->
+            <div class="mb-8">
+                <div class="flex justify-between mb-2">
+                    <div class="step-indicator completed" data-step="1">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <div class="step-indicator active" data-step="2">
+                        2
+                    </div>
+                    <div class="step-indicator" data-step="3">
+                        3
+                    </div>
+                    <div class="step-indicator" data-step="4">
+                        4
+                    </div>
+                </div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill" style="width: 25%"></div>
+                </div>
+                <div class="flex justify-between mt-1 text-sm text-gray-600">
+                    <span>Account</span>
+                    <span>Social Media</span>
+                    <span>Niches</span>
+                    <span>Review</span>
+                </div>
+            </div>
+
+            <!-- Step 1: Account Information -->
+            <div class="step-container active" id="step-1">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+                    <div class="p-8">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 bg-gradient-to-r from-orange-400 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-user text-white text-3xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Create Your Account</h2>
+                            <p class="text-gray-600">Let's get you started with your influencer journey</p>
+                        </div>
+
+                        <form id="step1-form" class="space-y-6">
+                            <div>
+                                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+                                <input id="email" name="email" type="email" required 
+                                       class="input-focus"
+                                       placeholder="you@example.com">
+                            </div>
+
+                            <div>
+                                <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input id="password" name="password" type="password" required 
+                                       class="input-focus"
+                                       placeholder="Create a strong password"
+                                       oninput="checkPasswordStrength()">
+                                <div class="mt-2">
+                                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                        <div id="strengthBar" class="strength-bar h-full w-0"></div>
+                                    </div>
+                                    <p id="strengthText" class="text-xs mt-1 text-gray-600"></p>
+                                </div>
+                                <div class="mt-2 text-xs text-gray-600">
+                                    <p>Must contain:</p>
+                                    <ul class="list-disc list-inside mt-1">
+                                        <li id="capital" class="text-gray-500">✓ Capital letter</li>
+                                        <li id="special" class="text-gray-500">✓ Special character</li>
+                                        <li id="number" class="text-gray-500">✓ Number</li>
+                                    </ul>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="confirmPassword" class="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
+                                <input id="confirmPassword" name="confirmPassword" type="password" required 
+                                       class="input-focus"
+                                       placeholder="Confirm your password"
+                                       oninput="checkPasswordMatch()">
+                                <p id="matchText" class="text-xs mt-1"></p>
+                            </div>
+
+                            <div>
+                                <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <input id="phone" name="phone" type="tel" required 
+                                       class="input-focus"
+                                       placeholder="+254 700 123 456">
+                            </div>
+
+                            <div class="flex justify-end pt-4">
+                                <button type="button" id="next-to-step2" class="px-6 py-3 rounded-full btn-primary">
+                                    Continue <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 2: Social Media Accounts -->
+            <div class="step-container" id="step-2">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+                    <div class="p-8">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 bg-gradient-to-r from-blue-400 to-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-share-alt text-white text-3xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Your Social Media</h2>
+                            <p class="text-gray-600">Connect your social accounts to showcase your reach</p>
+                        </div>
+
+                        <form id="step2-form" class="space-y-6">
+                            <!-- Instagram -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-instagram text-2xl text-pink-600 mr-3"></i>
+                                    <h3 class="text-lg font-semibold text-gray-800">Instagram</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="instagram" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                        <input id="instagram" name="instagram" type="text" required 
+                                               class="input-focus"
+                                               placeholder="@yourusername">
+                                    </div>
+                                    <div>
+                                        <label for="instagramFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                        <input id="instagramFollowers" name="instagramFollowers" type="number" min="0" required 
+                                               class="input-focus"
+                                               placeholder="0"
+                                               oninput="calculateTotalFollowers()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Facebook -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-facebook text-2xl text-blue-600 mr-3"></i>
+                                    <h3 class="text-lg font-semibold text-gray-800">Facebook</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                        <input id="facebook" name="facebook" type="text" required 
+                                               class="input-focus"
+                                               placeholder="yourusername">
+                                    </div>
+                                    <div>
+                                        <label for="facebookFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                        <input id="facebookFollowers" name="facebookFollowers" type="number" min="0" required 
+                                               class="input-focus"
+                                               placeholder="0"
+                                               oninput="calculateTotalFollowers()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- TikTok -->
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <div class="flex items-center mb-4">
+                                    <i class="fab fa-tiktok text-2xl text-gray-800 mr-3"></i>
+                                    <h3 class="text-lg font-semibold text-gray-800">TikTok</h3>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                        <input id="tiktok" name="tiktok" type="text" required 
+                                               class="input-focus"
+                                               placeholder="@yourusername">
+                                    </div>
+                                    <div>
+                                        <label for="tiktokFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                        <input id="tiktokFollowers" name="tiktokFollowers" type="number" min="0" required 
+                                               class="input-focus"
+                                               placeholder="0"
+                                               oninput="calculateTotalFollowers()">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Follower Summary -->
+                            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                                <div class="flex flex-col md:flex-row justify-between items-center">
+                                    <div class="mb-4 md:mb-0">
+                                        <h3 class="text-lg font-semibold text-gray-800">Your Reach</h3>
+                                        <p class="text-gray-600">Total followers across all platforms</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-3xl font-bold text-blue-600" id="totalFollowers">0</p>
+                                        <p class="text-sm text-gray-600">Total Followers</p>
+                                    </div>
+                                    <div class="text-center">
+                                        <p class="text-xl font-bold text-orange-600" id="category">Nano</p>
+                                        <p class="text-sm text-gray-600">Influencer Tier</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between pt-4">
+                                <button type="button" id="back-to-step1" class="px-6 py-3 rounded-full btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back
+                                </button>
+                                <button type="button" id="next-to-step3" class="px-6 py-3 rounded-full btn-primary">
+                                    Continue <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 3: Niches Selection -->
+            <div class="step-container" id="step-3">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+                    <div class="p-8">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-tags text-white text-3xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Your Niches</h2>
+                            <p class="text-gray-600">Select up to 3 niches that best represent your content</p>
+                        </div>
+
+                        <form id="step3-form" class="space-y-6">
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="lifestyle" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Lifestyle</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="tech" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Tech</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="fashion" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Fashion</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="travel" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Travel</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="food" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Food</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="fitness" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Fitness</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="beauty" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Beauty</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="gaming" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Gaming</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="music" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Music</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="sports" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Sports</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="art" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Art</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="photography" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Photography</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="education" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Education</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="business" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Business</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="finance" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Finance</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="health" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Health</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="wellness" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Wellness</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="parenting" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Parenting</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="pets" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Pets</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="diy" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">DIY</span>
+                                </label>
+                                <label class="flex items-center space-x-2 cursor-pointer">
+                                    <input type="checkbox" name="niches" value="sustainability" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                    <span class="text-sm text-gray-700">Sustainability</span>
+                                </label>
                             </div>
                             
-                            <div class="mb-8">
-                                <h2 class="text-3xl font-bold mb-4">Join Our Creator Community</h2>
-                                <p class="opacity-90">Connect with brands that value your influence. Create your profile and start collaborating.</p>
-                            </div>
+                            <p id="nichesError" class="text-red-500 text-sm hidden">Please select at least one niche (max 3)</p>
                             
-                            <div class="space-y-4">
-                                <div class="flex items-center">
-                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
-                                        <i class="fas fa-check"></i>
+                            <div class="flex justify-between pt-4">
+                                <button type="button" id="back-to-step2" class="px-6 py-3 rounded-full btn-secondary">
+                                    <i class="fas fa-arrow-left mr-2"></i> Back
+                                </button>
+                                <button type="button" id="next-to-step4" class="px-6 py-3 rounded-full btn-primary">
+                                    Continue <i class="fas fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Step 4: Review and Submit -->
+            <div class="step-container" id="step-4">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+                    <div class="p-8">
+                        <div class="text-center mb-8">
+                            <div class="w-20 h-20 bg-gradient-to-r from-purple-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                                <i class="fas fa-check text-white text-3xl"></i>
+                            </div>
+                            <h2 class="text-3xl font-bold text-gray-800 mb-2">Review Your Details</h2>
+                            <p class="text-gray-600">Almost done! Review your information before submitting</p>
+                        </div>
+
+                        <div class="space-y-6 mb-8">
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Email</p>
+                                        <p id="review-email" class="font-medium text-gray-800"></p>
                                     </div>
-                                    <span>Brand collaborations</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
-                                        <i class="fas fa-check"></i>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Phone</p>
+                                        <p id="review-phone" class="font-medium text-gray-800"></p>
                                     </div>
-                                    <span>Fair compensation</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
-                                        <i class="fas fa-check"></i>
-                                    </div>
-                                    <span>Creative freedom</span>
-                                </div>
-                                <div class="flex items-center">
-                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
-                                        <i class="fas fa-check"></i>
-                                    </div>
-                                    <span>Weekly payments</span>
                                 </div>
                             </div>
-                            
-                            <div class="mt-12">
-                                <p class="text-sm opacity-80">Already have an account?</p>
-                                <a href="login.html" class="inline-block mt-2 px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Sign In</a>
+
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Social Media</h3>
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <div>
+                                        <p class="text-sm text-gray-600">Instagram</p>
+                                        <p id="review-instagram" class="font-medium text-gray-800"></p>
+                                        <p id="review-instagram-followers" class="text-xs text-gray-600"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">Facebook</p>
+                                        <p id="review-facebook" class="font-medium text-gray-800"></p>
+                                        <p id="review-facebook-followers" class="text-xs text-gray-600"></p>
+                                    </div>
+                                    <div>
+                                        <p class="text-sm text-gray-600">TikTok</p>
+                                        <p id="review-tiktok" class="font-medium text-gray-800"></p>
+                                        <p id="review-tiktok-followers" class="text-xs text-gray-600"></p>
+                                    </div>
+                                </div>
+                                <div class="mt-4 pt-4 border-t border-gray-200">
+                                    <div class="flex justify-between">
+                                        <p class="text-sm text-gray-600">Total Followers</p>
+                                        <p id="review-total-followers" class="font-medium text-gray-800"></p>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <p class="text-sm text-gray-600">Influencer Tier</p>
+                                        <p id="review-category" class="font-medium text-gray-800"></p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gray-50 p-4 rounded-lg">
+                                <h3 class="text-lg font-semibold text-gray-800 mb-4">Selected Niches</h3>
+                                <div id="review-niches" class="flex flex-wrap"></div>
                             </div>
                         </div>
-                        
-                        <!-- Right Panel - Form -->
-                        <div class="md:w-3/5 p-8">
-                            <div class="mb-8">
-                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Your Account</h2>
-                                <p class="text-gray-600">Join as an influencer</p>
-                            </div>
-                            
-                            <form id="signupForm" class="space-y-6">
-                                <!-- Personal Information -->
-                                <div class="form-section">
-                                    <h3 class="form-section-title">Personal Information</h3>
-                                    <div class="space-y-4">
-                                        <div class="form-group">
-                                            <label for="name">Full Name</label>
-                                            <input type="text" id="name" name="name" required>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="email">Email Address</label>
-                                            <input type="email" id="email" name="email" required>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="phone">Phone Number</label>
-                                            <input type="tel" id="phone" name="phone" required>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Password -->
-                                <div class="form-section">
-                                    <h3 class="form-section-title">Create Password</h3>
-                                    <div class="space-y-4">
-                                        <div class="form-group">
-                                            <label for="password">Password</label>
-                                            <div class="relative">
-                                                <input type="password" id="password" name="password" required>
-                                                <button type="button" id="togglePassword" class="absolute inset-y-0 right-0 pr-3 flex items-center">
-                                                    <i class="fas fa-eye text-gray-400"></i>
-                                                </button>
-                                            </div>
-                                            <div id="passwordRequirements" class="password-requirements">
-                                                <p class="mb-1 text-sm text-gray-600">Password must contain:</p>
-                                                <ul>
-                                                    <li id="length" class="text-red-500">At least 8 characters</li>
-                                                    <li id="capital" class="text-red-500">One capital letter</li>
-                                                    <li id="number" class="text-red-500">One number</li>
-                                                    <li id="special" class="text-red-500">One special character</li>
-                                                </ul>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="form-group">
-                                            <label for="confirmPassword">Confirm Password</label>
-                                            <input type="password" id="confirmPassword" name="confirmPassword" required>
-                                            <p id="passwordMatch" class="mt-1 text-sm text-red-500 hidden">Passwords do not match</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Social Media -->
-                                <div class="form-section">
-                                    <h3 class="form-section-title">Social Media Accounts</h3>
-                                    <p class="text-sm text-gray-600 mb-3">Enter your usernames to fetch follower counts</p>
-                                    
-                                    <div class="space-y-4">
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center mr-3">
-                                                <i class="fab fa-instagram text-white"></i>
-                                            </div>
-                                            <div class="flex-1">
-                                                <label for="instagram" class="block text-sm font-medium text-gray-700 mb-1">Instagram Username</label>
-                                                <div class="social-input-group">
-                                                    <input type="text" id="instagram" name="instagram" placeholder="@yourusername">
-                                                    <button type="button" id="fetchInstagram">
-                                                        Fetch
-                                                    </button>
-                                                </div>
-                                                <div id="instagramResult" class="mt-1 text-sm text-gray-600 hidden">
-                                                    <span id="instagramCount" class="font-medium"></span> followers
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center mr-3">
-                                                <i class="fab fa-facebook-f text-white"></i>
-                                            </div>
-                                            <div class="flex-1">
-                                                <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Facebook Username</label>
-                                                <div class="social-input-group">
-                                                    <input type="text" id="facebook" name="facebook" placeholder="yourusername">
-                                                    <button type="button" id="fetchFacebook">
-                                                        Fetch
-                                                    </button>
-                                                </div>
-                                                <div id="facebookResult" class="mt-1 text-sm text-gray-600 hidden">
-                                                    <span id="facebookCount" class="font-medium"></span> followers
-                                                </div>
-                                            </div>
-                                        </div>
-                                        
-                                        <div class="flex items-center">
-                                            <div class="w-10 h-10 rounded-full bg-black flex items-center justify-center mr-3">
-                                                <i class="fab fa-tiktok text-white"></i>
-                                            </div>
-                                            <div class="flex-1">
-                                                <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">TikTok Username</label>
-                                                <div class="social-input-group">
-                                                    <input type="text" id="tiktok" name="tiktok" placeholder="@yourusername">
-                                                    <button type="button" id="fetchTikTok">
-                                                        Fetch
-                                                    </button>
-                                                </div>
-                                                <div id="tiktokResult" class="mt-1 text-sm text-gray-600 hidden">
-                                                    <span id="tiktokCount" class="font-medium"></span> followers
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    <!-- Follower Summary -->
-                                    <div class="follower-summary">
-                                        <h4 class="font-medium text-gray-800 mb-2">Follower Summary</h4>
-                                        <div class="grid grid-cols-2 gap-4">
-                                            <div>
-                                                <p class="text-sm text-gray-600">Total Followers</p>
-                                                <p id="totalFollowers" class="text-xl font-bold">0</p>
-                                            </div>
-                                            <div>
-                                                <p class="text-sm text-gray-600">Influencer Category</p>
-                                                <p id="influencerCategory" class="text-xl font-bold">-</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                
-                                <!-- Niches -->
-                                <div class="form-section">
-                                    <h3 class="form-section-title">Your Niches</h3>
-                                    <p class="text-sm text-gray-600 mb-3">Select up to 3 categories that best describe your content</p>
-                                    
-                                    <div class="niche-grid">
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="beauty" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Beauty</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="fashion" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Fashion</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="fitness" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Fitness</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="travel" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Travel</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="food" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Food</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="tech" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Tech</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="lifestyle" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Lifestyle</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="gaming" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Gaming</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="parenting" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Parenting</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="business" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Business</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="music" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Music</span>
-                                        </label>
-                                        <label class="niche-item cursor-pointer">
-                                            <input type="checkbox" name="niche" value="art" class="niche-checkbox rounded text-indigo-600 focus:ring-indigo-500">
-                                            <span>Art</span>
-                                        </label>
-                                    </div>
-                                    <p id="nicheError" class="mt-2 text-sm text-red-500 hidden">Please select 1 to 3 niches</p>
-                                </div>
-                                
-                                <!-- Submit Button -->
-                                <div class="pt-4">
-                                    <button type="submit" id="submitBtn" class="w-full btn-primary font-medium py-3 px-4 rounded-lg flex items-center justify-center">
-                                        <span>Create Account</span>
-                                        <i class="fas fa-arrow-right ml-2"></i>
-                                    </button>
-                                </div>
-                            </form>
+
+                        <div class="flex justify-between pt-4">
+                            <button type="button" id="back-to-step3" class="px-6 py-3 rounded-full btn-secondary">
+                                <i class="fas fa-arrow-left mr-2"></i> Back
+                            </button>
+                            <button type="button" id="submit-form" class="px-6 py-3 rounded-full btn-primary">
+                                Complete Signup <i class="fas fa-check ml-2"></i>
+                            </button>
                         </div>
                     </div>
                 </div>
             </div>
+
+            <!-- Success Message -->
+            <div class="step-container" id="success-step">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden card-shadow">
+                    <div class="p-8 text-center">
+                        <div class="w-24 h-24 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 success-animation">
+                            <i class="fas fa-check text-white text-4xl"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to LiveX!</h2>
+                        <p class="text-gray-600 mb-6">Your influencer account has been created successfully. We'll review your profile and get back to you within 24 hours.</p>
+                        <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                            <h3 class="font-semibold text-blue-800 mb-2">What's Next?</h3>
+                            <ul class="text-sm text-blue-700 text-left space-y-1">
+                                <li><i class="fas fa-check-circle mr-2"></i> Profile verification within 24 hours</li>
+                                <li><i class="fas fa-check-circle mr-2"></i> Access to brand campaigns</li>
+                                <li><i class="fas fa-check-circle mr-2"></i> Weekly payment processing</li>
+                            </ul>
+                        </div>
+                        <a href="InfluencerDashboard.html" class="inline-block px-6 py-3 rounded-full btn-primary">
+                            Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-    </section>
+    </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white py-12">
-        <div class="container mx-auto px-6">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
-                <div>
-                    <div class="flex items-center mb-4">
-                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
-                        <span class="text-xl font-bold">LiveX</span>
-                    </div>
-                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
-                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
-                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
-                        <li><a href="#" class="hover:text-white">FAQ</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Company</h3>
-                    <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">About Us</a></li>
-                        <li><a href="#" class="hover:text-white">Careers</a></li>
-                        <li><a href="#" class="hover:text-white">Blog</a></li>
-                        <li><a href="#" class="hover:text-white">Contact</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
-                    <div class="flex space-x-4 mb-4">
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
-                            <i class="fab fa-instagram text-xl"></i>
-                        </a>
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
-                            <i class="fab fa-linkedin text-xl"></i>
-                        </a>
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
-                            <i class="fab fa-facebook text-xl"></i>
-                        </a>
-                    </div>
-                    <p class="text-gray-400">hello@livexafrica.co</p>
-                </div>
-            </div>
-            
-            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-                <p>&copy; 2025 LiveX. All rights reserved.</p>
-            </div>
+    <footer class="bg-gray-900 text-white py-8 mt-12">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2025 LiveX. All rights reserved.</p>
         </div>
     </footer>
 
+    <!-- JavaScript -->
     <script>
-        // Initialize Firebase
+        // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
             authDomain: "livex-b1c25.firebaseapp.com",
@@ -789,268 +656,367 @@
             measurementId: "G-GNQLPMEJWX"
         };
         
+
+        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        
-        // DOM Elements
-        const signupForm = document.getElementById('signupForm');
-        const passwordInput = document.getElementById('password');
-        const confirmPasswordInput = document.getElementById('confirmPassword');
-        const togglePasswordBtn = document.getElementById('togglePassword');
-        const passwordRequirements = {
-            length: document.getElementById('length'),
-            capital: document.getElementById('capital'),
-            number: document.getElementById('number'),
-            special: document.getElementById('special')
-        };
-        const passwordMatch = document.getElementById('passwordMatch');
-        const totalFollowersEl = document.getElementById('totalFollowers');
-        const influencerCategoryEl = document.getElementById('influencerCategory');
-        const nicheCheckboxes = document.querySelectorAll('.niche-checkbox');
-        const nicheError = document.getElementById('nicheError');
-        const submitBtn = document.getElementById('submitBtn');
-        
-        // Social media fetch buttons
-        const fetchInstagram = document.getElementById('fetchInstagram');
-        const fetchFacebook = document.getElementById('fetchFacebook');
-        const fetchTikTok = document.getElementById('fetchTikTok');
-        
-        // Social media inputs
-        const instagramInput = document.getElementById('instagram');
-        const facebookInput = document.getElementById('facebook');
-        const tiktokInput = document.getElementById('tiktok');
-        
-        // Social media result displays
-        const instagramResult = document.getElementById('instagramResult');
-        const facebookResult = document.getElementById('facebookResult');
-        const tiktokResult = document.getElementById('tiktokResult');
-        const instagramCount = document.getElementById('instagramCount');
-        const facebookCount = document.getElementById('facebookCount');
-        const tiktokCount = document.getElementById('tiktokCount');
-        
-        // Follower counts
-        let followerCounts = {
-            instagram: 0,
-            facebook: 0,
-            tiktok: 0
-        };
-        
-        // Toggle password visibility
-        togglePasswordBtn.addEventListener('click', () => {
-            const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-            passwordInput.setAttribute('type', type);
-            confirmPasswordInput.setAttribute('type', type);
+
+        // Form navigation
+        let currentStep = 1;
+        const totalSteps = 4;
+
+        // Update progress bar
+        function updateProgress() {
+            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+            document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
             
-            const icon = togglePasswordBtn.querySelector('i');
-            icon.classList.toggle('fa-eye');
-            icon.classList.toggle('fa-eye-slash');
-        });
-        
-        // Password validation
-        passwordInput.addEventListener('input', validatePassword);
-        confirmPasswordInput.addEventListener('input', checkPasswordMatch);
-        
-        function validatePassword() {
-            const password = passwordInput.value;
-            
-            // Check length
-            if (password.length >= 8) {
-                passwordRequirements.length.classList.remove('text-red-500');
-                passwordRequirements.length.classList.add('text-green-500');
-            } else {
-                passwordRequirements.length.classList.remove('text-green-500');
-                passwordRequirements.length.classList.add('text-red-500');
-            }
-            
-            // Check capital letter
-            if (/[A-Z]/.test(password)) {
-                passwordRequirements.capital.classList.remove('text-red-500');
-                passwordRequirements.capital.classList.add('text-green-500');
-            } else {
-                passwordRequirements.capital.classList.remove('text-green-500');
-                passwordRequirements.capital.classList.add('text-red-500');
-            }
-            
-            // Check number
-            if (/[0-9]/.test(password)) {
-                passwordRequirements.number.classList.remove('text-red-500');
-                passwordRequirements.number.classList.add('text-green-500');
-            } else {
-                passwordRequirements.number.classList.remove('text-green-500');
-                passwordRequirements.number.classList.add('text-red-500');
-            }
-            
-            // Check special character
-            if (/[^A-Za-z0-9]/.test(password)) {
-                passwordRequirements.special.classList.remove('text-red-500');
-                passwordRequirements.special.classList.add('text-green-500');
-            } else {
-                passwordRequirements.special.classList.remove('text-green-500');
-                passwordRequirements.special.classList.add('text-red-500');
-            }
-        }
-        
-        function checkPasswordMatch() {
-            if (passwordInput.value !== confirmPasswordInput.value) {
-                passwordMatch.classList.remove('hidden');
-            } else {
-                passwordMatch.classList.add('hidden');
-            }
-        }
-        
-        // Generate random follower count
-        function generateRandomFollowers() {
-            // Generate a random number between 500 and 2,000,000
-            return Math.floor(Math.random() * 1999500) + 500;
-        }
-        
-        // Fetch Instagram followers
-        fetchInstagram.addEventListener('click', () => {
-            if (instagramInput.value.trim() !== '') {
-                // Generate random follower count
-                followerCounts.instagram = generateRandomFollowers();
+            // Update step indicators
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.remove('active', 'completed');
                 
-                // Update display
-                instagramCount.textContent = followerCounts.instagram.toLocaleString();
-                instagramResult.classList.remove('hidden');
-                
-                // Update summary
-                updateFollowerSummary();
-            }
-        });
-        
-        // Fetch Facebook followers
-        fetchFacebook.addEventListener('click', () => {
-            if (facebookInput.value.trim() !== '') {
-                // Generate random follower count
-                followerCounts.facebook = generateRandomFollowers();
-                
-                // Update display
-                facebookCount.textContent = followerCounts.facebook.toLocaleString();
-                facebookResult.classList.remove('hidden');
-                
-                // Update summary
-                updateFollowerSummary();
-            }
-        });
-        
-        // Fetch TikTok followers
-        fetchTikTok.addEventListener('click', () => {
-            if (tiktokInput.value.trim() !== '') {
-                // Generate random follower count
-                followerCounts.tiktok = generateRandomFollowers();
-                
-                // Update display
-                tiktokCount.textContent = followerCounts.tiktok.toLocaleString();
-                tiktokResult.classList.remove('hidden');
-                
-                // Update summary
-                updateFollowerSummary();
-            }
-        });
-        
-        function updateFollowerSummary() {
-            const total = followerCounts.instagram + followerCounts.facebook + followerCounts.tiktok;
-            totalFollowersEl.textContent = total.toLocaleString();
-            
-            // Determine influencer category
-            let category = '';
-            if (total < 10000) {
-                category = 'Nano';
-            } else if (total < 100000) {
-                category = 'Micro';
-            } else if (total < 500000) {
-                category = 'Macro';
-            } else {
-                category = 'Mega';
-            }
-            
-            influencerCategoryEl.textContent = category;
-        }
-        
-        // Niche selection validation
-        nicheCheckboxes.forEach(checkbox => {
-            checkbox.addEventListener('change', () => {
-                const checkedCount = document.querySelectorAll('.niche-checkbox:checked').length;
-                
-                if (checkedCount > 3) {
-                    checkbox.checked = false;
-                    nicheError.classList.remove('hidden');
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                    indicator.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                    indicator.textContent = stepNumber;
                 } else {
-                    nicheError.classList.add('hidden');
+                    indicator.textContent = stepNumber;
                 }
             });
+        }
+
+        // Show step
+        function showStep(stepNumber) {
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`step-${stepNumber}`).classList.add('active');
+            currentStep = stepNumber;
+            updateProgress();
+        }
+
+        // Next and Back button event listeners
+        document.getElementById('next-to-step2').addEventListener('click', function() {
+            if (validateStep1()) {
+                showStep(2);
+            }
         });
-        
+
+        document.getElementById('back-to-step1').addEventListener('click', function() {
+            showStep(1);
+        });
+
+        document.getElementById('next-to-step3').addEventListener('click', function() {
+            if (validateStep2()) {
+                showStep(3);
+            }
+        });
+
+        document.getElementById('back-to-step2').addEventListener('click', function() {
+            showStep(2);
+        });
+
+        document.getElementById('next-to-step4').addEventListener('click', function() {
+            if (validateStep3()) {
+                updateReview();
+                showStep(4);
+            }
+        });
+
+        document.getElementById('back-to-step3').addEventListener('click', function() {
+            showStep(3);
+        });
+
+        // Form validation functions
+        function validateStep1() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const phone = document.getElementById('phone').value;
+            
+            if (!email || !password || !confirmPassword || !phone) {
+                alert('Please fill in all fields');
+                return false;
+            }
+            
+            if (password !== confirmPassword) {
+                alert('Passwords do not match');
+                return false;
+            }
+            
+            // Password strength validation
+            const hasCapital = /[A-Z]/.test(password);
+            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            const hasNumber = /[0-9]/.test(password);
+            
+            if (!hasCapital || !hasSpecial || !hasNumber) {
+                alert('Password must contain at least one capital letter, one special character, and one number.');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateStep2() {
+            const instagram = document.getElementById('instagram').value;
+            const facebook = document.getElementById('facebook').value;
+            const tiktok = document.getElementById('tiktok').value;
+            
+            if (!instagram || !facebook || !tiktok) {
+                alert('Please fill in all social media usernames');
+                return false;
+            }
+            
+            return true;
+        }
+
+        function validateStep3() {
+            const checkboxes = document.querySelectorAll('input[name="niches"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('nichesError').classList.remove('hidden');
+                return false;
+            }
+            
+            document.getElementById('nichesError').classList.add('hidden');
+            return true;
+        }
+
+        // Update review section
+        function updateReview() {
+            document.getElementById('review-email').textContent = document.getElementById('email').value;
+            document.getElementById('review-phone').textContent = document.getElementById('phone').value;
+            
+            document.getElementById('review-instagram').textContent = document.getElementById('instagram').value;
+            document.getElementById('review-instagram-followers').textContent = 
+                `${document.getElementById('instagramFollowers').value} followers`;
+            
+            document.getElementById('review-facebook').textContent = document.getElementById('facebook').value;
+            document.getElementById('review-facebook-followers').textContent = 
+                `${document.getElementById('facebookFollowers').value} followers`;
+            
+            document.getElementById('review-tiktok').textContent = document.getElementById('tiktok').value;
+            document.getElementById('review-tiktok-followers').textContent = 
+                `${document.getElementById('tiktokFollowers').value} followers`;
+            
+            document.getElementById('review-total-followers').textContent = document.getElementById('totalFollowers').textContent;
+            document.getElementById('review-category').textContent = document.getElementById('category').textContent;
+            
+            // Update niches
+            const nichesContainer = document.getElementById('review-niches');
+            nichesContainer.innerHTML = '';
+            const selectedNiches = document.querySelectorAll('input[name="niches"]:checked');
+            
+            selectedNiches.forEach(checkbox => {
+                const nicheTag = document.createElement('span');
+                nicheTag.className = 'niche-tag';
+                nicheTag.textContent = checkbox.value.charAt(0).toUpperCase() + checkbox.value.slice(1);
+                nichesContainer.appendChild(nicheTag);
+            });
+        }
+
         // Form submission
-        signupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        document.getElementById('submit-form').addEventListener('click', function() {
+            // Collect form data
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const phone = document.getElementById('phone').value;
             
-            // Validate niches
-            const selectedNiches = Array.from(nicheCheckboxes)
-                .filter(checkbox => checkbox.checked)
-                .map(checkbox => checkbox.value);
-                
-            if (selectedNiches.length === 0) {
-                nicheError.classList.remove('hidden');
-                return;
-            }
+            const instagram = document.getElementById('instagram').value;
+            const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
+            const facebook = document.getElementById('facebook').value;
+            const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
+            const tiktok = document.getElementById('tiktok').value;
+            const tiktokFollowers = parseInt(document.getElementById('tiktokFollowers').value) || 0;
             
-            // Disable submit button
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Creating Account...';
+            const totalFollowers = parseInt(document.getElementById('totalFollowers').textContent.replace(/,/g, ''));
+            const category = document.getElementById('category').textContent;
             
-            try {
-                // Create user with Firebase Auth
-                const userCredential = await auth.createUserWithEmailAndPassword(
-                    document.getElementById('email').value,
-                    passwordInput.value
-                );
-                
-                const user = userCredential.user;
-                
-                // Save additional user data to Firestore
-                await db.collection('influencers').doc(user.uid).set({
-                    name: document.getElementById('name').value,
-                    email: document.getElementById('email').value,
-                    phone: document.getElementById('phone').value,
-                    instagram: instagramInput.value,
-                    facebook: facebookInput.value,
-                    tiktok: tiktokInput.value,
-                    followerCounts: followerCounts,
-                    totalFollowers: followerCounts.instagram + followerCounts.facebook + followerCounts.tiktok,
-                    category: influencerCategoryEl.textContent,
-                    niches: selectedNiches,
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            const selectedNiches = Array.from(document.querySelectorAll('input[name="niches"]:checked')).map(cb => cb.value);
+            
+            // Create user with Firebase Auth
+            auth.createUserWithEmailAndPassword(email, password)
+                .then((userCredential) => {
+                    // User created successfully
+                    const user = userCredential.user;
+                    
+                    // Save additional user data to Firestore
+                    return db.collection('influencers').doc(user.uid).set({
+                        email: email,
+                        phone: phone,
+                        socialMedia: {
+                            instagram: {
+                                username: instagram,
+                                followers: instagramFollowers
+                            },
+                            facebook: {
+                                username: facebook,
+                                followers: facebookFollowers
+                            },
+                            tiktok: {
+                                username: tiktok,
+                                followers: tiktokFollowers
+                            }
+                        },
+                        totalFollowers: totalFollowers,
+                        category: category,
+                        niches: selectedNiches,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        status: 'pending' // pending, approved, rejected
+                    });
+                })
+                .then(() => {
+                    // Show success step
+                    document.getElementById('step-4').classList.remove('active');
+                    document.getElementById('success-step').classList.add('active');
+                })
+                .catch((error) => {
+                    console.error('Error creating user:', error);
+                    alert('Error creating account: ' + error.message);
                 });
-                
-                // Redirect to dashboard
-                window.location.href = 'influencer_dashboard.html';
-                
-            } catch (error) {
-                console.error("Error creating account:", error);
-                
-                // Re-enable submit button
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = '<span>Create Account</span><i class="fas fa-arrow-right ml-2"></i>';
-                
-                // Show error message
-                alert(`Error: ${error.message}`);
+        });
+
+        // Password strength checker (from original code)
+        function checkPasswordStrength() {
+            const password = document.getElementById('password').value;
+            const strengthBar = document.getElementById('strengthBar');
+            const strengthText = document.getElementById('strengthText');
+            const capitalCheck = document.getElementById('capital');
+            const specialCheck = document.getElementById('special');
+            const numberCheck = document.getElementById('number');
+            
+            let strength = 0;
+            let hasCapital = /[A-Z]/.test(password);
+            let hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+            let hasNumber = /[0-9]/.test(password);
+            
+            if (hasCapital) {
+                strength++;
+                capitalCheck.classList.remove('text-gray-500');
+                capitalCheck.classList.add('text-green-500');
+            } else {
+                capitalCheck.classList.remove('text-green-500');
+                capitalCheck.classList.add('text-gray-500');
             }
-        });
-        
-        // Mobile menu functionality
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const closeMenuButton = document.getElementById('close-menu');
-        
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.add('open');
-        });
-        
-        closeMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.remove('open');
+            
+            if (hasSpecial) {
+                strength++;
+                specialCheck.classList.remove('text-gray-500');
+                specialCheck.classList.add('text-green-500');
+            } else {
+                specialCheck.classList.remove('text-green-500');
+                specialCheck.classList.add('text-gray-500');
+            }
+            
+            if (hasNumber) {
+                strength++;
+                numberCheck.classList.remove('text-gray-500');
+                numberCheck.classList.add('text-green-500');
+            } else {
+                numberCheck.classList.remove('text-green-500');
+                numberCheck.classList.add('text-gray-500');
+            }
+            
+            if (password.length >= 8) {
+                strength++;
+            }
+            
+            const strengthPercentage = (strength / 4) * 100;
+            strengthBar.style.width = strengthPercentage + '%';
+            
+            if (strength === 0) {
+                strengthBar.style.backgroundColor = '#e5e7eb';
+                strengthText.textContent = '';
+            } else if (strength <= 1) {
+                strengthBar.style.backgroundColor = '#ef4444';
+                strengthText.textContent = 'Weak password';
+                strengthText.style.color = '#ef4444';
+            } else if (strength === 2) {
+                strengthBar.style.backgroundColor = '#f59e0b';
+                strengthText.textContent = 'Fair password';
+                strengthText.style.color = '#f59e0b';
+            } else if (strength === 3) {
+                strengthBar.style.backgroundColor = '#3b82f6';
+                strengthText.textContent = 'Good password';
+                strengthText.style.color = '#3b82f6';
+            } else {
+                strengthBar.style.backgroundColor = '#10b981';
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#10b981';
+            }
+        }
+
+        // Password match checker (from original code)
+        function checkPasswordMatch() {
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const matchText = document.getElementById('matchText');
+            
+            if (confirmPassword === '') {
+                matchText.textContent = '';
+            } else if (password === confirmPassword) {
+                matchText.textContent = '✓ Passwords match';
+                matchText.style.color = '#10b981';
+            } else {
+                matchText.textContent = '✗ Passwords do not match';
+                matchText.style.color = '#ef4444';
+            }
+        }
+
+        // Calculate total followers and determine category (from original code)
+        function calculateTotalFollowers() {
+            const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
+            const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
+            const tiktokFollowers = parseInt(document.getElementById('tiktokFollowers').value) || 0;
+            
+            const total = instagramFollowers + facebookFollowers + tiktokFollowers;
+            document.getElementById('totalFollowers').textContent = total.toLocaleString();
+            
+            let category = '';
+            if (total >= 500000) {
+                category = 'Mega Influencer';
+            } else if (total >= 100001) {
+                category = 'Macro Influencer';
+            } else if (total >= 10001) {
+                category = 'Micro Influencer';
+            } else if (total >= 1000) {
+                category = 'Nano Influencer';
+            } else {
+                category = 'Below minimum threshold';
+            }
+            
+            document.getElementById('category').textContent = category;
+        }
+
+        // Update niches selection (from original code)
+        function updateNiches() {
+            const checkboxes = document.querySelectorAll('input[name="niches"]:checked');
+            const nichesError = document.getElementById('nichesError');
+            
+            if (checkboxes.length > 3) {
+                // Uncheck the last checkbox
+                const lastChecked = checkboxes[checkboxes.length - 1];
+                lastChecked.checked = false;
+                nichesError.textContent = 'Maximum 3 niches allowed';
+                nichesError.classList.remove('hidden');
+                setTimeout(() => {
+                    nichesError.classList.add('hidden');
+                }, 3000);
+            } else if (checkboxes.length === 0) {
+                nichesError.textContent = 'Please select at least one niche';
+                nichesError.classList.remove('hidden');
+            } else {
+                nichesError.classList.add('hidden');
+            }
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            calculateTotalFollowers();
+            updateProgress();
         });
     </script>
 </body>

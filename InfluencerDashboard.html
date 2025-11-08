@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Dashboard - LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-storage-compat.js"></script>
+    <style>
+        :root {
+            --light-azure: #d2e4ee;
+            --dull-orange: #e67e22;
+            --electric-blue: #00a8ff;
+            --neon-pink: #ff2e63;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--electric-blue);
+            color: var(--electric-blue);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(0, 168, 255, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .card-shadow {
+            box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1), 0 5px 15px -5px rgba(0, 0, 0, 0.05);
+            border-radius: 16px;
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .input-focus:focus {
+            outline: none;
+            border-color: var(--electric-blue);
+            box-shadow: 0 0 0 3px rgba(0, 168, 255, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .checkbox-custom {
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-custom:checked {
+            background-color: var(--dull-orange);
+            border-color: var(--dull-orange);
+        }
+        
+        .strength-bar {
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .step-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
+            transition: width 0.5s ease;
+        }
+        
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background: var(--electric-blue);
+            color: white;
+        }
+        
+        .step-indicator.completed {
+            background: var(--dull-orange);
+            color: white;
+        }
+        
+        .niche-tag {
+            display: inline-block;
+            background: var(--light-azure);
+            color: #2c5e7a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .niche-tag.selected {
+            background: var(--electric-blue);
+            color: white;
+        }
+        
+        .success-animation {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s ease-out;
+        }
+        
+        .modal.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            max-width: 800px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .campaign-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .campaign-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--dull-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .section-title {
+            position: relative;
+            display: inline-block;
+            margin-bottom: 1.5rem;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: var(--dull-orange);
+            border-radius: 2px;
+        }
+        
+        .stats-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
+        .floating {
+            animation: floating 3s ease-in-out infinite;
+        }
+        
+        @keyframes floating {
+            0% { transform: translate(0, 0px); }
+            50% { transform: translate(0, 10px); }
+            100% { transform: translate(0, -0px); }
+        }
+        
+        .gradient-text {
+            background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .logo-placeholder {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #ff8c42 0%, #e67e22 100%);
+            color: white;
+            font-size: 2.5rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen gradient-bg">
+    <!-- Loading Screen -->
+    <div id="loading-screen" class="fixed inset-0 bg-white z-50 flex items-center justify-center">
+        <div class="text-center">
+            <div class="loading-spinner mx-auto mb-4"></div>
+            <p class="text-gray-600">Loading your dashboard...</p>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="w-full py-4 px-6 bg-white shadow-sm">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold text-gray-800">LiveX</span>
+            </div>
+            
+            <div class="flex items-center space-x-4">
+                <button onclick="handleLogout()" class="px-4 py-2 rounded-full btn-secondary">
+                    <i class="fas fa-sign-out-alt mr-2"></i> Logout
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="max-w-7xl mx-auto">
+            <!-- Stats Section -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                <div class="stats-card bg-white p-6 card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-green-100 text-green-600 mr-4">
+                            <i class="fas fa-dollar-sign text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Pending Payment</p>
+                            <h3 id="pending-payment" class="text-2xl font-bold text-gray-800">Ksh 0</h3>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="stats-card bg-white p-6 card-shadow">
+                    <div class="flex items-center">
+                        <div class="p-3 rounded-full bg-purple-100 text-purple-600 mr-4">
+                            <i class="fas fa-users text-lg"></i>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Total Followers</p>
+                            <h3 id="total-followers" class="text-2xl font-bold text-gray-800">0</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div class="bg-white rounded-2xl card-shadow overflow-hidden mb-8">
+                <div class="p-8">
+                    <div class="flex flex-col md:flex-row items-center md:items-start space-y-6 md:space-y-0 md:space-x-8">
+                        <!-- Profile Picture -->
+                        <div class="relative">
+                            <div id="profile-picture" class="logo-placeholder floating">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <button onclick="openProfilePicUpload()" class="absolute -bottom-2 -right-2 bg-blue-500 text-white rounded-full w-10 h-10 flex items-center justify-center hover:bg-blue-600 transition-colors">
+                                <i class="fas fa-plus text-sm"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Profile Info -->
+                        <div class="flex-1 text-center md:text-left">
+                            <div class="flex flex-col md:flex-row md:items-center space-y-2 md:space-y-0 md:space-x-4 mb-4">
+                                <h1 id="profile-name" class="text-3xl font-bold text-gray-800">Loading...</h1>
+                                <div class="flex items-center justify-center md:justify-start space-x-2">
+                                    <i class="fab fa-instagram text-pink-600 text-xl"></i>
+                                    <span id="profile-instagram" class="text-lg text-gray-600">@loading</span>
+                                </div>
+                            </div>
+                            
+                            <div id="profile-niches" class="flex flex-wrap justify-center md:justify-start gap-2 mb-6">
+                                <!-- Niches will be loaded here -->
+                            </div>
+                            
+                            <div class="flex flex-wrap justify-center md:justify-start gap-4">
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Category</p>
+                                    <p id="profile-category" class="font-semibold text-gray-800">Loading...</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Joined</p>
+                                    <p id="profile-joined" class="font-semibold text-gray-800">Loading...</p>
+                                </div>
+                                <div class="text-center">
+                                    <p class="text-sm text-gray-600">Completed</p>
+                                    <p id="profile-completed" class="font-semibold text-gray-800">0 Campaigns</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Dashboard Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- Available Campaigns -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl card-shadow overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-2xl font-bold text-gray-800 section-title">Available Campaigns</h2>
+                                <div class="flex items-center space-x-2 text-sm text-gray-600">
+                                    <i class="fas fa-bullseye text-orange-500"></i>
+                                    <span>Matched to your profile</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="available-campaigns" class="p-6 grid gap-6">
+                            <!-- Campaigns will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar with My Campaigns -->
+                <div>
+                    <div class="bg-white rounded-2xl card-shadow overflow-hidden">
+                        <div class="p-6 border-b border-gray-100">
+                            <div class="flex items-center justify-between">
+                                <h2 class="text-2xl font-bold text-gray-800 section-title">My Campaigns</h2>
+                                <i class="fas fa-chart-line text-green-500"></i>
+                            </div>
+                        </div>
+
+                        <div id="my-campaigns" class="p-6 grid gap-4">
+                            <!-- Campaigns will be loaded here -->
+                        </div>
+                    </div>
+                    
+                    <!-- Upcoming Payments -->
+                    <div class="bg-white rounded-2xl card-shadow overflow-hidden mt-8">
+                        <div class="p-6 border-b border-gray-100">
+                            <h2 class="text-xl font-bold text-gray-800">Upcoming Payments</h2>
+                        </div>
+                        <div id="upcoming-payments" class="p-6">
+                            <!-- Payments will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Campaign Details Modal -->
+    <div id="campaign-modal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 id="modal-campaign-name" class="text-2xl font-bold text-gray-800">Campaign Name</h2>
+                        <p id="modal-campaign-brand" class="text-gray-600">Brand Name</p>
+                    </div>
+                    <button onclick="closeModal()" class="p-3 hover:bg-gray-100 rounded-full transition-colors">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+
+                <div id="modal-content">
+                    <!-- Modal content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Firebase Configuration -->
+    <script>
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
+            authDomain: "livex-b1c25.firebaseapp.com",
+            projectId: "livex-b1c25",
+            storageBucket: "livex-b1c25.firebasestorage.app",
+            messagingSenderId: "1025075596453",
+            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
+            measurementId: "G-GNQLPMEJWX"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        // Global variables
+        let currentUser = null;
+        let currentProfile = null;
+        let allCampaigns = [];
+        let selectedCampaign = null;
+
+        // Check authentication on page load
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                currentUser = user;
+                await loadProfile();
+                await loadCampaigns();
+                document.getElementById('loading-screen').style.display = 'none';
+            } else {
+                // Redirect to login if not authenticated
+                window.location.href = 'login.html';
+            }
+        });
+
+        // Load influencer profile
+        async function loadProfile() {
+            try {
+                const docRef = db.collection('influencers').doc(currentUser.uid);
+                const docSnap = await docRef.get();
+                
+                if (docSnap.exists) {
+                    currentProfile = docSnap.data();
+                    displayProfile();
+                } else {
+                    console.error('No profile found for user');
+                    window.location.href = 'login.html';
+                }
+            } catch (error) {
+                console.error('Error loading profile:', error);
+                window.location.href = 'login.html';
+            }
+        }
+
+        // Display profile information
+        function displayProfile() {
+            document.getElementById('profile-name').textContent = currentProfile.name || 'Influencer';
+            document.getElementById('profile-instagram').textContent = currentProfile.socialMedia?.instagram?.username || '@username';
+            document.getElementById('profile-category').textContent = (currentProfile.category || 'Nano') + ' Influencer';
+            document.getElementById('total-followers').textContent = (currentProfile.totalFollowers || 0).toLocaleString();
+            
+            // Calculate joined date (approximate)
+            const joinedDate = new Date();
+            if (currentProfile.createdAt) {
+                joinedDate.setTime(currentProfile.createdAt.toDate().getTime());
+            } else {
+                joinedDate.setDate(joinedDate.getDate() - Math.floor(Math.random() * 90) + 30);
+            }
+            document.getElementById('profile-joined').textContent = joinedDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            // Display niches
+            const nichesContainer = document.getElementById('profile-niches');
+            nichesContainer.innerHTML = '';
+            
+            const niches = currentProfile.niches || [];
+            niches.forEach(niche => {
+                const nicheTag = document.createElement('span');
+                nicheTag.className = 'niche-tag';
+                nicheTag.textContent = niche.charAt(0).toUpperCase() + niche.slice(1);
+                nichesContainer.appendChild(nicheTag);
+            });
+
+            // Load profile picture if exists
+            if (currentProfile.profilePictureUrl) {
+                const profilePic = document.getElementById('profile-picture');
+                profilePic.style.backgroundImage = `url(${currentProfile.profilePictureUrl})`;
+                profilePic.style.backgroundSize = 'cover';
+                profilePic.style.backgroundPosition = 'center';
+                profilePic.innerHTML = '';
+            }
+        }
+
+        // Load campaigns - FIXED VERSION
+        async function loadCampaigns() {
+            try {
+                console.log('Loading campaigns for influencer...');
+                
+                // Try multiple statuses to find approved campaigns
+                const statuses = ['active', 'available', 'approved', 'published'];
+                let availableCampaigns = [];
+                
+                for (const status of statuses) {
+                    try {
+                        const snapshot = await db.collection('campaigns')
+                            .where('status', '==', status)
+                            .where('spotsAvailable', '>', 0)
+                            .get();
+                        
+                        const campaigns = snapshot.docs.map(doc => ({
+                            id: doc.id,
+                            ...doc.data()
+                        }));
+                        
+                        availableCampaigns = [...availableCampaigns, ...campaigns];
+                        console.log(`Found ${campaigns.length} campaigns with status: ${status}`);
+                    } catch (error) {
+                        console.log(`No campaigns found with status: ${status}`, error.message);
+                    }
+                }
+                
+                // If no campaigns found with specific statuses, try without status filter
+                if (availableCampaigns.length === 0) {
+                    console.log('Trying to load all campaigns without status filter...');
+                    const allSnapshot = await db.collection('campaigns')
+                        .where('spotsAvailable', '>', 0)
+                        .get();
+                    
+                    availableCampaigns = allSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    console.log(`Found ${availableCampaigns.length} campaigns without status filter`);
+                }
+
+                // Fetch campaigns the influencer has joined
+                let joinedCampaigns = [];
+                try {
+                    const joinedSnapshot = await db.collection('campaigns')
+                        .where('influencers', 'array-contains', currentUser.uid)
+                        .get();
+                    
+                    joinedCampaigns = joinedSnapshot.docs.map(doc => ({
+                        id: doc.id,
+                        ...doc.data()
+                    }));
+                    console.log(`Found ${joinedCampaigns.length} joined campaigns`);
+                } catch (error) {
+                    console.log('Error loading joined campaigns:', error);
+                    // Alternative approach: look for submissions
+                    try {
+                        const submissionsSnapshot = await db.collection('submissions')
+                            .where('influencerId', '==', currentUser.uid)
+                            .get();
+                        
+                        const submissionCampaignIds = submissionsSnapshot.docs.map(doc => doc.data().campaignId);
+                        
+                        // Fetch campaign details for each submission
+                        for (const campaignId of submissionCampaignIds) {
+                            const campaignDoc = await db.collection('campaigns').doc(campaignId).get();
+                            if (campaignDoc.exists) {
+                                joinedCampaigns.push({
+                                    id: campaignDoc.id,
+                                    ...campaignDoc.data()
+                                });
+                            }
+                        }
+                        console.log(`Found ${joinedCampaigns.length} campaigns via submissions`);
+                    } catch (submissionError) {
+                        console.log('Error loading campaigns via submissions:', submissionError);
+                    }
+                }
+
+                // Filter available campaigns based on influencer's profile
+                const filteredAvailable = availableCampaigns.filter(campaign => {
+                    // Skip campaigns already joined
+                    if (joinedCampaigns.some(jc => jc.id === campaign.id)) {
+                        return false;
+                    }
+                    
+                    // Check category match
+                    const categoryMatch = campaign.category === currentProfile.category;
+                    
+                    // Check niche match if niches exist
+                    let nicheMatch = true;
+                    if (campaign.niches && currentProfile.niches) {
+                        nicheMatch = campaign.niches.some(niche => 
+                            currentProfile.niches.includes(niche)
+                        );
+                    }
+                    
+                    return categoryMatch && nicheMatch;
+                });
+
+                allCampaigns = [...filteredAvailable, ...joinedCampaigns];
+                console.log('Total campaigns to display:', allCampaigns.length);
+                displayCampaigns();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading campaigns:', error);
+                // Show error message to user
+                document.getElementById('available-campaigns').innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-exclamation-triangle text-yellow-500 text-5xl mb-4"></i>
+                        <p class="text-gray-500 mb-2">Error loading campaigns</p>
+                        <p class="text-sm text-gray-400">Please refresh the page or try again later</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update stats
+        function updateStats() {
+            const joinedCampaigns = allCampaigns.filter(c => {
+                // Check if influencer has joined this campaign
+                return c.influencers && c.influencers.includes(currentUser.uid);
+            });
+            
+            // Calculate pending payment
+            const pendingCampaigns = joinedCampaigns.filter(c => 
+                c.status === 'submitted' || c.status === 'pending_payment' || c.status === 'completed'
+            );
+            
+            let pendingAmount = 0;
+            pendingCampaigns.forEach(campaign => {
+                pendingAmount += getPaymentAmount(campaign.category);
+            });
+            
+            document.getElementById('pending-payment').textContent = `Ksh ${pendingAmount.toLocaleString()}`;
+            
+            // Calculate completed campaigns
+            const completedCampaigns = joinedCampaigns.filter(c => 
+                c.status === 'paid' || c.status === 'completed'
+            ).length;
+            
+            document.getElementById('profile-completed').textContent = `${completedCampaigns} Campaigns`;
+        }
+
+        // Display campaigns
+        function displayCampaigns() {
+            const availableContainer = document.getElementById('available-campaigns');
+            const myContainer = document.getElementById('my-campaigns');
+            const paymentsContainer = document.getElementById('upcoming-payments');
+            
+            // Clear existing content
+            availableContainer.innerHTML = '';
+            myContainer.innerHTML = '';
+            paymentsContainer.innerHTML = '';
+            
+            // Separate available and joined campaigns
+            const availableCampaigns = allCampaigns.filter(campaign => {
+                // Campaign is available if influencer hasn't joined it
+                return !campaign.influencers || !campaign.influencers.includes(currentUser.uid);
+            });
+            
+            const joinedCampaigns = allCampaigns.filter(campaign => {
+                // Campaign is joined if influencer is in the influencers array
+                return campaign.influencers && campaign.influencers.includes(currentUser.uid);
+            });
+            
+            const pendingPayments = joinedCampaigns.filter(c => 
+                c.status === 'submitted' || c.status === 'pending_payment' || c.status === 'completed'
+            );
+            
+            // Display available campaigns
+            if (availableCampaigns.length === 0) {
+                availableContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-briefcase text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500 mb-2">No available campaigns at the moment</p>
+                        <p class="text-sm text-gray-400">Check back later for new opportunities</p>
+                    </div>
+                `;
+            } else {
+                availableCampaigns.forEach(campaign => {
+                    availableContainer.appendChild(createCampaignCard(campaign, 'available'));
+                });
+            }
+            
+            // Display my campaigns
+            if (joinedCampaigns.length === 0) {
+                myContainer.innerHTML = `
+                    <div class="text-center py-8">
+                        <i class="fas fa-briefcase text-gray-300 text-4xl mb-3"></i>
+                        <p class="text-gray-500 text-sm">You haven't joined any campaigns yet</p>
+                    </div>
+                `;
+            } else {
+                joinedCampaigns.forEach(campaign => {
+                    myContainer.appendChild(createCampaignCard(campaign, 'joined'));
+                });
+            }
+            
+            // Display upcoming payments
+            if (pendingPayments.length === 0) {
+                paymentsContainer.innerHTML = `
+                    <div class="text-center py-4">
+                        <p class="text-gray-500 text-sm">No upcoming payments</p>
+                    </div>
+                `;
+            } else {
+                pendingPayments.forEach(campaign => {
+                    paymentsContainer.appendChild(createPaymentCard(campaign));
+                });
+            }
+        }
+
+        // Create campaign card
+        function createCampaignCard(campaign, type) {
+            const card = document.createElement('div');
+            card.className = 'campaign-card bg-white p-5';
+            
+            const paymentAmount = getPaymentAmount(campaign.category);
+            const statusBadge = getStatusBadge(campaign.status, type);
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${campaign.name || 'Unnamed Campaign'}</h3>
+                        <p class="text-gray-600 text-sm mb-2">by ${campaign.brand || 'Unknown Brand'}</p>
+                        <div class="flex items-center space-x-2 mb-3">
+                            ${statusBadge}
+                            ${type === 'available' ? `
+                                <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                    ${campaign.spotsAvailable || 0} spots left
+                                </span>
+                            ` : ''}
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-orange-600">Ksh ${paymentAmount}</p>
+                        <p class="text-xs text-gray-500">Payment</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center justify-between text-sm text-gray-600 mb-4">
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-bullseye text-blue-500"></i>
+                        <span>${campaign.goal || 'Brand Awareness'}</span>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <i class="fas fa-calendar text-green-500"></i>
+                        <span>${campaign.deadline || '7 days'}</span>
+                    </div>
+                </div>
+                
+                <button onclick="showCampaignDetails('${campaign.id}')" class="w-full btn-primary py-2 rounded-lg">
+                    ${type === 'available' ? 'View Details' : 'View Progress'}
+                </button>
+            `;
+            
+            return card;
+        }
+
+        // Create payment card
+        function createPaymentCard(campaign) {
+            const card = document.createElement('div');
+            card.className = 'border border-gray-200 rounded-lg p-4 mb-3';
+            
+            const paymentAmount = getPaymentAmount(campaign.category);
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h4 class="font-medium text-gray-800">${campaign.name || 'Unnamed Campaign'}</h4>
+                        <p class="text-sm text-gray-600">${campaign.brand || 'Unknown Brand'}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="font-bold text-green-600">Ksh ${paymentAmount}</p>
+                        <p class="text-xs text-gray-500">${campaign.paymentDate || 'Processing...'}</p>
+                    </div>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Get payment amount based on category
+        function getPaymentAmount(category) {
+            switch (category) {
+                case 'Nano': return 1000;
+                case 'Micro': return 4000;
+                case 'Macro': return 7000;
+                case 'Mega': return 15000;
+                default: return 1000;
+            }
+        }
+
+        // Get status badge
+        function getStatusBadge(status, type) {
+            if (type === 'available') {
+                return '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Available</span>';
+            }
+            
+            const badges = {
+                'joined': '<span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">Joined</span>',
+                'submitted': '<span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm">Submitted</span>',
+                'pending_payment': '<span class="px-2 py-1 bg-orange-100 text-orange-800 rounded-full text-sm">Pending Payment</span>',
+                'paid': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Paid</span>',
+                'completed': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Completed</span>',
+                'active': '<span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">Active</span>'
+            };
+            return badges[status] || '<span class="px-2 py-1 bg-gray-100 text-gray-800 rounded-full text-sm">' + (status || 'Unknown') + '</span>';
+        }
+
+        // Show campaign details
+        function showCampaignDetails(campaignId) {
+            selectedCampaign = allCampaigns.find(c => c.id === campaignId);
+            if (!selectedCampaign) return;
+            
+            const modal = document.getElementById('campaign-modal');
+            const modalContent = document.getElementById('modal-content');
+            
+            document.getElementById('modal-campaign-name').textContent = selectedCampaign.name || 'Unnamed Campaign';
+            document.getElementById('modal-campaign-brand').textContent = selectedCampaign.brand || 'Unknown Brand';
+            
+            const paymentAmount = getPaymentAmount(selectedCampaign.category);
+            const hasJoined = selectedCampaign.influencers && selectedCampaign.influencers.includes(currentUser.uid);
+            
+            if (!hasJoined) {
+                modalContent.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-blue-800">Payment Amount</p>
+                                    <p class="text-xl font-bold text-blue-800">Ksh ${paymentAmount}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-blue-800">Spots Available</p>
+                                    <p class="text-xl font-bold text-blue-800">${selectedCampaign.spotsAvailable || 0}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Campaign Goal</h3>
+                            <p class="text-gray-600">${selectedCampaign.goal || 'Not specified'}</p>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-2">Instructions</h3>
+                            <p class="text-gray-600">${selectedCampaign.instructions || 'No specific instructions provided.'}</p>
+                        </div>
+
+                        ${selectedCampaign.caption ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Caption</h3>
+                                <div class="bg-gray-50 p-3 rounded-lg">
+                                    <p class="text-gray-700">${selectedCampaign.caption}</p>
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${selectedCampaign.hashtags && selectedCampaign.hashtags.length > 0 ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Hashtags</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    ${selectedCampaign.hashtags.map(tag => `
+                                        <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                            <i class="fas fa-hash text-xs"></i>
+                                            <span>${tag.replace('#', '')}</span>
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        ${selectedCampaign.mentions && selectedCampaign.mentions.length > 0 ? `
+                            <div>
+                                <h3 class="text-lg font-semibold text-gray-800 mb-2">Accounts to Tag</h3>
+                                <div class="flex flex-wrap gap-2">
+                                    ${selectedCampaign.mentions.map(mention => `
+                                        <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
+                                            <i class="fas fa-at text-xs"></i>
+                                            <span>${mention.replace('@', '')}</span>
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        ` : ''}
+
+                        <button onclick="joinCampaign()" class="w-full btn-primary py-3 rounded-lg">
+                            Join This Campaign
+                        </button>
+                    </div>
+                `;
+            } else {
+                modalContent.innerHTML = `
+                    <div class="space-y-6">
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <p class="text-sm text-orange-800">Payment Amount</p>
+                                    <p class="text-xl font-bold text-orange-800">Ksh ${paymentAmount}</p>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-orange-800">Status</p>
+                                    <p class="text-xl font-bold text-orange-800">${getStatusText(selectedCampaign.status)}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-800 mb-4">Submit Your Work</h3>
+                            <p class="text-gray-600 mb-4">Please provide at least one URL to your social media post</p>
+                            
+                            <div class="space-y-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-instagram mr-2 text-pink-600"></i>
+                                        Instagram Post URL
+                                    </label>
+                                    <input type="url" id="instagram-url" placeholder="https://instagram.com/p/..." class="input-focus">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-facebook mr-2 text-blue-600"></i>
+                                        Facebook Post URL
+                                    </label>
+                                    <input type="url" id="facebook-url" placeholder="https://facebook.com/..." class="input-focus">
+                                </div>
+
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-2">
+                                        <i class="fab fa-tiktok mr-2 text-gray-800"></i>
+                                        TikTok Post URL
+                                    </label>
+                                    <input type="url" id="tiktok-url" placeholder="https://tiktok.com/..." class="input-focus">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 p-4 rounded-lg">
+                            <p class="text-sm text-orange-800">
+                                <strong>Note:</strong> Payment will be processed on the Saturday following your submission date.
+                            </p>
+                        </div>
+
+                        <div class="flex space-x-4">
+                            <button onclick="closeModal()" class="flex-1 btn-secondary py-3 rounded-lg">
+                                Cancel
+                            </button>
+                            <button onclick="submitWork()" class="flex-1 btn-primary py-3 rounded-lg">
+                                Submit Work
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            modal.classList.add('active');
+        }
+
+        // Profile picture upload functionality - FIXED VERSION
+        function openProfilePicUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.onchange = handleProfilePicUpload;
+            input.click();
+        }
+
+        async function handleProfilePicUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading state
+            const profilePic = document.getElementById('profile-picture');
+            const originalContent = profilePic.innerHTML;
+            profilePic.innerHTML = '<div class="loading-spinner"></div>';
+
+            try {
+                // Create a storage reference
+                const storageRef = storage.ref();
+                const profilePicRef = storageRef.child(`influencer-profiles/${currentUser.uid}/profile-picture`);
+                
+                // Upload the file
+                const snapshot = await profilePicRef.put(file);
+                
+                // Get the download URL
+                const downloadURL = await snapshot.ref.getDownloadURL();
+                
+                // Update Firestore with the profile picture URL
+                await db.collection('influencers').doc(currentUser.uid).update({
+                    profilePictureUrl: downloadURL,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update currentProfile object
+                currentProfile.profilePictureUrl = downloadURL;
+                
+                // Update UI
+                profilePic.style.backgroundImage = `url(${downloadURL})`;
+                profilePic.style.backgroundSize = 'cover';
+                profilePic.style.backgroundPosition = 'center';
+                profilePic.innerHTML = '';
+                
+                alert('Profile picture uploaded successfully!');
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+                alert('Error uploading profile picture: ' + error.message);
+                
+                // Restore original content
+                profilePic.innerHTML = originalContent;
+                profilePic.style.backgroundImage = '';
+            }
+        }
+
+        // Get status text
+        function getStatusText(status) {
+            const statusMap = {
+                'joined': 'Joined',
+                'submitted': 'Submitted',
+                'pending_payment': 'Pending Payment',
+                'paid': 'Paid',
+                'completed': 'Completed',
+                'active': 'Active'
+            };
+            return statusMap[status] || status || 'Unknown';
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('campaign-modal').classList.remove('active');
+        }
+
+        // Join campaign - FIXED VERSION
+        async function joinCampaign() {
+            try {
+                // Add influencer to campaign's influencers array
+                const campaignRef = db.collection('campaigns').doc(selectedCampaign.id);
+                await campaignRef.update({
+                    influencers: firebase.firestore.FieldValue.arrayUnion(currentUser.uid),
+                    spotsAvailable: (selectedCampaign.spotsAvailable || 0) - 1,
+                    status: 'active' // Ensure campaign is marked as active
+                });
+
+                // Update local data
+                if (!selectedCampaign.influencers) {
+                    selectedCampaign.influencers = [];
+                }
+                selectedCampaign.influencers.push(currentUser.uid);
+                selectedCampaign.spotsAvailable = (selectedCampaign.spotsAvailable || 0) - 1;
+                selectedCampaign.status = 'active';
+
+                // Refresh campaigns display
+                displayCampaigns();
+                updateStats();
+                
+                // Show success message and close modal
+                closeModal();
+                alert('Successfully joined the campaign! You can now submit your work.');
+            } catch (error) {
+                console.error('Error joining campaign:', error);
+                alert('Error joining campaign. Please try again.');
+            }
+        }
+
+        // Submit work - FIXED VERSION
+        async function submitWork() {
+            const instagramUrl = document.getElementById('instagram-url').value;
+            const facebookUrl = document.getElementById('facebook-url').value;
+            const tiktokUrl = document.getElementById('tiktok-url').value;
+
+            if (!instagramUrl && !facebookUrl && !tiktokUrl) {
+                alert('Please submit at least one URL');
+                return;
+            }
+
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const paymentDate = calculatePaymentDate(today);
+
+                // Create submission document
+                const submissionData = {
+                    campaignId: selectedCampaign.id,
+                    campaignName: selectedCampaign.name,
+                    influencerId: currentUser.uid,
+                    influencerName: currentProfile.name,
+                    influencerInstagram: currentProfile.socialMedia?.instagram?.username,
+                    submittedUrls: {
+                        instagram: instagramUrl,
+                        facebook: facebookUrl,
+                        tiktok: tiktokUrl
+                    },
+                    submissionDate: today,
+                    paymentDate: paymentDate,
+                    status: 'submitted',
+                    amount: getPaymentAmount(selectedCampaign.category),
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+
+                // Add submission to submissions collection
+                await db.collection('submissions').add(submissionData);
+
+                // Update campaign status
+                await db.collection('campaigns').doc(selectedCampaign.id).update({
+                    status: 'submitted'
+                });
+
+                // Update local data
+                selectedCampaign.status = 'submitted';
+                selectedCampaign.submissionDate = today;
+                selectedCampaign.paymentDate = paymentDate;
+
+                // Refresh campaigns display
+                displayCampaigns();
+                updateStats();
+                
+                closeModal();
+                alert('Work submitted successfully! It will be reviewed by the admin.');
+            } catch (error) {
+                console.error('Error submitting work:', error);
+                alert('Error submitting work. Please try again.');
+            }
+        }
+
+        // Calculate payment date
+        function calculatePaymentDate(submissionDate) {
+            const submitDate = new Date(submissionDate);
+            const dayOfWeek = submitDate.getDay(); // 0 = Sunday, 6 = Saturday
+            
+            let daysUntilSaturday;
+            if (dayOfWeek === 6) { // Submitted on Saturday
+                daysUntilSaturday = 7; // Next Saturday
+            } else {
+                daysUntilSaturday = (6 - dayOfWeek + 7) % 7 || 7; // Next Saturday
+            }
+            
+            const paymentDate = new Date(submitDate);
+            paymentDate.setDate(submitDate.getDate() + daysUntilSaturday);
+            
+            return paymentDate.toISOString().split('T')[0];
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                await auth.signOut();
+                window.location.href = 'login.html';
+            } catch (error) {
+                console.error('Error logging out:', error);
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('campaign-modal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+    </script>
+</body>
+</html>
