@@ -252,6 +252,13 @@
 
                         <form id="step1-form" class="space-y-6">
                             <div>
+                                <label for="fullName" class="block text-sm font-medium text-gray-700 mb-1">Full Names</label>
+                                <input id="fullName" name="fullName" type="text" required 
+                                       class="input-focus"
+                                       placeholder="John Doe">
+                            </div>
+
+                            <div>
                                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
                                 <input id="email" name="email" type="email" required 
                                        class="input-focus"
@@ -325,7 +332,7 @@
                                     <i class="fab fa-instagram text-2xl text-pink-600 mr-3"></i>
                                     <h3 class="text-lg font-semibold text-gray-800">Instagram</h3>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="instagram" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                                         <input id="instagram" name="instagram" type="text" required 
@@ -339,6 +346,12 @@
                                                placeholder="0"
                                                oninput="calculateTotalFollowers()">
                                     </div>
+                                    <div>
+                                        <label for="instagramUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                        <input id="instagramUrl" name="instagramUrl" type="url" required 
+                                               class="input-focus"
+                                               placeholder="https://instagram.com/yourusername">
+                                    </div>
                                 </div>
                             </div>
 
@@ -348,7 +361,7 @@
                                     <i class="fab fa-facebook text-2xl text-blue-600 mr-3"></i>
                                     <h3 class="text-lg font-semibold text-gray-800">Facebook</h3>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                                         <input id="facebook" name="facebook" type="text" required 
@@ -362,6 +375,12 @@
                                                placeholder="0"
                                                oninput="calculateTotalFollowers()">
                                     </div>
+                                    <div>
+                                        <label for="facebookUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                        <input id="facebookUrl" name="facebookUrl" type="url" required 
+                                               class="input-focus"
+                                               placeholder="https://facebook.com/yourusername">
+                                    </div>
                                 </div>
                             </div>
 
@@ -371,7 +390,7 @@
                                     <i class="fab fa-tiktok text-2xl text-gray-800 mr-3"></i>
                                     <h3 class="text-lg font-semibold text-gray-800">TikTok</h3>
                                 </div>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
                                         <input id="tiktok" name="tiktok" type="text" required 
@@ -384,6 +403,12 @@
                                                class="input-focus"
                                                placeholder="0"
                                                oninput="calculateTotalFollowers()">
+                                    </div>
+                                    <div>
+                                        <label for="tiktokUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                        <input id="tiktokUrl" name="tiktokUrl" type="url" required 
+                                               class="input-focus"
+                                               placeholder="https://tiktok.com/@yourusername">
                                     </div>
                                 </div>
                             </div>
@@ -551,6 +576,10 @@
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     <div>
+                                        <p class="text-sm text-gray-600">Full Name</p>
+                                        <p id="review-fullName" class="font-medium text-gray-800"></p>
+                                    </div>
+                                    <div>
                                         <p class="text-sm text-gray-600">Email</p>
                                         <p id="review-email" class="font-medium text-gray-800"></p>
                                     </div>
@@ -568,16 +597,19 @@
                                         <p class="text-sm text-gray-600">Instagram</p>
                                         <p id="review-instagram" class="font-medium text-gray-800"></p>
                                         <p id="review-instagram-followers" class="text-xs text-gray-600"></p>
+                                        <a id="review-instagram-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-600">Facebook</p>
                                         <p id="review-facebook" class="font-medium text-gray-800"></p>
                                         <p id="review-facebook-followers" class="text-xs text-gray-600"></p>
+                                        <a id="review-facebook-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
                                     </div>
                                     <div>
                                         <p class="text-sm text-gray-600">TikTok</p>
                                         <p id="review-tiktok" class="font-medium text-gray-800"></p>
                                         <p id="review-tiktok-followers" class="text-xs text-gray-600"></p>
+                                        <a id="review-tiktok-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
                                     </div>
                                 </div>
                                 <div class="mt-4 pt-4 border-t border-gray-200">
@@ -732,12 +764,13 @@
 
         // Form validation functions
         function validateStep1() {
+            const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const phone = document.getElementById('phone').value;
             
-            if (!email || !password || !confirmPassword || !phone) {
+            if (!fullName || !email || !password || !confirmPassword || !phone) {
                 alert('Please fill in all fields');
                 return false;
             }
@@ -764,9 +797,12 @@
             const instagram = document.getElementById('instagram').value;
             const facebook = document.getElementById('facebook').value;
             const tiktok = document.getElementById('tiktok').value;
+            const instagramUrl = document.getElementById('instagramUrl').value;
+            const facebookUrl = document.getElementById('facebookUrl').value;
+            const tiktokUrl = document.getElementById('tiktokUrl').value;
             
-            if (!instagram || !facebook || !tiktok) {
-                alert('Please fill in all social media usernames');
+            if (!instagram || !facebook || !tiktok || !instagramUrl || !facebookUrl || !tiktokUrl) {
+                alert('Please fill in all social media fields');
                 return false;
             }
             
@@ -787,20 +823,24 @@
 
         // Update review section
         function updateReview() {
+            document.getElementById('review-fullName').textContent = document.getElementById('fullName').value;
             document.getElementById('review-email').textContent = document.getElementById('email').value;
             document.getElementById('review-phone').textContent = document.getElementById('phone').value;
             
             document.getElementById('review-instagram').textContent = document.getElementById('instagram').value;
             document.getElementById('review-instagram-followers').textContent = 
                 `${document.getElementById('instagramFollowers').value} followers`;
+            document.getElementById('review-instagram-url').href = document.getElementById('instagramUrl').value;
             
             document.getElementById('review-facebook').textContent = document.getElementById('facebook').value;
             document.getElementById('review-facebook-followers').textContent = 
                 `${document.getElementById('facebookFollowers').value} followers`;
+            document.getElementById('review-facebook-url').href = document.getElementById('facebookUrl').value;
             
             document.getElementById('review-tiktok').textContent = document.getElementById('tiktok').value;
             document.getElementById('review-tiktok-followers').textContent = 
                 `${document.getElementById('tiktokFollowers').value} followers`;
+            document.getElementById('review-tiktok-url').href = document.getElementById('tiktokUrl').value;
             
             document.getElementById('review-total-followers').textContent = document.getElementById('totalFollowers').textContent;
             document.getElementById('review-category').textContent = document.getElementById('category').textContent;
@@ -821,16 +861,20 @@
         // Form submission
         document.getElementById('submit-form').addEventListener('click', function() {
             // Collect form data
+            const fullName = document.getElementById('fullName').value;
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const phone = document.getElementById('phone').value;
             
             const instagram = document.getElementById('instagram').value;
             const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
+            const instagramUrl = document.getElementById('instagramUrl').value;
             const facebook = document.getElementById('facebook').value;
             const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
+            const facebookUrl = document.getElementById('facebookUrl').value;
             const tiktok = document.getElementById('tiktok').value;
             const tiktokFollowers = parseInt(document.getElementById('tiktokFollowers').value) || 0;
+            const tiktokUrl = document.getElementById('tiktokUrl').value;
             
             const totalFollowers = parseInt(document.getElementById('totalFollowers').textContent.replace(/,/g, ''));
             const category = document.getElementById('category').textContent;
@@ -845,20 +889,24 @@
                     
                     // Save additional user data to Firestore
                     return db.collection('influencers').doc(user.uid).set({
+                        fullName: fullName,
                         email: email,
                         phone: phone,
                         socialMedia: {
                             instagram: {
                                 username: instagram,
-                                followers: instagramFollowers
+                                followers: instagramFollowers,
+                                url: instagramUrl
                             },
                             facebook: {
                                 username: facebook,
-                                followers: facebookFollowers
+                                followers: facebookFollowers,
+                                url: facebookUrl
                             },
                             tiktok: {
                                 username: tiktok,
-                                followers: tiktokFollowers
+                                followers: tiktokFollowers,
+                                url: tiktokUrl
                             }
                         },
                         totalFollowers: totalFollowers,

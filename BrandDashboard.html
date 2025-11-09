@@ -130,11 +130,6 @@
             animation: slideUp 0.3s ease-out;
         }
         
-        @keyframes slideUp {
-            from { transform: translateY(50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
         .campaign-card {
             transition: all 0.3s ease;
             border-radius: 12px;
@@ -191,9 +186,44 @@
             -webkit-text-fill-color: transparent;
         }
         
+        .logo-placeholder {
+            width: 128px;
+            height: 128px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
+            color: white;
+            font-size: 2.5rem;
+        }
+
+        .resource-preview {
+            width: 100px;
+            height: 100px;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .loading-spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--dull-orange);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
         .tab-button {
             transition: all 0.3s ease;
             border-bottom: 3px solid transparent;
+            padding-bottom: 0.5rem;
         }
         
         .tab-button.active {
@@ -206,6 +236,7 @@
             border: 2px solid #e2e8f0;
             border-radius: 8px;
             padding: 16px;
+            cursor: pointer;
         }
         
         .payment-option.selected {
@@ -225,38 +256,81 @@
             box-shadow: 0 4px 12px rgba(0, 168, 255, 0.1);
         }
         
-        .loading-spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--dull-orange);
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .status-pending {
+            background-color: #fef3c7;
+            color: #92400e;
         }
         
-        .logo-placeholder {
-            width: 128px;
-            height: 128px;
-            border-radius: 50%;
+        .status-active {
+            background-color: #d1fae5;
+            color: #065f46;
+        }
+        
+        .status-completed {
+            background-color: #10b981;
+            color: white;
+        }
+        
+        .status-rejected {
+            background-color: #fca5a5;
+            color: #991b1b;
+        }
+        
+        @keyframes slideUp {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        .niche-tag {
+            display: inline-block;
+            background: var(--light-azure);
+            color: #2c5e7a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+        
+        .niche-tag.selected {
+            background: var(--electric-blue);
+            color: white;
+        }
+        
+        /* Loading state for buttons */
+        .btn-loading {
+            pointer-events: none;
+            opacity: 0.7;
+        }
+        
+        .btn-loading-content {
             display: flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%);
-            color: white;
-            font-size: 2.5rem;
         }
-
-        .resource-preview {
-            width: 100px;
-            height: 100px;
-            object-fit: cover;
-            border-radius: 8px;
-            border: 2px solid #e2e8f0;
+        
+        .btn-spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -536,43 +610,29 @@
                         <div class="mt-4">
                             <label class="block text-sm font-medium text-gray-700 mb-2">Target Niches</label>
                             <div class="grid grid-cols-2 md:grid-cols-3 gap-2">
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="lifestyle" class="rounded">
-                                    <span class="text-sm">Lifestyle</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="tech" class="rounded">
-                                    <span class="text-sm">Tech</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="fashion" class="rounded">
-                                    <span class="text-sm">Fashion</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="travel" class="rounded">
-                                    <span class="text-sm">Travel</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="food" class="rounded">
-                                    <span class="text-sm">Food</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="fitness" class="rounded">
-                                    <span class="text-sm">Fitness</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="beauty" class="rounded">
-                                    <span class="text-sm">Beauty</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="gaming" class="rounded">
-                                    <span class="text-sm">Gaming</span>
-                                </label>
-                                <label class="flex items-center space-x-2">
-                                    <input type="checkbox" name="niches" value="music" class="rounded">
-                                    <span class="text-sm">Music</span>
-                                </label>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'lifestyle')">Lifestyle</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'tech')">Tech</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'fashion')">Fashion</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'travel')">Travel</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'food')">Food</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'fitness')">Fitness</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'beauty')">Beauty</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'gaming')">Gaming</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'music')">Music</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'sports')">Sports</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'art')">Art</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'photography')">Photography</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'education')">Education</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'business')">Business</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'finance')">Finance</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'health')">Health</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'wellness')">Wellness</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'parenting')">Parenting</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'pets')">Pets</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'diy')">DIY</div>
+                                <div class="niche-tag" onclick="toggleNiche(this, 'sustainability')">Sustainability</div>
                             </div>
+                            <p id="nicheError" class="text-xs text-red-500 mt-1 hidden">Please select at least one niche</p>
                         </div>
                     </div>
 
@@ -580,11 +640,7 @@
                     <div>
                         <h3 class="text-lg font-semibold text-gray-800 mb-4">Pricing</h3>
                         <div class="bg-blue-50 p-4 rounded-lg">
-                            <div class="flex justify-between items-center">
-                                <div>
-                                    <p class="text-sm text-blue-800">Price per Influencer</p>
-                                    <p id="price-per-influencer" class="text-xl font-bold text-blue-800">Ksh 0</p>
-                                </div>
+                            <div class="flex justify-center">
                                 <div>
                                     <p class="text-sm text-blue-800">Total Cost</p>
                                     <p id="total-cost" class="text-xl font-bold text-blue-800">Ksh 0</p>
@@ -633,8 +689,12 @@
                         <button type="button" onclick="closeCreateCampaignModal()" class="flex-1 btn-secondary py-3 rounded-lg">
                             Cancel
                         </button>
-                        <button type="submit" class="flex-1 btn-primary py-3 rounded-lg">
-                            Submit Campaign
+                        <button type="submit" id="submit-campaign-btn" class="flex-1 btn-primary py-3 rounded-lg">
+                            <span id="submit-text">Submit Campaign</span>
+                            <div id="submit-loading" class="hidden ml-2">
+                                <div class="btn-spinner"></div>
+                                <span>Submitting...</span>
+                            </div>
                         </button>
                     </div>
                 </form>
@@ -686,6 +746,8 @@
         let selectedPaymentMethod = null;
         let currentTab = 'pending';
         let campaignResources = [];
+        let selectedNiches = [];
+        let isSubmitting = false; // Flag to prevent multiple submissions
 
         // Pricing constants
         const PRICING = {
@@ -858,9 +920,9 @@
         // Create campaign card
         function createCampaignCard(campaign, type) {
             const statusColors = {
-                'pending': 'bg-yellow-100 text-yellow-800',
-                'active': 'bg-green-100 text-green-800',
-                'completed': 'bg-blue-100 text-blue-800'
+                'pending': 'status-pending',
+                'active': 'status-active',
+                'completed': 'status-completed'
             };
 
             const filledSlots = (campaign.totalSpots || 0) - (campaign.spotsAvailable || 0);
@@ -873,9 +935,7 @@
                             <h3 class="text-lg font-semibold text-gray-800 mb-1">${campaign.name}</h3>
                             <p class="text-gray-600 text-sm mb-2">${campaign.brand}</p>
                             <div class="flex items-center space-x-2 mb-3">
-                                <span class="px-2 py-1 ${statusColors[campaign.status]} rounded-full text-sm">
-                                    ${campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}
-                                </span>
+                                <span class="status-badge ${statusColors[campaign.status]}">${campaign.status.charAt(0).toUpperCase() + campaign.status.slice(1)}</span>
                                 <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
                                     ${campaign.spotsAvailable || 0} spots left
                                 </span>
@@ -897,14 +957,18 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-between items-center text-sm text-gray-600 mb-4">
-                        <div class="flex items-center space-x-1">
+                    <div class="flex flex-wrap items-center text-sm text-gray-600 mb-4">
+                        <div class="flex items-center space-x-1 mr-4">
                             <i class="fas fa-bullseye text-blue-500"></i>
                             <span>${campaign.goal}</span>
                         </div>
-                        <div class="flex items-center space-x-1">
+                        <div class="flex items-center space-x-1 mr-4">
                             <i class="fas fa-calendar text-green-500"></i>
                             <span>${campaign.deadline || '7 days'}</span>
+                        </div>
+                        <div class="flex items-center space-x-1">
+                            <i class="fas fa-tags text-purple-500"></i>
+                            <span>${campaign.niches ? campaign.niches.map(n => n.charAt(0).toUpperCase() + n.slice(1)).join(', ') : 'None'}</span>
                         </div>
                     </div>
                     
@@ -981,6 +1045,42 @@
             document.getElementById('resources-preview').innerHTML = '';
             document.getElementById('resources-preview').classList.add('hidden');
             document.getElementById('resources-placeholder').classList.remove('hidden');
+            
+            // Reset niches
+            selectedNiches = [];
+            document.querySelectorAll('.niche-tag').forEach(tag => {
+                tag.classList.remove('selected');
+            });
+            document.getElementById('nicheError').classList.add('hidden');
+            
+            // Reset submit button state
+            resetSubmitButton();
+        }
+
+        // Reset submit button to normal state
+        function resetSubmitButton() {
+            const submitBtn = document.getElementById('submit-campaign-btn');
+            const submitText = document.getElementById('submit-text');
+            const submitLoading = document.getElementById('submit-loading');
+            
+            submitBtn.classList.remove('btn-loading');
+            submitBtn.disabled = false;
+            submitText.classList.remove('hidden');
+            submitLoading.classList.add('hidden');
+            isSubmitting = false;
+        }
+
+        // Set submit button to loading state
+        function setSubmitButtonLoading() {
+            const submitBtn = document.getElementById('submit-campaign-btn');
+            const submitText = document.getElementById('submit-text');
+            const submitLoading = document.getElementById('submit-loading');
+            
+            submitBtn.classList.add('btn-loading');
+            submitBtn.disabled = true;
+            submitText.classList.add('hidden');
+            submitLoading.classList.remove('hidden');
+            isSubmitting = true;
         }
 
         // Open analytics modal
@@ -1047,16 +1147,11 @@
                                             <p class="text-sm text-gray-600">${submission.influencerInstagram}</p>
                                         </div>
                                     </div>
-                                    <div class="text-right">
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-sm">
-                                            ${submission.status}
-                                        </span>
-                                    </div>
                                 </div>
-                                ${submission.submittedUrls ? `
-                                    <div class="mt-3 pt-3 border-t border-gray-200">
-                                        <p class="text-sm font-medium text-gray-700 mb-2">Submitted Work:</p>
-                                        <div class="space-y-2">
+                                <div class="mt-3 pt-3 border-t border-gray-200">
+                                    <p class="text-sm font-medium text-gray-700 mb-2">Submitted Work:</p>
+                                    <div class="space-y-2">
+                                        ${submission.submittedUrls ? `
                                             ${submission.submittedUrls.instagram ? `
                                                 <a href="${submission.submittedUrls.instagram}" target="_blank" class="flex items-center space-x-2 text-pink-600 hover:text-pink-800">
                                                     <i class="fab fa-instagram"></i>
@@ -1075,9 +1170,9 @@
                                                     <span class="text-sm">TikTok Post</span>
                                                 </a>
                                             ` : ''}
-                                        </div>
+                                        ` : '<p class="text-sm text-gray-500">No submitted work yet</p>'}
                                     </div>
-                                ` : ''}
+                                </div>
                             </div>
                         `).join('')}
                     </div>
@@ -1090,22 +1185,18 @@
             const category = document.getElementById('campaign-category').value;
             const numberOfInfluencers = parseInt(document.getElementById('campaign-influencers').value) || 0;
             
-            let pricePerInfluencer = 0;
             let totalPrice = 0;
             
             if (category && numberOfInfluencers > 0) {
                 if (category === 'Mega') {
                     // Custom pricing for mega - will be set by admin
-                    pricePerInfluencer = 0;
                     totalPrice = 0;
                 } else {
-                    pricePerInfluencer = PRICING[category];
+                    const pricePerInfluencer = PRICING[category];
                     totalPrice = pricePerInfluencer * numberOfInfluencers;
                 }
             }
             
-            document.getElementById('price-per-influencer').textContent = 
-                category === 'Mega' ? 'Custom Pricing' : `Ksh ${pricePerInfluencer.toLocaleString()}`;
             document.getElementById('total-cost').textContent = 
                 category === 'Mega' ? 'To be agreed upon' : `Ksh ${totalPrice.toLocaleString()}`;
         }
@@ -1292,18 +1383,41 @@
             return resourceUrls;
         }
 
+        // Toggle niche selection
+        function toggleNiche(element, niche) {
+            element.classList.toggle('selected');
+            
+            if (element.classList.contains('selected')) {
+                if (!selectedNiches.includes(niche)) {
+                    selectedNiches.push(niche);
+                }
+            } else {
+                selectedNiches = selectedNiches.filter(n => n !== niche);
+            }
+            
+            // Hide error if at least 1 niche selected
+            if (selectedNiches.length >= 1) {
+                document.getElementById('nicheError').classList.add('hidden');
+            }
+        }
+
         // View campaign details
         function viewCampaignDetails(campaignId) {
             const campaign = allCampaigns.find(c => c.id === campaignId);
             if (!campaign) return;
             
             // You can implement a detailed view modal here
-            alert(`Campaign Details:\n\nName: ${campaign.name}\nBrand: ${campaign.brand}\nGoal: ${campaign.goal}\nStatus: ${campaign.status}`);
+            alert(`Campaign Details:\n\nName: ${campaign.name}\nBrand: ${campaign.brand}\nGoal: ${campaign.goal}\nNiches: ${campaign.niches ? campaign.niches.join(', ') : 'None'}\nStatus: ${campaign.status}`);
         }
 
         // Handle campaign form submission
         document.getElementById('create-campaign-form').addEventListener('submit', async function(e) {
             e.preventDefault();
+            
+            // Prevent multiple submissions
+            if (isSubmitting) {
+                return;
+            }
             
             if (!selectedPaymentMethod) {
                 alert('Please select a payment method');
@@ -1315,6 +1429,12 @@
             
             if (category === 'Mega') {
                 alert('Mega campaigns require custom pricing. Please contact admin for details.');
+                return;
+            }
+            
+            // Validate niches
+            if (selectedNiches.length === 0) {
+                document.getElementById('nicheError').classList.remove('hidden');
                 return;
             }
             
@@ -1332,6 +1452,9 @@
                 return;
             }
             
+            // Set loading state
+            setSubmitButtonLoading();
+            
             // Collect form data
             const campaignData = {
                 name: document.getElementById('campaign-name').value,
@@ -1344,7 +1467,7 @@
                 category: category,
                 totalSpots: numberOfInfluencers,
                 spotsAvailable: numberOfInfluencers,
-                niches: Array.from(document.querySelectorAll('input[name="niches"]:checked')).map(cb => cb.value),
+                niches: selectedNiches,
                 brandId: currentUser.uid,
                 status: 'pending',
                 paymentMethod: selectedPaymentMethod,
@@ -1376,6 +1499,9 @@
             } catch (error) {
                 console.error('Error creating campaign:', error);
                 alert('Error creating campaign: ' + error.message);
+                
+                // Reset button state on error
+                resetSubmitButton();
             }
         });
 
@@ -1392,7 +1518,7 @@
         // Close modals when clicking outside
         window.onclick = function(event) {
             if (event.target.classList.contains('modal')) {
-                event.target.classList.remove('active');
+                event.target.classList.add('active');
             }
         }
     </script>
