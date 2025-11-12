@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | LiveX Africa</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --dark-azure: #0b3046;
+            --light-azure: #d2e4ee;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--dark-azure);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero-section {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, #1a4c6b 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><rect width="100" height="100" fill="none"/><path d="M0,0 L100,100 M100,0 L0,100" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></svg>');
+            opacity: 0.5;
+        }
+        
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        /* Section Styles */
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark-azure);
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
+            border-radius: 2px;
+        }
+        
+        .section-content {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #4b5563;
+        }
+        
+        /* Mission Section */
+        .mission-section {
+            background-color: #f1f5f9;
+            border-radius: 16px;
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .mission-section::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(11, 48, 70, 0.05);
+        }
+        
+        .mission-number {
+            font-size: 4rem;
+            font-weight: 800;
+            color: var(--dark-azure);
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+        
+        /* Advantage Card */
+        .advantage-card {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            transition: all 0.3s ease;
+            border-top: 4px solid var(--dark-azure);
+        }
+        
+        .advantage-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .advantage-icon {
+            font-size: 2.5rem;
+            color: var(--dark-azure);
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Team Member Card */
+        .team-member {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+        
+        .team-member:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .team-member-image {
+            height: 280px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .team-member-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .team-member:hover .team-member-image img {
+            transform: scale(1.05);
+        }
+        
+        .team-member-content {
+            padding: 1.5rem;
+        }
+        
+        .team-member-name {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-azure);
+            margin-bottom: 0.5rem;
+        }
+        
+        .team-member-role {
+            font-size: 1rem;
+            color: #4b5563;
+            margin-bottom: 1rem;
+        }
+        
+        .team-member-bio {
+            font-size: 0.9rem;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+        
+        /* Delivery Point */
+        .delivery-point {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+        }
+        
+        .delivery-icon {
+            color: var(--dark-azure);
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .delivery-text {
+            flex-grow: 1;
+        }
+        
+        .delivery-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-azure);
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Commitment Section */
+        .commitment-section {
+            background: linear-gradient(135deg, var(--dark-azure) 0%, #1a4c6b 100%);
+            border-radius: 16px;
+            padding: 3rem;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .commitment-section::before {
+            content: '';
+            position: absolute;
+            bottom: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .commitment-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            position: relative;
+            display: inline-block;
+        }
+        
+        .commitment-title::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 80px;
+            height: 4px;
+            background: white;
+            border-radius: 2px;
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 2rem;
+            }
+            
+            .mission-number {
+                font-size: 3rem;
+            }
+            
+            .commitment-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#influencers" class="nav-link">For Influencers</a>
+                <a href="#brands" class="nav-link">For Brands</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="blogs.html" class="nav-link">Blogs</a>
+                <a href="#faqs" class="nav-link">FAQs</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full border-2 border-gray-800 text-gray-800 hover:bg-gray-100 transition-all">Login</a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full bg-gradient-to-r from-blue-800 to-blue-600 text-white">Get Started</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Home</a>
+            <a href="#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+            <a href="#faqs" class="text-gray-800 text-lg py-2 border-b border-gray-300">FAQs</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full border-2 border-gray-800 text-gray-800 block text-center">Login</a>
+                <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full bg-gradient-to-r from-blue-800 to-blue-600 text-white block text-center">Get Started</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section pt-32 pb-20">
+        <div class="container mx-auto px-6">
+            <div class="hero-content text-center text-white">
+                <h1 class="text-4xl md:text-5xl font-bold mb-6">About LiveX Africa</h1>
+                <p class="text-xl max-w-3xl mx-auto">Your Influencer Marketing Relationship Company</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- What is LiveX Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <h2 class="section-title">What is LiveX Africa?</h2>
+                <p class="section-content">
+                    Welcome to LiveX Africa, the pioneering influencer marketing platform dedicated to empowering the next generation of Somali and African creators globally. We are more than a platform; we are an economic accelerator connecting authentic, high-engagement voices to regional and international brands.
+                </p>
+                <p class="section-content mt-6">
+                    LiveX Africa strategically focuses on the intersection of the African diaspora and East African markets, with a strong presence connecting talent in key regions like Kenya, the broader Horn of Africa, and the global Somali diaspora.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mission Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="mission-section">
+                <h2 class="section-title">Our Bold Mission: From Influence to Income</h2>
+                <div class="flex flex-col md:flex-row items-center">
+                    <div class="md:w-1/3 mb-8 md:mb-0 text-center">
+                        <div class="mission-number">100,000</div>
+                        <p class="text-lg font-semibold">Jobs by 2028</p>
+                    </div>
+                    <div class="md:w-2/3">
+                        <p class="section-content">
+                            We fundamentally believe that influence is a powerful force for opportunity, creativity, and economic stability, not merely a source of entertainment or a cultural concern. While some communities view social media content creation negatively, we see a massive, undervalued professional workforce.
+                        </p>
+                        <p class="section-content mt-6">
+                            Our mission is to unlock this potential, creating formal, sustainable careers. Our goal is to create 100,000 professional jobs for Somali and African creators by 2028.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Advantage Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-center">The LiveX Advantage</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                The creator economy is exploding across Africa, but our focus on the Somali community fills a critical market gap. Somali creators offer brands unparalleled cultural authenticity and community trust, especially given the documented growth rate exceeding 1500% in this sector in recent years.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="advantage-card">
+                    <div class="advantage-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--dark-azure);">Cultural Authenticity</h3>
+                    <p class="text-gray-600">
+                        Somali creators bring genuine cultural perspectives that resonate deeply with audiences, creating authentic connections that traditional advertising cannot achieve.
+                    </p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--dark-azure);">Exponential Growth</h3>
+                    <p class="text-gray-600">
+                        With documented growth rates exceeding 1500%, the Somali creator economy represents one of the fastest-growing digital markets in Africa and globally.
+                    </p>
+                </div>
+                
+                <div class="advantage-card">
+                    <div class="advantage-icon">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-3" style="color: var(--dark-azure);">Global Reach</h3>
+                    <p class="text-gray-600">
+                        Our creators span East Africa and the global diaspora, offering brands access to a borderless cultural and economic network with significant purchasing power.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How We Deliver Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-center">How We Deliver</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                We make influencer marketing simple, transparent, and high-impact. Our end-to-end service manages the entire collaboration lifecycle, ensuring success for both creators and brands.
+            </p>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-robot"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">Data-Driven Matchmaking</h3>
+                        <p class="text-gray-600">
+                            We use proprietary AI and data analysis to match brands with verified creators whose values and audience demographics guarantee authentic resonance.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">End-to-End Campaign Strategy</h3>
+                        <p class="text-gray-600">
+                            We manage everything from initial concept development and content briefing to execution and regulatory compliance.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">Transparent Performance & ROI</h3>
+                        <p class="text-gray-600">
+                            Real-time analytics and detailed reporting measure engagement, reach, and tangible Return on Investment (ROI).
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-file-contract"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">Fair & Formalized Contracts</h3>
+                        <p class="text-gray-600">
+                            Clear, professional agreements protect the rights and interests of both the creator and the brand.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">Seamless Cross-Border Payments</h3>
+                        <p class="text-gray-600">
+                            Fast, secure payment processing ensures creators are paid reliably, regardless of their location in East Africa or the diaspora.
+                        </p>
+                    </div>
+                </div>
+                
+                <div class="delivery-point">
+                    <div class="delivery-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <div class="delivery-text">
+                        <h3 class="delivery-title">Professional Creator Incubation</h3>
+                        <p class="text-gray-600">
+                            Mentorship, training, and resources to help our creators continually professionalize and scale their craft.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="py-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <h2 class="section-title text-center">Our Leadership Team</h2>
+            <p class="text-center text-lg text-gray-600 max-w-3xl mx-auto mb-12">
+                We are a driven group of founders and digital experts committed to building a digital bridge between African creativity and global opportunity.
+            </p>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <!-- Team Member 1 -->
+                <div class="team-member">
+                    <div class="team-member-image">
+                        <img src="assets/images/Amin.jpg" alt="Amin Abdi">
+                    </div>
+                    <div class="team-member-content">
+                        <h3 class="team-member-name">Amin Abdi</h3>
+                        <p class="team-member-role">Co-Founder & Strategic Lead</p>
+                        <p class="team-member-bio">
+                            Leads business growth, strategic partnerships, and LIVEX Africa's global expansion, driving the 100K job vision.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 2 -->
+                <div class="team-member">
+                    <div class="team-member-image">
+                        <img src="assets/images/Osoble.jpg" alt="Osoble Abdullahi">
+                    </div>
+                    <div class="team-member-content">
+                        <h3 class="team-member-name">Osoble Abdullahi</h3>
+                        <p class="team-member-role">Co-Founder & CTO</p>
+                        <p class="team-member-bio">
+                            Heads technology and product development, overseeing the AI-powered systems that ensure seamless platform operations.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 3 -->
+                <div class="team-member">
+                    <div class="team-member-image">
+                        <img src="assets/images/Jacob.jpg" alt="Jacob Aluvanze">
+                    </div>
+                    <div class="team-member-content">
+                        <h3 class="team-member-name">Jacob Aluvanze</h3>
+                        <p class="team-member-role">Software Engineer</p>
+                        <p class="team-member-bio">
+                            The core technical architect, dedicated to building a robust and intuitive platform experience for creators and brands.
+                        </p>
+                    </div>
+                </div>
+                
+                <!-- Team Member 4 -->
+                <div class="team-member">
+                    <div class="team-member-image">
+                        <img src="assets/images/Kowsar.jpg" alt="Kowsar Abdikadir">
+                    </div>
+                    <div class="team-member-content">
+                        <h3 class="team-member-name">Kowsar Abdikadir</h3>
+                        <p class="team-member-role">Campaign Relationship Officer</p>
+                        <p class="team-member-bio">
+                            The relationship anchor, ensuring strong creator and brand alignment for smooth, successful, and culturally sensitive campaigns.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Commitment Section -->
+    <section class="py-20">
+        <div class="container mx-auto px-6">
+            <div class="commitment-section">
+                <h2 class="commitment-title">Our Commitment</h2>
+                <p class="text-lg mb-6">
+                    To empower African voices, transform creativity into reliable income, and redefine how global brands connect with dynamic, culture-rich audiences. We're here to make an influence for the future of Africa.
+                </p>
+                <div class="flex justify-center mt-8">
+                    <a href="InfluencerSignUp.html" class="px-8 py-3 rounded-full bg-white text-blue-800 font-bold hover:bg-gray-100 transition-all">
+                        Join Our Mission
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#faqs" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile menu toggle
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+            });
+        }
+
+        if (closeMenu) {
+            closeMenu.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+            });
+        }
+    </script>
+</body>
+</html>

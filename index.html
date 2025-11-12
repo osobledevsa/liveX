@@ -8,12 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- GSAP for animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
     <!-- Custom Styles -->
     <style>
         :root {
@@ -28,7 +27,7 @@
         }
         
         body {
-            font-family: 'Inter', 'Segoe UI', sans-serif;
+            font-family: 'Poppins', 'Inter', 'Segoe UI', sans-serif;
             background-color: #f8fafc;
             overflow-x: hidden;
         }
@@ -46,7 +45,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1); /* Reduced from 0.8s to 0.5s */
+            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         
         .splash-screen.slide-up {
@@ -99,11 +98,12 @@
             align-items: center;
             flex-direction: column;
             z-index: 1000;
-            transition: left 4.6s cubic-bezier(1.25, 1.1, 1.25, 1); /* Reduced from 0.5s to 0.3s */
+            transition: left 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
             box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
         }
         
         .slide-screen.slide-in {
+            left: 0;
             box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
         }
         
@@ -133,10 +133,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 600;
-        }
-        
-        .slide-in {
-            left: 0;
         }
         
         .fade-in {
@@ -169,7 +165,7 @@
             60% {transform: translateY(-10px);}
         }
         
-        /* Rest of the CSS remains the same */
+        /* Main Content Styles */
         .main-content {
             opacity: 0;
             transition: opacity 1.5s ease-in;
@@ -233,17 +229,6 @@
             transform: translateY(-3px);
         }
         
-        .btn-demo {
-            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
-            color: white;
-            transition: all 0.3s ease;
-        }
-        
-        .btn-demo:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
-        }
-        
         .floating {
             animation: floating 3s ease-in-out infinite;
         }
@@ -262,10 +247,6 @@
             0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(11, 48, 70, 0.7); }
             70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(11, 48, 70, 0); }
             100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(11, 48, 70, 0); }
-        }
-        
-        .glow {
-            box-shadow: 0 0 20px rgba(11, 48, 70, 0.5);
         }
         
         .card-hover {
@@ -354,13 +335,6 @@
             background: linear-gradient(90deg, var(--dark-azure), var(--light-azure));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-        }
-        
-        .parallax-bg {
-            background-attachment: fixed;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-size: cover;
         }
         
         .mobile-menu {
@@ -547,69 +521,7 @@
             background: rgba(255, 255, 255, 0.9);
         }
         
-        /* Demo Modal */
-        .demo-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 100;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .demo-modal.open {
-            display: flex;
-        }
-        
-        .demo-content {
-            background: white;
-            border-radius: 16px;
-            width: 90%;
-            max-width: 500px;
-            padding: 30px;
-            position: relative;
-        }
-        
-        .close-modal {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #666;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 500;
-            color: #333;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        .form-group input:focus, .form-group select:focus {
-            outline: none;
-            border-color: var(--dark-azure);
-        }
-        
-        /* Enhanced How It Works Section */
+        /* Process Flow */
         .process-flow {
             position: relative;
             margin: 40px 0;
@@ -654,18 +566,76 @@
             align-self: center;
         }
         
-        .success-message {
-            display: none;
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 8px;
-            margin-top: 20px;
-            text-align: center;
+        /* New Header Section */
+        .header-card {
+            background: var(--dark-azure);
+            color: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
         }
         
-        .success-message.show {
-            display: block;
+        /* New How It Works Infographics */
+        .infographic-step {
+            position: relative;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .infographic-step:hover {
+            transform: translateY(-10px);
+        }
+        
+        .infographic-icon {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--dark-azure), #2c5e7a);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            box-shadow: 0 10px 30px rgba(11, 48, 70, 0.3);
+        }
+        
+        /* Hawa Adam Section */
+        .hawa-adam-container {
+            position: relative;
+            overflow: hidden;
+            border-radius: 20px;
+        }
+        
+        .hawa-adam-image {
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .hawa-adam-image::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+        }
+        
+        /* FAQ Styling */
+        .faq-answer {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        
+        .faq-answer.active {
+            max-height: 500px;
+        }
+        
+        .faq-question.active i {
+            transform: rotate(180deg);
         }
     </style>
 </head>
@@ -704,15 +674,14 @@
                     <a href="#influencers" class="nav-link">For Influencers</a>
                     <a href="#brands" class="nav-link">For Brands</a>
                     <a href="#pricing" class="nav-link">Pricing</a>
-                    <a href="#blogs" class="nav-link">Blogs</a>
-                    <a href="#faqs" class="nav-link">FAQs</a>
+                    <a href="blogs.html" class="nav-link">Blogs</a>
+                    <a href="aboutUs.html" class="nav-link">About Us</a>
                 </div>
                 
                 <!-- CTA Buttons -->
                 <div class="hidden md:flex items-center space-x-4">
                     <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
                     <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full btn-primary">Get Started</a>
-                    <button id="book-demo-btn" class="px-6 py-2 rounded-full btn-demo">Book a Demo</button>
                 </div>
                 
                 <!-- Mobile Menu Button -->
@@ -739,53 +708,11 @@
                 <a href="#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
                 <a href="#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
                 <a href="#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
-                <a href="#blogs" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
-                <a href="#faqs" class="text-gray-800 text-lg py-2 border-b border-gray-300">FAQs</a>
+                <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+                <a href="aboutUs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">About Us</a>
                 <div class="pt-4">
                     <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
-                    <a href="InfluencerSignUp.html" class="w-full mb-3 px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
-                    <button id="mobile-book-demo" class="w-full px-4 py-3 rounded-full btn-demo">Book a Demo</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Book Demo Modal -->
-        <div id="demo-modal" class="demo-modal">
-            <div class="demo-content">
-                <button id="close-modal" class="close-modal">
-                    <i class="fas fa-times"></i>
-                </button>
-                <h2 class="text-2xl font-bold mb-6 text-center">Book a Demo</h2>
-                <form id="demo-form">
-                    <div class="form-group">
-                        <label for="name">Full Name</label>
-                        <input type="text" id="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email Address</label>
-                        <input type="email" id="email" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="phone">Phone Number</label>
-                        <input type="tel" id="phone" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="user-type">I am a</label>
-                        <select id="user-type" required>
-                            <option value="">Select</option>
-                            <option value="brand">Brand</option>
-                            <option value="influencer">Influencer</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="date">Preferred Date</label>
-                        <input type="date" id="date" required>
-                    </div>
-                    <button type="submit" class="w-full py-3 rounded-full btn-primary mt-4">Schedule Demo</button>
-                </form>
-                <div id="success-message" class="success-message">
-                    <i class="fas fa-check-circle mr-2"></i>
-                    Demo request submitted successfully! We'll contact you soon.
+                    <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
                 </div>
             </div>
         </div>
@@ -800,6 +727,27 @@
             </div>
             
             <div class="container mx-auto px-6 relative z-10">
+                <!-- New Header Card -->
+                <div class="header-card mb-16">
+                    <div class="flex flex-col lg:flex-row">
+                        <div class="lg:w-1/2 p-10 flex flex-col justify-center">
+                            <h1 class="text-3xl md:text-4xl font-bold mb-4">Live X Influencer Marketplace</h1>
+                            <p class="text-lg opacity-90 mb-6">Connecting authentic African creators with global brands for impactful campaigns.</p>
+                            <div class="flex space-x-4">
+                                <a href="InfluencerSignUp.html" class="px-6 py-3 rounded-full bg-white text-gray-800 font-semibold text-center">
+                                    Join as Influencer
+                                </a>
+                                <a href="BrandSignUp.html" class="px-6 py-3 rounded-full bg-transparent text-white font-semibold border border-white text-center">
+                                    Join as Brand
+                                </a>
+                            </div>
+                        </div>
+                        <div class="lg:w-1/2">
+                            <img src="assets/images/celebration.jpg" alt="Celebration" class="w-full h-64 lg:h-full object-cover">
+                        </div>
+                    </div>
+                </div>
+                
                 <div class="flex flex-col lg:flex-row items-center">
                     <div class="lg:w-1/2 mb-10 lg:mb-0">
                         <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
@@ -815,9 +763,6 @@
                             <a href="BrandSignUp.html" class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all text-lg text-center">
                                 Join as Brand
                             </a>
-                            <button id="hero-book-demo" class="px-8 py-4 rounded-full btn-demo text-lg font-semibold">
-                                Book a Demo
-                            </button>
                         </div>
                     </div>
                     <div class="lg:w-1/2 flex justify-center">
@@ -856,14 +801,12 @@
                                                 <p class="font-medium" style="color: #2c5e7a;">Tech Gadget Review</p>
                                                 <p class="text-xs text-gray-500">Technology • 3 days left</p>
                                             </div>
-                                            
                                         </div>
                                         <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
                                             <div>
                                                 <p class="font-medium" style="color: green;">Fitness App Promotion</p>
                                                 <p class="text-xs text-gray-500">Fitness • 5 days left</p>
                                             </div>
-                                            
                                         </div>
                                     </div>
                                 </div>
@@ -882,7 +825,7 @@
             <div class="container mx-auto px-6">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
                     <div>
-                        <p class="stats-counter text-4xl md:text-5xl mb-2">10K+</p>
+                        <p class="stats-counter text-4xl md:text-5xl mb-2">10000+</p>
                         <p class="text-gray-600">Verified Influencers</p>
                     </div>
                     <div>
@@ -890,12 +833,12 @@
                         <p class="text-gray-600">Brand Partners</p>
                     </div>
                     <div>
-                        <p class="stats-counter text-4xl md:text-5xl mb-2">Ksh1.5M+</p>
-                        <p class="text-gray-600">Paid to Creators</p>
-                    </div>
-                    <div>
                         <p class="stats-counter text-4xl md:text-5xl mb-2">95%</p>
                         <p class="text-gray-600">Campaign Success</p>
+                    </div>
+                    <div>
+                        <p class="stats-counter text-4xl md:text-5xl mb-2">100000+</p>
+                        <p class="text-gray-600">Jobs by 2026</p>
                     </div>
                 </div>
             </div>
@@ -937,6 +880,36 @@
                     Our streamlined process makes influencer marketing simple and effective for both brands and creators.
                 </p>
                 
+                <!-- New Infographic Steps -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+                    <!-- Step 1 -->
+                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
+                        <div class="infographic-icon">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Sign Up & Get Verified</h3>
+                        <p class="text-gray-600">Create your account and get verified based on your social media presence across platforms.</p>
+                    </div>
+                    
+                    <!-- Step 2 -->
+                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
+                        <div class="infographic-icon">
+                            <i class="fas fa-handshake"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Connect & Collaborate</h3>
+                        <p class="text-gray-600">Brands post campaigns, influencers accept. Our platform makes collaboration seamless.</p>
+                    </div>
+                    
+                    <!-- Step 3 -->
+                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
+                        <div class="infographic-icon">
+                            <i class="fas fa-rocket"></i>
+                        </div>
+                        <h3 class="text-xl font-bold mb-4">Create & Get Paid</h3>
+                        <p class="text-gray-600">Influencers create content, brands track performance. Payments processed every Saturday.</p>
+                    </div>
+                </div>
+                
                 <!-- Process Flow Visualization -->
                 <div class="process-flow flex justify-between items-center mb-16">
                     <div class="process-step">
@@ -952,102 +925,127 @@
                     </div>
                 </div>
                 
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-16">
-                    <!-- Step 1 -->
-                    <div class="step-card bg-white p-8 rounded-2xl shadow-lg text-center">
-                        <div class="step-number bg-blue-100 text-blue-600">1</div>
-                        <h3 class="text-xl font-bold mb-4">Sign Up & Get Verified</h3>
-                        <p class="text-gray-600 mb-6">Create your account and get verified based on your social media presence across platforms. Our team ensures authenticity and quality.</p>
-                        <div class="flex justify-center space-x-4 mt-4">
-                            <a href="InfluencerSignUp.html" class="px-4 py-2 text-sm rounded-full btn-primary">Influencer Sign Up</a>
-                            <a href="BrandSignUp.html" class="px-4 py-2 text-sm rounded-full btn-secondary">Brand Sign Up</a>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 2 -->
-                    <div class="step-card bg-white p-8 rounded-2xl shadow-lg text-center">
-                        <div class="step-number bg-gray-100 text-gray-600">2</div>
-                        <h3 class="text-xl font-bold mb-4">Connect & Collaborate</h3>
-                        <p class="text-gray-600 mb-6">Brands post campaigns, influencers accept. Our platform makes collaboration seamless with built-in messaging and project management tools.</p>
-                        <div class="mt-4">
-                            <i class="fas fa-comments text-3xl text-gray-500 mb-2"></i>
-                            <p class="text-sm text-gray-600">Real-time communication</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Step 3 -->
-                    <div class="step-card bg-white p-8 rounded-2xl shadow-lg text-center">
-                        <div class="step-number bg-gray-100 text-gray-600">3</div>
-                        <h3 class="text-xl font-bold mb-4">Create & Get Paid</h3>
-                        <p class="text-gray-600 mb-6">Influencers create content, brands track performance. Payments processed every Saturday with detailed analytics and performance reports.</p>
-                        <div class="mt-4">
-                            <i class="fas fa-chart-line text-3xl text-gray-500 mb-2"></i>
-                            <p class="text-sm text-gray-600">Performance tracking & analytics</p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Additional Content for How It Works Section -->
+                <!-- Enhanced Comprehensive Process -->
                 <div class="bg-white rounded-2xl shadow-lg p-8">
                     <h3 class="text-2xl font-bold mb-6 text-center">Our Comprehensive Process</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <h4 class="text-xl font-semibold mb-4">For Influencers</h4>
-                            <ul class="space-y-3">
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Complete your profile with your social media accounts and niche</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Get verified by our team to ensure authenticity</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Browse available campaigns that match your audience and interests</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Apply to campaigns and negotiate terms directly with brands</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Create authentic content and submit for approval</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Get paid every Saturday without delays</span>
-                                </li>
-                            </ul>
+                            <h4 class="text-xl font-semibold mb-4 text-blue-600">For Influencers</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-user-check"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Complete Your Profile</h5>
+                                        <p class="text-gray-600">Add your social media accounts and niche information</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-shield-alt"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Get Verified</h5>
+                                        <p class="text-gray-600">Our team ensures authenticity and quality</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Browse Campaigns</h5>
+                                        <p class="text-gray-600">Find campaigns that match your audience and interests</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-handshake"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Apply & Collaborate</h5>
+                                        <p class="text-gray-600">Apply to campaigns and negotiate terms directly with brands</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-camera"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Create Content</h5>
+                                        <p class="text-gray-600">Create authentic content and submit for approval</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-money-bill-wave"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Get Paid</h5>
+                                        <p class="text-gray-600">Receive payments every Saturday without delays</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                         <div>
-                            <h4 class="text-xl font-semibold mb-4">For Brands</h4>
-                            <ul class="space-y-3">
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Create your brand profile and define your target audience</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Post campaigns with clear objectives and requirements</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Browse our verified influencer database and filter by niche, audience, and engagement</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Review influencer applications and select the best matches</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Track campaign progress and performance in real-time</span>
-                                </li>
-                                <li class="flex items-start">
-                                    <i class="fas fa-check-circle text-green-500 mt-1 mr-3"></i>
-                                    <span>Access detailed analytics and ROI reports for each campaign</span>
-                                </li>
-                            </ul>
+                            <h4 class="text-xl font-semibold mb-4 text-green-600">For Brands</h4>
+                            <div class="space-y-4">
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-building"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Create Brand Profile</h5>
+                                        <p class="text-gray-600">Define your brand and target audience</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-bullhorn"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Post Campaigns</h5>
+                                        <p class="text-gray-600">Create campaigns with clear objectives and requirements</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-search"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Browse Influencers</h5>
+                                        <p class="text-gray-600">Filter our verified database by niche, audience, and engagement</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-users"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Select Matches</h5>
+                                        <p class="text-gray-600">Review applications and select the best influencer matches</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-chart-line"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Track Performance</h5>
+                                        <p class="text-gray-600">Monitor campaign progress and performance in real-time</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
+                                        <i class="fas fa-chart-bar"></i>
+                                    </div>
+                                    <div>
+                                        <h5 class="font-semibold">Access Analytics</h5>
+                                        <p class="text-gray-600">Get detailed analytics and ROI reports for each campaign</p>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1063,61 +1061,58 @@
                 </p>
                 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <!-- Blog Card 1 -->
+                    <!-- Blog 1 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
                         <div class="h-48 overflow-hidden">
-                            <img src="https://via.placeholder.com/600x400" alt="Blog Image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                            <img src="assets/images/blog1image.jpg" alt="The 100,000 Job Mission" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
-                            <span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mb-3">Marketing Tips</span>
-                            <h3 class="text-xl font-bold mb-3">10 Strategies for Effective Influencer Campaigns</h3>
-                            <p class="text-gray-600 mb-4">Learn how to create influencer campaigns that drive real results and engagement for your brand.</p>
+                            <span class="inline-block bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm mb-3">Creator Economy</span>
+                            <h3 class="text-xl font-bold mb-3">The 100,000 Job Mission: Why the Global Somali Creator Economy is the Future (2026)</h3>
+                            <p class="text-gray-600 mb-4">LiveX Africa is pioneering the professionalization of the global Somali Creator Economy. This dynamic talent pool...</p>
                             <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
                                 <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/24" alt="Author" class="w-6 h-6 rounded-full mr-2">
-                                    <span>Sarah Johnson</span>
+                                    <span>LiveX Team</span>
                                 </div>
-                                <span>May 15, 2023</span>
+                                <span>June 15, 2025</span>
                             </div>
                             <a href="blogs.html" class="block w-full py-2 text-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">Read More</a>
                         </div>
                     </div>
                     
-                    <!-- Blog Card 2 -->
+                    <!-- Blog 3 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
                         <div class="h-48 overflow-hidden">
-                            <img src="https://via.placeholder.com/600x400" alt="Blog Image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                            <img src="assets/images/blog3image.jpg" alt="The Somali Market" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
-                            <span class="inline-block bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm mb-3">Industry Trends</span>
-                            <h3 class="text-xl font-bold mb-3">The Rise of Micro-Influencers in 2023</h3>
-                            <p class="text-gray-600 mb-4">Discover why micro-influencers are becoming the preferred choice for many brands and how to leverage them.</p>
+                            <span class="inline-block bg-purple-100 text-purple-700 px-3 py-1 rounded-full text-sm mb-3">Market Analysis</span>
+                            <h3 class="text-xl font-bold mb-3">The Somali Market: A Global, Multi-Billion-Dollar Consumer Powerhouse</h3>
+                            <p class="text-gray-600 mb-4">The notion of the "Somali market" can no longer be confined by geopolitical borders. It is, in reality, a sophisticated...</p>
                             <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
                                 <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/24" alt="Author" class="w-6 h-6 rounded-full mr-2">
-                                    <span>Michael Chen</span>
+                                    <span>LiveX Team</span>
                                 </div>
-                                <span>April 28, 2023</span>
+                                <span>June 5, 2025</span>
                             </div>
                             <a href="blogs.html" class="block w-full py-2 text-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">Read More</a>
                         </div>
                     </div>
                     
-                    <!-- Blog Card 3 -->
+                    <!-- Blog 6 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
                         <div class="h-48 overflow-hidden">
-                            <img src="https://via.placeholder.com/600x400" alt="Blog Image" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
+                            <img src="assets/images/blog6image.jpg" alt="Why Brands Need Somali Creators" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
-                            <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm mb-3">Success Stories</span>
-                            <h3 class="text-xl font-bold mb-3">How Brand X Increased Sales by 300% with Influencer Marketing</h3>
-                            <p class="text-gray-600 mb-4">A deep dive into a successful influencer campaign that transformed a small business into a market leader.</p>
+                            <span class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm mb-3">Brand Strategy</span>
+                            <h3 class="text-xl font-bold mb-3">Why Brands Need Somali Creators: The Untapped Influence Market (2026)</h3>
+                            <p class="text-gray-600 mb-4">In a world driven by digital connection, authenticity has become the new currency. Audiences no longer trust polished ads...</p>
                             <div class="flex justify-between items-center text-sm text-gray-500 mb-4">
                                 <div class="flex items-center">
-                                    <img src="https://via.placeholder.com/24" alt="Author" class="w-6 h-6 rounded-full mr-2">
-                                    <span>Emma Williams</span>
+                                    <span>LiveX Team</span>
                                 </div>
-                                <span>April 10, 2023</span>
+                                <span>May 15, 2025</span>
                             </div>
                             <a href="blogs.html" class="block w-full py-2 text-center rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors">Read More</a>
                         </div>
@@ -1126,73 +1121,6 @@
                 
                 <div class="text-center mt-12">
                     <a href="blogs.html" class="px-6 py-3 rounded-full btn-secondary">View All Blogs</a>
-                </div>
-            </div>
-        </section>
-
-        <!-- FAQs Section -->
-        <section id="faqs" class="py-20 bg-gray-50">
-            <div class="container mx-auto px-6">
-                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 section-title">Frequently Asked Questions</h2>
-                <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-                    Find answers to common questions about LiveX and our influencer marketing platform.
-                </p>
-                
-                <div class="max-w-3xl mx-auto">
-                    <!-- FAQ Item 1 -->
-                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden">
-                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
-                            <span>How do I get started as an influencer on LiveX?</span>
-                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
-                        </button>
-                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100 hidden">
-                            <p>Getting started as an influencer is easy! Simply sign up for an account, complete your profile with your social media accounts and niche information, and get verified by our team. Once verified, you can browse available campaigns, apply to those that match your audience, and start collaborating with brands.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 2 -->
-                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden">
-                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
-                            <span>How does LiveX ensure the authenticity of influencers?</span>
-                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
-                        </button>
-                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100 hidden">
-                            <p>At LiveX, we have a rigorous verification process for all influencers. We analyze their social media accounts, engagement rates, content quality, and audience demographics. Only influencers who meet our quality standards are approved on the platform, ensuring brands connect with authentic creators.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 3 -->
-                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden">
-                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
-                            <span>How are payments processed for influencers?</span>
-                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
-                        </button>
-                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100 hidden">
-                            <p>Influencers get paid every Saturday for completed campaigns. Once a campaign is finished and the content is approved by the brand, payment is processed automatically. We support various payment methods including mobile money, bank transfers, and PayPal, making it convenient for influencers across Africa.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 4 -->
-                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden">
-                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
-                            <span>What are the different influencer tiers and pricing?</span>
-                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
-                        </button>
-                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100 hidden">
-                            <p>We categorize influencers into four tiers based on their follower count: Nano (1K-10K), Micro (10K-100K), Macro (100K-500K), and Mega (500K+). Each tier has different pricing structures. For example, Nano tier starts at Ksh50,000 for 10 influencers for 1 week, while Micro tier starts at Ksh100,000. Mega tier pricing is customized based on specific requirements.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- FAQ Item 5 -->
-                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden">
-                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
-                            <span>How can brands track the performance of their campaigns?</span>
-                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
-                        </button>
-                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100 hidden">
-                            <p>Brands have access to a comprehensive dashboard where they can track campaign performance in real-time. The dashboard provides detailed analytics including reach, engagement, clicks, conversions, and ROI. Brands can also see performance reports for each influencer and compare results across different campaigns.</p>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -1264,7 +1192,6 @@
                                         <div class="space-y-2">
                                             <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                                                 <span>Fitness App Launch</span>
-                                                
                                             </div>
                                             <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                                                 <span>Beauty Product Review</span>
@@ -1286,7 +1213,7 @@
         <section class="py-20 bg-gradient-to-r from-blue-50 to-indigo-50">
             <div class="container mx-auto px-6">
                 <div class="flex flex-col lg:flex-row items-center">
-                    <div class="lg:w-1/2 mb-10 lg:mb-0">
+                    <div class="lg:w-1/2 mb-10 lg:mb-0 lg:order-2">
                         <h2 class="text-3xl md:text-4xl font-bold mb-6 section-title">Meet Hawa Adam</h2>
                         <h3 class="text-2xl font-bold text-gray-800 mb-2">@queenhawaofficial</h3>
                         <p class="text-gray-600 mb-6">Somali influencer specializing in fashion, lifestyle, and travel content. With over 760k followers across platforms, Hawa creates authentic content that resonates with her audience.</p>
@@ -1318,9 +1245,11 @@
                         <a href="BrandSignUp.html" class="px-6 py-3 rounded-full btn-primary">View Full Profile</a>
                     </div>
                     
-                    <div class="lg:w-1/2 flex justify-center">
-                        <div class="showcase-container w-full max-w-md">
-                            <img src="assets/images/DarkInfluencer.jpg" alt="Hawa Adam" class="showcase-image w-full h-auto rounded-2xl shadow-lg">
+                    <div class="lg:w-1/2 flex justify-center lg:order-1">
+                        <div class="hawa-adam-container w-full max-w-md">
+                            <div class="hawa-adam-image">
+                                <img src="assets/images/DarkInfluencer.jpg" alt="Hawa Adam" class="w-full h-auto">
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1701,6 +1630,172 @@
             </div>
         </section>
 
+        <!-- FAQs Section -->
+        <section id="faqs" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold text-center mb-4 section-title">The Ultimate LiveX Africa FAQ</h2>
+                <p class="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
+                    Find answers to common questions about LiveX and our influencer marketing platform.
+                </p>
+                
+                <div class="max-w-3xl mx-auto">
+                    <h3 class="text-2xl font-bold mb-6 text-blue-600">General</h3>
+                    
+                    <!-- FAQ Item 1 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>What is Livex Africa?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Livex Africa is an Influencer Marketing platform and Creator Agency, based in Nairobi, Kenya, dedicated to connecting Somali Creators (in Kenya, Somalia, East Africa, and the global diaspora) with brands, agencies, and commerce opportunities. We provide creators with brand partnerships, training, monetization tools, and payments support so their creativity becomes sustainable work.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 2 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>Why focus specifically on Somali Creators?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Somali creators represent a culturally rich, globally connected, and highly entrepreneurial community. They speak to both local audiences in Kenya/Somalia/East Africa and a vast, engaged diaspora community across the globe. By building a specific ecosystem around this community, Livex Africa unlocks unique cultural authenticity, brand relevance, and powerful economic opportunity for creators and brands alike.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 3 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>What is Livex Africa's mission in terms of job creation?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Livex Africa's mission is to generate 100,000 creator jobs by 2028 for Somali-affiliated talent worldwide. We believe in converting digital influence and creativity into real, sustainable income, providing clear pathways for Somali youth and diaspora creators to build lasting careers in the digital economy.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 4 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>Where is Livex Africa based?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Our headquarters and operations team are based in Nairobi, Kenya, positioning us perfectly at the digital crossroads of East Africa and the Horn.</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold my-6 text-green-600">For Brands & Businesses</h3>
+                    
+                    <!-- FAQ Item 5 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>How does Livex Africa help my brand connect with Somali Creators?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Brands can use our platform to discover vetted Somali Creators who speak Somali, English, Arabic (or relevant diaspora languages), deeply understand Somali culture, and have engaged audiences in Somalia, East Africa, or the global diaspora. We offer Campaign Management & Matching, Contract Support, Analytics, and streamlined payment flow.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 6 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>Why is the Somali market a unique opportunity for brands?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>The Somali market is a "leapfrog" digital economy. It has one of the highest mobile money penetration rates in the world (73%+), the cheapest mobile data in Africa, and 13.7 million internet users. It is a mobile-first, digital-native audience. However, trust is the most valuable commodity. Our creators are the "trust bridge" you need to authentically enter and succeed in this market.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 7 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>How can my brand measure performance or ROI on campaigns?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>We provide performance analytics dashboards showing reach, engagement rates, conversions (where applicable), audience demographics, and full campaign summaries. These KPIs help you see the value of working with Somali creators, align on objectives, and optimize future collaborations.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 8 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>What kinds of campaigns can we run with Livex Africa creators?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>We support a wide range of collaboration formats, including sponsored posts (TikTok, Instagram, and Facebook), in-depth product reviews, affiliate commerce, brand ambassador programs, short-form video campaigns, and livestream events.</p>
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-2xl font-bold my-6 text-purple-600">For Somali Creators</h3>
+                    
+                    <!-- FAQ Item 9 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>Who can join Livex Africa as a creator?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>Any Somali-affiliated Creator who produces quality digital content can apply! This includes creators based in Nairobi, Mombasa, Hargeisa, London, Minneapolis, Toronto, or anywhere else in the world. We support everyone from beginners with a passionate, growing audience to full-time professional influencers.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 10 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>What are the benefits of joining the Livex Africa network?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>We help you professionalize your talent. The main benefits are:</p>
+                            <ol class="list-decimal pl-5 mt-2 space-y-2">
+                                <li><strong>Get Paid:</strong> We bring you paid brand deals from premium local and international brands.</li>
+                                <li><strong>We Handle the Business:</strong> We manage the contracts, negotiations, and payments so you can focus on creating.</li>
+                                <li><strong>Training & Support:</strong> We provide access to mentorship, workshops, content-strategy sessions, and brand-safety tutorials to help you grow.</li>
+                            </ol>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 11 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>What kind of training does Livex Africa provide?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>We offer mentorship, workshops, production labs, content-strategy sessions, brand-safety tutorials, monetization best practices, and performance analytics. Whether you're starting out or scaling, we aim to raise your professionalism and brand readiness.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 12 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>How do payments and monetization work?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>We make it simple. Livex Africa partners with fintech providers and local payment systems (like mobile money) to ensure you receive timely payments, no matter where you are. We manage the invoicing, compliance, and cross-border payout issues so you can focus on your content.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- FAQ Item 13 -->
+                    <div class="mb-4 bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+                        <button class="faq-question w-full text-left p-5 font-medium flex justify-between items-center hover:bg-gray-50 transition-colors">
+                            <span>Do I have to accept every brand deal you bring me?</span>
+                            <i class="fas fa-chevron-down text-gray-500 transition-transform"></i>
+                        </button>
+                        <div class="faq-answer p-5 text-gray-600 border-t border-gray-100">
+                            <p>No. You always have 100% creative control. We will present you with opportunities, but you always have the right to decline any brand or product that doesn't align with your personal brand, values, or audience.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- CTA Section -->
         <section class="py-20 hero-gradient text-gray-800">
             <div class="container mx-auto px-6 text-center">
@@ -1744,7 +1839,7 @@
                     <div>
                         <h3 class="text-lg font-semibold mb-4">Company</h3>
                         <ul class="space-y-2 text-gray-400">
-                            <li><a href="#" class="hover:text-white">About Us</a></li>
+                            <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
                             <li><a href="#" class="hover:text-white">Careers</a></li>
                             <li><a href="#blogs" class="hover:text-white">Blog</a></li>
                             <li><a href="#" class="hover:text-white">Contact</a></li>
@@ -1821,7 +1916,7 @@
                                         
                                         // Initialize landing page functionality
                                         initLandingPage();
-                                    }, 300); // Reduced from 500ms to 300ms
+                                    }, 300);
                                 });
                                 
                                 // Auto transition after 2 seconds if user doesn't click
@@ -1833,7 +1928,7 @@
                             }, 300);
                         }, 200);
                     }, 200);
-                }, 800); // Increased from 300ms to 800ms
+                }, 800);
             }, 500);
         });
 
@@ -1856,51 +1951,21 @@
                 });
             }
 
-            // Demo modal
-            const bookDemoBtn = document.getElementById('book-demo-btn');
-            const mobileBookDemo = document.getElementById('mobile-book-demo');
-            const heroBookDemo = document.getElementById('hero-book-demo');
-            const demoModal = document.getElementById('demo-modal');
-            const closeModal = document.getElementById('close-modal');
-            const demoForm = document.getElementById('demo-form');
-            const successMessage = document.getElementById('success-message');
-            
-            function openDemoModal() {
-                demoModal.classList.add('open');
-            }
-            
-            function closeDemoModal() {
-                demoModal.classList.remove('open');
-            }
-            
-            if (bookDemoBtn) bookDemoBtn.addEventListener('click', openDemoModal);
-            if (mobileBookDemo) mobileBookDemo.addEventListener('click', openDemoModal);
-            if (heroBookDemo) heroBookDemo.addEventListener('click', openDemoModal);
-            if (closeModal) closeModal.addEventListener('click', closeDemoModal);
-            
-            if (demoForm) {
-                demoForm.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    // Here you would normally send the form data to a server
-                    // For demo purposes, we'll just show the success message
-                    successMessage.classList.add('show');
-                    demoForm.reset();
-                    
-                    // Close modal after 3 seconds
-                    setTimeout(closeDemoModal, 3000);
-                });
-            }
-
-            // Smooth scrolling for anchor links
+            // Instant scroll to sections (no smooth scrolling)
             document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                 anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const target = document.querySelector(this.getAttribute('href'));
-                    if (target) {
-                        target.scrollIntoView({
-                            behavior: 'smooth',
-                            block: 'start'
-                        });
+                    // Only handle internal page anchors, not external links
+                    if (this.getAttribute('href').startsWith('#') && 
+                        !this.getAttribute('href').includes('.html')) {
+                        e.preventDefault();
+                        const target = document.querySelector(this.getAttribute('href'));
+                        if (target) {
+                            // Instant jump to section
+                            window.scrollTo({
+                                top: target.offsetTop - 80,
+                                behavior: 'auto'
+                            });
+                        }
                     }
                 });
             });
@@ -1915,7 +1980,6 @@
                     // Close all answers
                     document.querySelectorAll('.faq-answer').forEach(ans => {
                         ans.classList.remove('active');
-                        ans.classList.add('hidden');
                     });
                     document.querySelectorAll('.faq-question').forEach(q => {
                         q.classList.remove('active');
@@ -1923,7 +1987,6 @@
                     
                     // Open clicked answer if it wasn't active
                     if (!isActive) {
-                        answer.classList.remove('hidden');
                         answer.classList.add('active');
                         question.classList.add('active');
                     }

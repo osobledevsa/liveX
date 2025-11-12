@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LiveX | Blogs - Insights on Influencer Marketing</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --dark-azure: #0b3046;
+            --light-azure: #d2e4ee;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        /* Header Styles */
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--dark-azure);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        /* Blog Card Styles */
+        .blog-card {
+            transition: all 0.3s ease;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+        }
+        
+        .blog-card-image {
+            height: 220px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .blog-card-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        
+        .blog-card:hover .blog-card-image img {
+            transform: scale(1.05);
+        }
+        
+        .blog-category {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            background: var(--dark-azure);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            z-index: 2;
+        }
+        
+        .blog-content {
+            padding: 25px;
+            background: white;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .blog-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--dark-azure);
+            margin-bottom: 12px;
+            line-height: 1.3;
+        }
+        
+        .blog-excerpt {
+            color: #4b5563;
+            margin-bottom: 20px;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+        
+        .read-more-btn {
+            display: inline-block;
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            align-self: flex-start;
+        }
+        
+        .read-more-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
+        }
+        
+        /* ASTOUNDING BLOG MODAL STYLES */
+        .blog-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            overflow: hidden;
+        }
+        
+        .blog-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .blog-modal-content {
+            background: white;
+            width: 95%;
+            height: 95%;
+            border-radius: 20px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 25px 80px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9) translateY(30px);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .blog-modal.active .blog-modal-content {
+            transform: scale(1) translateY(0);
+        }
+        
+        .blog-modal-header {
+            position: relative;
+            height: 45%;
+            overflow: hidden;
+            background: var(--dark-azure);
+        }
+        
+        .blog-modal-header img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.8s ease;
+        }
+        
+        .blog-modal-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 150px;
+            background: linear-gradient(to top, rgba(255,255,255,1) 0%, rgba(255,255,255,0) 100%);
+        }
+        
+        .blog-modal-body {
+            padding: 40px;
+            position: relative;
+            flex-grow: 1;
+            overflow-y: auto;
+            z-index: 2;
+            background: white;
+        }
+        
+        .blog-modal-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--dark-azure);
+            margin-bottom: 20px;
+            line-height: 1.2;
+            position: relative;
+        }
+        
+        .blog-modal-category {
+            display: inline-block;
+            background: var(--dark-azure);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(11, 48, 70, 0.2);
+        }
+        
+        .blog-modal-text {
+            line-height: 1.8;
+            color: #374151;
+            font-size: 1.1rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .blog-modal-text h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-azure);
+            margin: 30px 0 15px;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .blog-modal-text h3::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 5px;
+            background: var(--dark-azure);
+            border-radius: 3px;
+        }
+        
+        .blog-modal-text p {
+            margin-bottom: 20px;
+        }
+        
+        .blog-modal-text ul {
+            margin: 20px 0;
+            padding-left: 20px;
+        }
+        
+        .blog-modal-text li {
+            margin-bottom: 10px;
+            position: relative;
+        }
+        
+        .blog-modal-text li::before {
+            content: '•';
+            color: var(--dark-azure);
+            font-weight: bold;
+            position: absolute;
+            left: -15px;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            background: white;
+            color: var(--dark-azure);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            z-index: 10;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+        
+        .close-modal:hover {
+            background: var(--dark-azure);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
+        }
+        
+        /* Modal Scrollbar Styling */
+        .blog-modal-body::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .blog-modal-body::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        
+        .blog-modal-body::-webkit-scrollbar-thumb {
+            background: var(--dark-azure);
+            border-radius: 10px;
+        }
+        
+        .blog-modal-body::-webkit-scrollbar-thumb:hover {
+            background: #0a2a3d;
+        }
+        
+        /* Blog Meta Info */
+        .blog-meta {
+            display: flex;
+            align-items: center;
+            margin-bottom: 25px;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .blog-meta-item {
+            display: flex;
+            align-items: center;
+            margin-right: 20px;
+        }
+        
+        .blog-meta-item i {
+            margin-right: 5px;
+            color: var(--dark-azure);
+        }
+        
+        /* Floating Share Buttons */
+        .share-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+        }
+        
+        .share-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-5px);
+        }
+        
+        .share-link {
+            background: var(--dark-azure);
+        }
+        
+        /* Mobile Menu */
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .blog-modal-content {
+                width: 98%;
+                height: 98%;
+            }
+            
+            .blog-modal-title {
+                font-size: 2rem;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .blog-modal-content {
+                width: 100%;
+                height: 100%;
+                border-radius: 0;
+            }
+            
+            .blog-modal-body {
+                padding: 30px 20px;
+            }
+            
+            .blog-modal-title {
+                font-size: 1.8rem;
+            }
+            
+            .blog-modal-text {
+                font-size: 1rem;
+            }
+            
+            .blog-modal-header {
+                height: 35%;
+            }
+            
+            .share-buttons {
+                bottom: 20px;
+                right: 20px;
+            }
+            
+            .share-btn {
+                width: 45px;
+                height: 45px;
+                font-size: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .blog-modal-title {
+                font-size: 1.5rem;
+            }
+            
+            .blog-modal-header {
+                height: 30%;
+            }
+            
+            .blog-meta {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html" class="nav-link">Home</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="#influencers" class="nav-link">For Influencers</a>
+                <a href="#brands" class="nav-link">For Brands</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="blogs.html" class="nav-link">Blogs</a>
+                <a href="#faqs" class="nav-link">FAQs</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full border-2 border-gray-800 text-gray-800 hover:bg-gray-100 transition-all">Login</a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full bg-gradient-to-r from-blue-800 to-blue-600 text-white">Get Started</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Home</a>
+            <a href="#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+            <a href="#faqs" class="text-gray-800 text-lg py-2 border-b border-gray-300">FAQs</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full border-2 border-gray-800 text-gray-800 block text-center">Login</a>
+                <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full bg-gradient-to-r from-blue-800 to-blue-600 text-white block text-center">Get Started</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Blog Section -->
+    <section class="pt-32 pb-20 bg-gray-50">
+        <div class="container mx-auto px-6">
+            <div class="text-center mb-16">
+                <h1 class="text-4xl md:text-5xl font-bold mb-4" style="color: var(--dark-azure);">LiveX Blog</h1>
+                <p class="text-xl text-gray-600 max-w-2xl mx-auto">Insights, trends, and strategies in the world of influencer marketing</p>
+            </div>
+            
+            <!-- Blog Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Blog 1 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Creator Economy</span>
+                        <img src="assets/images/blog1image.jpg" alt="The 100,000 Job Mission">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">The 100,000 Job Mission: Why the Global Somali Creator Economy is the Future (2026)</h3>
+                        <p class="blog-excerpt">LiveX Africa is pioneering the professionalization of the global Somali Creator Economy. This dynamic talent pool, composed of over 70% youth, spans East Africa and reaches across the vibrant diaspora...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="1">Read More</a>
+                    </div>
+                </div>
+                
+                <!-- Blog 2 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Industry Trends</span>
+                        <img src="assets/images/blog2image.jpg" alt="Africa's Creator Economy">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">Africa's Creator Economy: The Next Multi-Billion-Dollar Frontier</h3>
+                        <p class="blog-excerpt">The African creator economy is undergoing a structural transformation, rapidly evolving from a decentralized collection of digital talents into a formal, multi-billion-dollar economic force...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="2">Read More</a>
+                    </div>
+                </div>
+                
+                <!-- Blog 3 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Market Analysis</span>
+                        <img src="assets/images/blog3image.jpg" alt="The Somali Market">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">The Somali Market: A Global, Multi-Billion-Dollar Consumer Powerhouse</h3>
+                        <p class="blog-excerpt">The notion of the "Somali market" can no longer be confined by geopolitical borders. It is, in reality, a sophisticated, borderless cultural and economic network that stretches across continents...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="3">Read More</a>
+                    </div>
+                </div>
+                
+                <!-- Blog 4 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Creator Spotlight</span>
+                        <img src="assets/images/blog4image.jpg" alt="Somali Creators">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">Somali Creators: Changing the Narrative, Building the Future</h3>
+                        <p class="blog-excerpt">Somalia has long been known as the "Nation of Poets," a tribute to its profound oral traditions and literary depth. Today, that legacy is not disappearing; it is simply being digitized...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="4">Read More</a>
+                    </div>
+                </div>
+                
+                <!-- Blog 5 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Digital Economy</span>
+                        <img src="assets/images/blog5image.jpg" alt="The Digital Economy">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">The Digital Economy: A New Hope and Definitive Path for Somali Youth</h3>
+                        <p class="blog-excerpt">The future of African economic growth is unequivocally digital. Data from the Google & IFC e-Conomy Africa Report (2024) projects that the digital economy will add a staggering $180 billion to Africa's GDP by 2030...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="5">Read More</a>
+                    </div>
+                </div>
+                
+                <!-- Blog 6 -->
+                <div class="blog-card">
+                    <div class="blog-card-image">
+                        <span class="blog-category">Brand Strategy</span>
+                        <img src="assets/images/blog6image.jpg" alt="Why Brands Need Somali Creators">
+                    </div>
+                    <div class="blog-content">
+                        <h3 class="blog-title">Why Brands Need Somali Creators: The Untapped Influence Market (2026)</h3>
+                        <p class="blog-excerpt">In a world driven by digital connection, authenticity has become the new currency. Audiences no longer trust polished ads, they trust people. And among the fastest-growing, most engaged digital audiences...</p>
+                        <a href="#" class="read-more-btn" data-blog-id="6">Read More</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ASTOUNDING Blog Modal -->
+    <div id="blog-modal" class="blog-modal">
+        <div class="blog-modal-content">
+            <button class="close-modal">&times;</button>
+            <div class="blog-modal-header">
+                <img id="blog-modal-image" src="" alt="Blog Image">
+            </div>
+            <div class="blog-modal-body">
+                <h2 id="blog-modal-title" class="blog-modal-title"></h2>
+                <span id="blog-modal-category" class="blog-modal-category"></span>
+                
+                <div class="blog-meta">
+                    <div class="blog-meta-item">
+                        <i class="far fa-clock"></i>
+                        <span id="blog-modal-read-time">8 min read</span>
+                    </div>
+                    <div class="blog-meta-item">
+                        <i class="far fa-calendar"></i>
+                        <span id="blog-modal-date">June 15, 2025</span>
+                    </div>
+                </div>
+                
+                <div id="blog-modal-text" class="blog-modal-text"></div>
+            </div>
+            
+            <!-- Share Buttons -->
+            <div class="share-buttons">
+                <div class="share-btn share-link" title="Copy link">
+                    <i class="fas fa-link"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="#faqs" class="hover:text-white">FAQ</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
+                        <li><a href="#" class="hover:text-white">Careers</a></li>
+                        <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Blog data
+        const blogData = {
+            1: {
+                title: "The 100,000 Job Mission: Why the Global Somali Creator Economy is the Future (2026)",
+                category: "Creator Economy",
+                image: "assets/images/blog1image.jpg",
+                date: "June 15, 2025",
+                readTime: "8 min read",
+                content: `
+                    <p>LiveX Africa, operating from our hub in Kenya, is pioneering the professionalization of the global Somali Creator Economy. This dynamic talent pool, composed of over 70% youth, spans East Africa, including Kenya and Somalia, and reaches across the vibrant diaspora in the UK, USA, and Canada. This generation represents a demographic tsunami of energy and ambition that requires a new economic engine capable of creating scale and resilience. The need for formal job creation and youth empowerment is a priority recognized by regional governments and global partners like the World Bank's 'BOOST-You' program.</p>
+                    
+                    <h3>The Creative Economy as an Engine of Growth</h3>
+                    <p>The answer lies in the "Orange Economy," the creative economy. Globally, this sector is a proven economic powerhouse, responsible for generating an estimated 30 million jobs and contributing significantly to national GDPs. For the Somali community, historically known as the "Nation of Poets," this creative spirit is finding its modern rebirth online. This digital Renaissance represents the clearest path to absorbing the community's massive youth workforce worldwide.</p>
+                    
+                    <p>This is where the vision for 100,000 new professional jobs comes into sharp focus. This number is not merely an ambitious marketing target; it is a necessary economic goal for securing the future prosperity of the entire Somali community, wherever they reside. Our mission is to transform a generation of casual social media users, from Nairobi to London, into a generation of digital entrepreneurs and professionals by 2026.</p>
+                    
+                    <h3>The Problem: Bridging the Talent-to-Career Gap</h3>
+                    <p>The raw talent among Somali youth is undeniable. Whether they are tech reviewers, fashion vloggers, or cultural commentators, Somali creators are rapidly building massive, engaged audiences across East Africa (including Kenya and Somalia) and the global diaspora (USA, UK, Canada). Yet, a fundamental disconnect persists between achieving high "followers" and securing a reliable, professional "living."</p>
+                    
+                    <p>As one creative, Mukhtar, articulated to the World Bank, "Working as a creative in Somalia is a risk because you don't get consistent work... Job security isn't there.”</p>
+                    
+                    <p>This professional precarity creates a critical market failure. Talented creators, whether based in Nairobi or Minneapolis, remain isolated, while potential brands, both local and international struggle to access this vibrant, high-growth market because they lack a trusted, formal connection point. This forces creators into the "view count" trap, often leading to a focus on controversial or shock content (as noted by Gorfayn.org) just to game the algorithm, rather than focusing on building a bankable, sustainable career.</p>
+                    
+                    <h3>The Solution: Building a Professional Infrastructure</h3>
+                    <p>Achieving a 100,000-job mission by 2026 requires robust, scalable professional infrastructure. This is the precise role LiveX Africa is built to fill.</p>
+                    
+                    <p>As the professional platform connecting premium brands to verified Somali creators, LiveX Africa formalizes the digital gig economy. We provide the essential job security and contractual clarity that Mukhtar and thousands of other creators need, transforming creativity into a formal, stable income stream.</p>
+                    
+                    <p>When a brand partners with a creator through a formalized platform, the job creation effect is exponential:</p>
+                    
+                    <ul>
+                        <li><strong>The Creator:</strong> Gains a stable income, allowing them to invest in production quality, content specialization, and building a professional support team (editors, producers, and managers).</li>
+                        <li><strong>The Brand:</strong> Secures authentic, high-trust access to the Somali market, bypassing traditional, often ineffective, advertising models.</li>
+                        <li><strong>The Ecosystem:</strong> Every professional "Creator" job generated by a brand deal serves as a multiplier, creating several adjacent jobs in editing, graphic design, strategy, and business management.</li>
+                    </ul>
+                    
+                    <p>The 100,000-job mission is fundamentally about building an entire digital ecosystem, one job at a time. By closing the critical gap between global brands and East African enterprises and their most creative minds worldwide, LiveX Africa is laying the groundwork for the next major engine of the global Somali economy in 2026.</p>
+                `
+            },
+            2: {
+                title: "Africa's Creator Economy: The Next Multi-Billion-Dollar Frontier",
+                category: "Industry Trends",
+                image: "assets/images/blog2image.jpg",
+                date: "June 10, 2025",
+                readTime: "7 min read",
+                content: `
+                    <p>The African creator economy is undergoing a structural transformation, rapidly evolving from a decentralized collection of digital talents into a formal, multi-billion-dollar economic force. Recent market analysis confirms this explosive growth: influencer marketing spend across Africa surpassed $1.3 billion in 2024 and is projected to reach an unprecedented $3.5 billion by 2027 (Source: Business of Apps, 2024). This trajectory signals a definitive shift in how African media is consumed and monetized, making it the most dynamic digital frontier globally.</p>
+                    
+                    <h3>Three Pillars Driving Africa's Digital Dominance</h3>
+                    <p>This phenomenal economic acceleration is built upon three foundational pillars that differentiate the African market:</p>
+                    
+                    <ul>
+                        <li><strong>The Demographic Dividend (Youth Power):</strong> Africa is the world's youngest continent, with nearly 70% of its population under the age of 30. This immense youth demographic is not only driving consumer spending but is simultaneously the primary engine of content creation. Their fluency in digital platforms creates an organic, ever-refreshing source of creative output.</li>
+                        <li><strong>The Infrastructure Leapfrog (Mobile-First Audiences):</strong> The continent has skipped traditional technological cycles, moving directly to mobile-first interactions. With over 600 million smartphone users projected (Source: GSMA, 2025), content consumption and creation are fluid, instant, and accessible, providing creators with an enormous, immediate distribution network.</li>
+                        <li><strong>The Cultural Export Engine:</strong> African music, fashion, humor, and lifestyle narratives are not just popular locally; they are dominating global culture. This immense "cultural capital" translates directly into high-engagement content that performs exceptionally well on international platforms like TikTok and Instagram, offering brands a vital conduit to global audiences.</li>
+                    </ul>
+                    
+                    <h3>The Localization Imperative: Somali Creators as a Strategic Bridge</h3>
+                    <p>While the pan-African growth figures are impressive, the greatest opportunity lies in localizing this success within culturally rich, high-growth communities. Somali Creators, regardless of their location whether in Nairobi, Hargeisa, Toronto, or London represent a unique and essential digital bridge.</p>
+                    
+                    <p>They are vital because they possess the cultural fluency and deep community trust required to convert continental scale into tangible market access. For brands, engaging this community means bypassing generalized advertising in favor of hyper-authentic communication. As a 2024 World Bank report on the digital economy states, "Africa's creators aren't just participants they are shaping global digital culture." Somali creators are at the vanguard of this movement, driving hyper-growth (often exceeding 1500% in recent years) within their niche.</p>
+                    
+                    <h3>LiveX Africa's Strategic Edge: Formalizing the Ecosystem</h3>
+                    <p>Despite this massive potential, the African creator economy remains fragmented by payment friction, contractual ambiguity, and difficulty in verifying creator authenticity at scale. This is the critical gap LiveX Africa is built to close.</p>
+                    
+                    <p>Operating from our hub in Kenya, LiveX Africa applies AI and deep community intelligence to professionalize this frontier. We provide the end-to-end infrastructure that allows brands to confidently tap into the $3.5 billion market:</p>
+                    
+                    <ul>
+                        <li><strong>Verified Matching:</strong> Our platform meticulously connects African brands with verified Somali creators who share their authentic story and audience profile, minimizing risk and maximizing cultural resonance.</li>
+                        <li><strong>Contractual Clarity:</strong> We formalize the relationships, ensuring fair, transparent contracts that protect both the brand's investment and the creator's intellectual property.</li>
+                        <li><strong>Cross-Border Payments:</strong> We eliminate the friction of monetization, ensuring creators in all locations (East Africa and the diaspora) are paid reliably and professionally.</li>
+                    </ul>
+                    
+                    <p>By empowering Somali creators within this larger African ecosystem, LiveX Africa ensures that authentic, trusted voices lead Africa's digital transformation, transforming cultural capital into measurable economic return. We are not just participating in the growth; we are building the framework for its sustained success.</p>
+                `
+            },
+            3: {
+                title: "The Somali Market: A Global, Multi-Billion-Dollar Consumer Powerhouse",
+                category: "Market Analysis",
+                image: "assets/images/blog3image.jpg",
+                date: "June 5, 2025",
+                readTime: "9 min read",
+                content: `
+                    <p>The notion of the "Somali market" can no longer be confined by geopolitical borders. It is, in reality, a sophisticated, borderless cultural and economic network that stretches across continents, connecting communities in East Africa with vast, affluent diasporas in the West. For global brands seeking high-value, digitally-engaged consumers, this interconnected network fueled by remittances and cultural pride represents one of Africa's most compelling investment opportunities.</p>
+                    
+                    <h3>The Financial Engine: Diaspora by the Numbers</h3>
+                    <p>The economic vitality of the Somali market is anchored by the sheer volume of capital and consumer spending controlled by its global community. This is not simply a high-growth emerging market; it is a market with deep, persistent liquidity:</p>
+                    
+                    <ul>
+                        <li><strong>Remittance Lifeline:</strong> Somalis abroad send home over $2 billion annually (Source: World Bank, 2023). This capital flow constitutes roughly 30% of Somalia's GDP, acting as a stable, counter-cyclical economic stimulus that drives consumer purchasing power in East Africa.</li>
+                        <li><strong>Diaspora Spending Power:</strong> The Somali diaspora residing in the U.S., Europe, and Canada collectively controls an estimated $7 billion in annual consumer spending (Source: Brookings Institute, 2024). This represents a highly lucrative, digitally-fluent consumer segment that prioritizes community, authenticity, and quality.</li>
+                        <li><strong>Digital Engagement as a Unifier:</strong> This market is exceptionally connected. Over 85% of Somali youth in the diaspora use social media daily (Source: Pew Research, 2024), utilizing platforms like TikTok, YouTube, and Instagram as primary channels for news, culture, and purchasing influence.</li>
+                    </ul>
+                    
+                    <p>Collectively, the total value of this global Somali market including trade, remittances, and digital commerce is estimated to be worth between $15–$20 billion annually, making it a powerhouse that demands a specialized engagement strategy.</p>
+                    
+                    <h3>Why Traditional Marketing Fails: The Trust Imperative</h3>
+                    <p>The unique characteristics of the Somali consumer whether in Nairobi, Mogadishu, or London make them highly resistant to traditional, generalized marketing efforts. The key traits defining this audience are:</p>
+                    
+                    <ul>
+                        <li><strong>Digital Fluency:</strong> They are sophisticated digital users who immediately recognize and filter out non-authentic advertising.</li>
+                        <li><strong>Cultural Pride:</strong> They respond powerfully to content that respects, reflects, and celebrates their culture, language, and heritage.</li>
+                        <li><strong>Loyalty to Trusted Influencers:</strong> Due to historical factors, market risk, and cultural norms, the Somali community relies heavily on peer-to-peer recommendation and trusted voices over corporate messaging.</li>
+                    </ul>
+                    
+                    <p>In this high-value, high-trust environment, a conventional banner ad or a generic social media post is ineffective. Brands require a "Trust Bridge" , a reliable mechanism to translate global marketing goals into local, authentic communication.</p>
+                    
+                    <h3>LiveX Africa: Building the Bridge to the Global Somali Consumer</h3>
+                    <p>This is precisely where LiveX Africa delivers its essential strategic value. We are the professional infrastructure designed to connect global commercial entities with this unique, multi-billion-dollar consumer base. Our platform allows brands to confidently tap into the market's true potential:</p>
+                    
+                    <ul>
+                        <li><strong>Access to Diaspora Segments:</strong> We provide verified access to key consumer segments across metropolitan hubs, enabling sophisticated campaigns that target the purchasing power in cities like Minneapolis, Oslo, London, and Nairobi.</li>
+                        <li><strong>Authentic Storytelling:</strong> We facilitate cultural campaigns centered on pillars of community life, Somali food, dynamic fashion, education initiatives, and social causes which build deep, long-term brand trust rather than ephemeral sales spikes.</li>
+                        <li><strong>Cultural Fluency at Scale:</strong> As Co-founder and CTO Abdullahi notes, "Somali Creators have a rare mix of global fluency and local authenticity that's gold for brands." Our technology ensures that this gold is accessible, manageable, and measurable for global partners.</li>
+                    </ul>
+                    
+                    <p>By formalizing the relationship between top-tier global and East African brands and the most trusted Somali creators worldwide, LiveX Africa is building the indispensable bridge that unlocks the full $15–$20 billion potential of the global Somali consumer market.</p>
+                `
+            },
+            4: {
+                title: "Somali Creators: Changing the Narrative, Building the Future",
+                category: "Creator Spotlight",
+                image: "assets/images/blog4image.jpg",
+                date: "May 28, 2025",
+                readTime: "10 min read",
+                content: `
+                    <p>Somalia has long been known as the "Nation of Poets," a tribute to its profound oral traditions and literary depth. Today, that legacy is not disappearing; it is simply being digitized. The new generation of Somali creators from East Africa to the global diaspora is taking their rich cultural capital and rewriting the global Somali story on platforms like YouTube, TikTok, and Instagram. This is a powerful shift from media invisibility to dynamic digital representation, and it is reshaping how the world interacts with Somali culture and commerce.</p>
+                    
+                    <h3>The New Digital Vanguard: Voices Making an Impact</h3>
+                    <p>These creators are more than entertainers; they are trusted cultural ambassadors, educators, and consumer guides. They leverage the unique blend of local authenticity and global fluency to build massive, highly engaged communities across continents.</p>
+                    
+                    <p>Consider the impact of figures like:</p>
+                    
+                    <ul>
+                        <li><strong>Muna Mohamed (UK):</strong> A prominent voice in beauty and modest fashion whose work has been featured in major international publications, demonstrating the global reach of Somali-led aesthetics.</li>
+                        <li><strong>Abdiwahab Sheikh (Kenya):</strong> A versatile comedian and engaging storyteller who has cultivated an audience of over 2 million followers on TikTok, leveraging humor to bridge cultural gaps and build a massive fan base in East Africa and beyond.</li>
+                        <li><strong>Ayaan Warsame (Canada):</strong> A dedicated wellness influencer championing critical conversations around mental health, providing culturally sensitive guidance to the Somali diaspora community.</li>
+                    </ul>
+                    
+                    <p>These creators represent a definitive pivot: they are transforming passive consumption into active participation, and the result is a network of 50,000+ Somali creators whose influence is growing at a phenomenal rate, estimated at 1500%+ in recent years.</p>
+                    
+                    <h3>The Challenge: From Influence to Income</h3>
+                    <p>Despite their undeniable success in building audience and influence, these creators face systemic challenges that prevent their work from becoming a stable, professional career:</p>
+                    
+                    <ol>
+                        <li><strong>Limited Brand Partnerships in Region:</strong> While global brands are interested in the diaspora, local and regional brand collaborations within East Africa and Somalia often lack structure, scale, and consistency.</li>
+                        <li><strong>Payment and Monetization Hurdles:</strong> Cross-border payments remain complex and costly, creating friction for creators who operate globally but are rooted in East Africa.</li>
+                        <li><strong>Lack of Structured Mentorship:</strong> Few formalized programs exist to guide high-potential talent in business strategy, intellectual property (IP) protection, and long-term career management.</li>
+                    </ol>
+                    
+                    <p>This insecurity forces many talented creators into the "algorithm trap", where they must prioritize sensational or controversial content just to generate views, rather than focusing on the authentic, high-quality content that builds lasting brand value.</p>
+                    
+                    <h3>LiveX Africa's Role: Professionalizing the Movement</h3>
+                    <p>LiveX Africa is the critical infrastructure built specifically to solve these challenges, transforming potential into professional security. We are not just a connector; we are an ecosystem builder dedicated to the 100,000-job mission.</p>
+                    
+                    <p>Our platform provides essential tools that formalize the creator-brand relationship:</p>
+                    
+                    <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                        <thead>
+                            <tr style="background-color: #f2f2f2;">
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">LIVEX AFRICA Solution</th>
+                                <th style="border: 1px solid #ddd; padding: 8px; text-align: left;">Strategic Impact for Creators & Brands</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Creator Funding & Development Programs</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Provides consistent revenue streams and mentorship, enabling emerging talents to focus on authenticity rather than chasing fleeting algorithms.</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Brand Collaboration Tools</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Offers agencies and companies seeking Somali audiences a verified, data-driven system for discovery, contracting, and campaign execution, minimizing brand risk.</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Analytics & Data Dashboards</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Showcases creators' verified reach, engagement, and demographic data to brands, turning subjective "followers" into bankable, measurable marketing assets.</td>
+                            </tr>
+                            <tr>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Streamlined Payment Support</td>
+                                <td style="border: 1px solid #ddd; padding: 8px;">Eliminates cross-border payment friction, ensuring creators across the world—from Nairobi to Minneapolis—are paid swiftly and reliably for their professional work.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <p>LIVEX Africa is more than a platform, it's a professional movement redefining how the world sees and compensates Somali creativity. As our Co-founder and Strategic Lead, Amin Abdi, asserts: "We're no longer asking for a seat at the table. We're building our own digital economy, and inviting forward-thinking brands to partner with us." We are empowering the new Nation of Poets to secure their future, one professional contract at a time.</p>
+                `
+            },
+            5: {
+                title: "The Digital Economy: A New Hope and Definitive Path for Somali Youth",
+                category: "Digital Economy",
+                image: "assets/images/blog5image.jpg",
+                date: "May 20, 2025",
+                readTime: "8 min read",
+                content: `
+                    <p>The future of African economic growth is unequivocally digital. Data from the Google & IFC e-Conomy Africa Report (2024) projects that the digital economy will add a staggering $180 billion to Africa's GDP by 2030. This immense wave of growth represents more than just a technological shift; it is the single greatest catalyst for structural change and job creation for the continent's youthful population. For Somali youth, who face persistent challenges in traditional job markets, the digital economy is not just an option it is a vital, formal, and accessible path to economic empowerment.</p>
+                    
+                    <h3>The Foundation: Leapfrogging Infrastructure</h3>
+                    <p>Kenya, Somalia and East Africa have successfully leapfrogged conventional infrastructure development, building one of the world's most robust digital payment ecosystems. This advanced, accessible framework is the bedrock of the new economy:</p>
+                    
+                    <ul>
+                        <li><strong>Ubiquitous Mobile Money:</strong> Nations like Kenya and Somalia possess some of the most advanced mobile money systems globally, from M-Pesa's regional dominance to local powerhouses like EVC Plus and Zaad. These platforms have democratized finance, allowing transactions and payments to occur instantly and affordably, which is critical for digital freelancers and creators.</li>
+                        <li><strong>Affordable Access:</strong> With some of the cheapest mobile data rates in Africa, the barrier to entry for content creation and e-commerce is virtually zero. This low-cost access ensures that innovation is not limited to capital cities but is distributed across the region and diaspora.</li>
+                    </ul>
+                    
+                    <p>This confluence of low-friction mobile finance and widespread data access means that the digital infrastructure required for a thriving creator and gig economy is already firmly in place.</p>
+                    
+                    <h3>The Human Engine: Connectivity and Upskilling</h3>
+                    <p>The infrastructure is powered by a unique and dynamic human engine: the Somali global community.</p>
+                    
+                    <ul>
+                        <li><strong>Diaspora as Digital Pioneers:</strong> Somali youth in the major diaspora hubs (the U.S., the UK, Canada, and the Gulf States) are highly skilled digital natives. They use their expertise to freelance, build sophisticated e-commerce ventures, and, crucially, to create and monetize high-production-value content. This diaspora acts as a constant source of advanced digital skills and capital for the home economy.</li>
+                        <li><strong>The Rise of E-Learning:</strong> Recognizing this digital shift, Somali students and young professionals across Africa are enrolling in digital skills and content creation programs more than ever before. This groundswell of formalized training is creating a massive talent pool ready for professional digital employment.</li>
+                    </ul>
+                    
+                    <p>The potential is clear: a vast, skilled, and highly connected youth population is positioned perfectly to capture the value of the $180 billion African digital wave.</p>
+                    
+                    <h3>LiveX Africa: Translating Potential into Income</h3>
+                    <p>The core challenge remains the gap between digital skills and professional income. Many talented youth can create content, but few have access to the formal systems required to secure high-value brand contracts, manage legal complexities, and receive consistent cross-border payments.</p>
+                    
+                    <p>LiveX Africa is strategically built to be the operating system for this new digital hope. Our model deliberately blends three critical components to give Somali youth real earning opportunities:</p>
+                    
+                    <ol>
+                        <li><strong>Creator Marketing (Income):</strong> We provide high-value brand connections that transform followers into professional revenue streams.</li>
+                        <li><strong>E-commerce Integration (Monetization):</strong> We help creators leverage their trust to drive sales for local and international brands, linking influence directly to the consumer economy.</li>
+                        <li><strong>Digital Education (Capacity Building):</strong> We offer the structured mentorship and professionalization that turns creative talent into bankable business acumen.</li>
+                    </ol>
+                    
+                    <p>This integrated approach is the only way to achieve our audacious goal of creating 100,000 jobs for Somali creators by 2028. By formalizing the creator economy, we are not just providing gigs; we are building careers that contribute measurably to the national and global digital GDP.</p>
+                    
+                    <p>As co-founder Abdullahi, who leads our technology division, concisely states: "The future of Somali youth is digital, and that future starts now." LiveX Africa is ensuring that this future is accessible, professional, and profitable.</p>
+                `
+            },
+            6: {
+                title: "Why Brands Need Somali Creators: The Untapped Influence Market (2026)",
+                category: "Brand Strategy",
+                image: "assets/images/blog6image.jpg",
+                date: "May 15, 2025",
+                readTime: "6 min read",
+                content: `
+                    <p>In a world driven by digital connection, authenticity has become the new currency. Audiences no longer trust polished ads, they trust people. And among the fastest-growing, most engaged digital audiences in the world today is the Somali Creator Community.</p>
+                    
+                    <p>From Nairobi to Hargeisa, and across global cities like London, Minneapolis, and Toronto, Somali creators are commanding influence that transcends borders. Yet, despite their massive reach and credibility, they remain one of the most under-leveraged opportunities for brands seeking authentic connection, loyalty, and long-term growth.</p>
+                    
+                    <p>LiveX Africa exists to change that.</p>
+                    
+                    <h3>The Somali Market: A Global Consumer Network</h3>
+                    <p>The Somali population, estimated at over 20 million globally represents one of the most digitally active diasporas in the world. With over 70% of its people under the age of 30, this is a generation that grew up online: mobile-first, community-driven, and deeply brand-conscious.</p>
+                    
+                    <p>They're not just content consumers; they're decision influencers. Whether it's fashion, tech, food, or lifestyle, Somali youth set trends that ripple across East Africa and the global diaspora.</p>
+                    
+                    <p>For brands, this is a goldmine, a unified cultural audience with global reach and local loyalty.</p>
+                    
+                    <h3>Authenticity Over Algorithms</h3>
+                    <p>Somali creators have what modern brands crave most: trust. Their communities are built on shared language, humor, culture, and experience not algorithms.</p>
+                    
+                    <p>When a Somali creator recommends a product, it doesn't feel like an ad; it feels like advice from family. This emotional authenticity translates into higher engagement, stronger conversion, and sustained brand loyalty results that traditional marketing often fails to achieve.</p>
+                    
+                    <p>At LiveX Africa, we're seeing this firsthand. A simple creator-led campaign can outperform high-budget digital ads because the audience believes in the messenger as much as the message.</p>
+                    
+                    <h3>Why Brands Should Partner with LiveX Africa Creators</h3>
+                    <p>LiveX Africa bridges the gap between global brands and verified Somali creators through a professional, structured ecosystem. When brands partner with creators through our platform, they gain:</p>
+                    
+                    <ul>
+                        <li><strong>Cultural Intelligence:</strong> Access to authentic, localized storytelling that resonates with Somali audiences worldwide.</li>
+                        <li><strong>Professional Partnerships:</strong> Transparent contracts, fair compensation, and measurable campaign results.</li>
+                        <li><strong>High Engagement Rates:</strong> Somali creators consistently outperform regional benchmarks in engagement and retention.</li>
+                        <li><strong>Scalable Reach:</strong> From micro-influencers to established digital stars, our network connects brands to every level of influence.</li>
+                    </ul>
+                    
+                    <p>This model doesn't just create brand visibility, it builds brand credibility.</p>
+                    
+                    <h3>A Win-Win Economy: Empowerment Meets Growth</h3>
+                    <p>Every brand partnership through LiveX Africa does more than drive sales; it drives social impact. Each sponsored post, collaboration, or ambassador deal contributes directly to our 100,000-job mission for 2026, empowering creators to earn a stable income and build sustainable digital careers.</p>
+                    
+                    <p>For brands, that means every campaign becomes part of a larger movement, one that combines business growth with community transformation.</p>
+                    
+                    <p>When you partner with a Somali creator, you're not just buying influence, you're fueling a generation.</p>
+                    
+                    <h3>The Call to Brands: Join the Movement</h3>
+                    <p>The next era of influence belongs to creators who can blend culture with commerce. Somali creators are doing exactly that and brands that move early will define how this story unfolds.</p>
+                    
+                    <p>Whether you're a startup seeking local engagement or a multinational exploring new markets, LiveX Africa provides the professional bridge to tap into the Somali Creator Economy safely, strategically, and effectively.</p>
+                    
+                    <p>LiveX Africa Where Brands Meet Authentic Somali Influence.</p>
+                    
+                    <p>2026 is the year to build real connections, not just campaigns.</p>
+                `
+            }
+        };
+
+        // DOM Elements
+        const blogModal = document.getElementById('blog-modal');
+        const closeModalBtn = document.querySelector('.close-modal');
+        const readMoreBtns = document.querySelectorAll('.read-more-btn');
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const closeMenu = document.getElementById('close-menu');
+        const shareButtons = document.querySelectorAll('.share-btn');
+
+        // Mobile menu toggle
+        if (mobileMenuButton) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.add('open');
+            });
+        }
+
+        if (closeMenu) {
+            closeMenu.addEventListener('click', function() {
+                mobileMenu.classList.remove('open');
+            });
+        }
+
+        // Blog modal functionality
+        function openBlogModal(blogId) {
+            const blog = blogData[blogId];
+            
+            if (blog) {
+                // Populate modal with blog data
+                document.getElementById('blog-modal-image').src = blog.image;
+                document.getElementById('blog-modal-title').textContent = blog.title;
+                document.getElementById('blog-modal-category').textContent = blog.category;
+                document.getElementById('blog-modal-text').innerHTML = blog.content;
+                document.getElementById('blog-modal-date').textContent = blog.date;
+                document.getElementById('blog-modal-read-time').textContent = blog.readTime;
+                
+                // Show modal
+                blogModal.classList.add('active');
+                document.body.style.overflow = 'hidden'; // Prevent scrolling
+                
+                // Add subtle animation to the image
+                setTimeout(() => {
+                    const img = document.getElementById('blog-modal-image');
+                    img.style.transform = 'scale(1.05)';
+                }, 300);
+            }
+        }
+
+        function closeBlogModal() {
+            blogModal.classList.remove('active');
+            document.body.style.overflow = ''; // Enable scrolling
+            
+            // Reset image transform
+            const img = document.getElementById('blog-modal-image');
+            img.style.transform = 'scale(1)';
+        }
+
+        // Add event listeners to "Read More" buttons
+        readMoreBtns.forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const blogId = this.getAttribute('data-blog-id');
+                openBlogModal(blogId);
+            });
+        });
+
+        // Close modal when clicking the close button
+        if (closeModalBtn) {
+            closeModalBtn.addEventListener('click', closeBlogModal);
+        }
+
+        // Close modal when clicking outside the content
+        blogModal.addEventListener('click', function(e) {
+            if (e.target === blogModal) {
+                closeBlogModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && blogModal.classList.contains('active')) {
+                closeBlogModal();
+            }
+        });
+
+        // Share buttons functionality
+        shareButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const blogTitle = document.getElementById('blog-modal-title').textContent;
+                const blogUrl = window.location.href;
+                
+                if (this.classList.contains('share-link')) {
+                    navigator.clipboard.writeText(blogUrl).then(() => {
+                        // Show copied notification
+                        const originalHtml = this.innerHTML;
+                        this.innerHTML = '<i class="fas fa-check"></i>';
+                        setTimeout(() => {
+                            this.innerHTML = originalHtml;
+                        }, 2000);
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
