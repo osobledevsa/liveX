@@ -676,6 +676,7 @@
             color: white;
             font-size: 1.5rem;
             overflow: hidden;
+            flex-shrink: 0;
         }
         
         .profile-pic img {
@@ -748,6 +749,41 @@
             
             .macro-tier {
                 transform: scale(1);
+            }
+            
+            /* FIXED: Profile picture styling for mobile */
+            .profile-pic {
+                width: 36px !important;
+                height: 36px !important;
+                font-size: 1.2rem !important;
+            }
+            
+            /* FIXED: Dashboard preview layout for mobile */
+            .dashboard-preview .flex.items-center {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            
+            .dashboard-preview .flex.items-center > div:first-child {
+                margin-right: 0 !important;
+                margin-bottom: 10px !important;
+            }
+            
+            .dashboard-preview .flex.items-center > div:last-child {
+                margin-left: 0 !important;
+            }
+            
+            /* FIXED: Brand profile pictures */
+            .dashboard-preview .w-16.h-16 {
+                width: 36px !important;
+                height: 36px !important;
+            }
+            
+            /* FIXED: Influencer showcase image */
+            .hawa-adam-image img {
+                max-height: 250px !important;
+                object-fit: cover !important;
             }
         }
     </style>
@@ -1140,7 +1176,7 @@
                                 <div class="bg-white p-6">
                                     <div class="flex items-center mb-6">
                                         <div class="profile-pic mr-4">
-                                            <img src="assets/images/3.jpg">
+                                            <img src="assets/images/1.jpg">
                                         </div>
                                         <div>
                                             <h3 class="font-bold">Hawa Adam</h3>
