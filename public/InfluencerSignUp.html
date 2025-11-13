@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Signup - LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --dark-azure: #0b3046;
+            --light-azure: #d2e4ee;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(120deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--dark-azure);
+            color: var(--dark-azure);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(11, 48, 70, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--dark-azure);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--dark-azure);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(120deg, var(--dark-azure) 0%, #2c5e7a 100%);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c5e7a;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .form-section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--dark-azure);
+            border-radius: 2px;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .step-container {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        .step-container.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .progress-bar {
+            height: 6px;
+            background-color: #e2e8f0;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--dark-azure), #2c5e7a);
+            transition: width 0.5s ease;
+        }
+        
+        .step-indicator {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .step-indicator.active {
+            background: var(--dark-azure);
+            color: white;
+        }
+        
+        .step-indicator.completed {
+            background: #2c5e7a;
+            color: white;
+        }
+        
+        .niche-tag {
+            display: inline-block;
+            background: var(--light-azure);
+            color: #2c5e7a;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            margin: 4px;
+            transition: all 0.2s ease;
+        }
+        
+        .niche-tag.selected {
+            background: var(--dark-azure);
+            color: white;
+        }
+        
+        .success-animation {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .platform-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-header i {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .platform-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .required-indicator {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+        
+        .optional-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-left: 0.5rem;
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .input-focus:focus {
+            outline: none;
+            border-color: var(--dark-azure);
+            box-shadow: 0 0 0 3px rgba(11, 48, 70, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .checkbox-custom {
+            transition: all 0.2s ease;
+        }
+        
+        .checkbox-custom:checked {
+            background-color: var(--dark-azure);
+            border-color: var(--dark-azure);
+        }
+        
+        .strength-bar {
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#influencers" class="nav-link">For Influencers</a>
+                <a href="index.html#brands" class="nav-link">For Brands</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="blogs.html" class="nav-link">Blogs</a>
+                <a href="aboutUs.html" class="nav-link">About Us</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
+                <a href="BrandSignUp.html" class="px-6 py-2 rounded-full btn-primary">Brand Signup</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+            <a href="aboutUs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">About Us</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
+                <a href="BrandSignUp.html" class="w-full px-4 py-3 rounded-full btn-primary block text-center">Brand Signup</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="pt-32 pb-20 hero-gradient">
+        <div class="container mx-auto px-6">
+            <div class="max-w-4xl mx-auto">
+                <!-- Progress Bar -->
+                <div class="mb-8 bg-white rounded-xl p-6 shadow-md">
+                    <div class="flex justify-between mb-2">
+                        <div class="step-indicator completed" data-step="1">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="step-indicator active" data-step="2">
+                            2
+                        </div>
+                        <div class="step-indicator" data-step="3">
+                            3
+                        </div>
+                        <div class="step-indicator" data-step="4">
+                            4
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 25%"></div>
+                    </div>
+                    <div class="flex justify-between mt-1 text-sm text-gray-600">
+                        <span>Account</span>
+                        <span>Social Media</span>
+                        <span>Niches</span>
+                        <span>Review</span>
+                    </div>
+                </div>
+
+                <!-- Step 1: Account Information -->
+                <div class="step-container active" id="step-1">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="md:flex">
+                            <!-- Left Panel -->
+                            <div class="md:w-2/5 header-gradient p-8 text-white">
+                                <div class="flex items-center mb-10">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-bold mb-4">Join as Influencer</h2>
+                                    <p class="opacity-90">Create your account and start connecting with brands.</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Free to join</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Access to brand campaigns</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Performance analytics</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Weekly payments</span>
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-12">
+                                    <p class="text-sm opacity-80">Already have an account?</p>
+                                    <div class="mt-2">
+                                        <a href="login.html" class="block px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Sign In</a>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Form -->
+                            <div class="md:w-3/5 p-8">
+                                <div class="mb-8">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Account</h2>
+                                    <p class="text-gray-600">Enter your details to get started</p>
+                                </div>
+                                
+                                <form id="step1-form" class="space-y-6">
+                                    <!-- Account Information -->
+                                    <div class="form-section">
+                                        <h3 class="form-section-title">Personal Information</h3>
+                                        <div class="space-y-4">
+                                            <div class="form-group">
+                                                <label for="fullName">Full Names</label>
+                                                <input type="text" id="fullName" name="fullName" required class="input-focus" placeholder="John Doe">
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="email">Email Address</label>
+                                                <input type="email" id="email" name="email" required class="input-focus" placeholder="you@example.com">
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="phone">Phone Number</label>
+                                                <input type="tel" id="phone" name="phone" required class="input-focus" placeholder="+254 700 123 456">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Password Information -->
+                                    <div class="form-section">
+                                        <h3 class="form-section-title">Password</h3>
+                                        <div class="space-y-4">
+                                            <div class="form-group">
+                                                <label for="password">Password</label>
+                                                <input type="password" id="password" name="password" required class="input-focus" placeholder="Create a strong password" oninput="checkPasswordStrength()">
+                                                <div class="mt-2">
+                                                    <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                        <div id="strengthBar" class="strength-bar h-full w-0"></div>
+                                                    </div>
+                                                    <p id="strengthText" class="text-xs mt-1 text-gray-600"></p>
+                                                </div>
+                                                <div class="mt-2 text-xs text-gray-600">
+                                                    <p>Must contain:</p>
+                                                    <ul class="list-disc list-inside mt-1">
+                                                        <li id="capital" class="text-gray-500">✓ Capital letter</li>
+                                                        <li id="special" class="text-gray-500">✓ Special character</li>
+                                                        <li id="number" class="text-gray-500">✓ Number</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="form-group">
+                                                <label for="confirmPassword">Confirm Password</label>
+                                                <input type="password" id="confirmPassword" name="confirmPassword" required class="input-focus" placeholder="Confirm your password" oninput="checkPasswordMatch()">
+                                                <p id="matchText" class="text-xs mt-1"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Submit Button -->
+                                    <div class="pt-4">
+                                        <button type="button" id="next-to-step2" class="w-full btn-primary font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                            <span>Continue</span>
+                                            <i class="fas fa-arrow-right ml-2"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 2: Social Media Accounts -->
+                <div class="step-container" id="step-2">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="md:flex">
+                            <!-- Left Panel -->
+                            <div class="md:w-2/5 header-gradient p-8 text-white">
+                                <div class="flex items-center mb-10">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-bold mb-4">Your Social Media</h2>
+                                    <p class="opacity-90">Connect your social accounts to showcase your reach.</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Instagram required</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Multiple platforms</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Automatic follower count</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Tier classification</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Form -->
+                            <div class="md:w-3/5 p-8">
+                                <div class="mb-8">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Social Media Accounts</h2>
+                                    <p class="text-gray-600">Connect your social accounts to showcase your reach</p>
+                                    <p class="text-sm text-gray-500 mt-2">Instagram is required, plus at least one other platform</p>
+                                </div>
+                                
+                                <form id="step2-form" class="space-y-6">
+                                    <!-- Instagram -->
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <div class="platform-header">
+                                            <i class="fab fa-instagram text-pink-600"></i>
+                                            <h3>Instagram <span class="required-indicator">*</span></h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="instagram" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                                <input id="instagram" name="instagram" type="text" required 
+                                                       class="input-focus"
+                                                       placeholder="@yourusername">
+                                            </div>
+                                            <div>
+                                                <label for="instagramFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                                <input id="instagramFollowers" name="instagramFollowers" type="number" min="0" required 
+                                                       class="input-focus"
+                                                       placeholder="0"
+                                                       oninput="calculateTotalFollowers()">
+                                            </div>
+                                            <div>
+                                                <label for="instagramUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                                <input id="instagramUrl" name="instagramUrl" type="url" required 
+                                                       class="input-focus"
+                                                       placeholder="https://instagram.com/yourusername">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Facebook -->
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <div class="platform-header">
+                                            <i class="fab fa-facebook text-blue-600"></i>
+                                            <h3>Facebook <span class="optional-label">(Optional)</span></h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                                <input id="facebook" name="facebook" type="text" 
+                                                       class="input-focus"
+                                                       placeholder="yourusername">
+                                            </div>
+                                            <div>
+                                                <label for="facebookFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                                <input id="facebookFollowers" name="facebookFollowers" type="number" min="0" 
+                                                       class="input-focus"
+                                                       placeholder="0"
+                                                       oninput="calculateTotalFollowers()">
+                                            </div>
+                                            <div>
+                                                <label for="facebookUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                                <input id="facebookUrl" name="facebookUrl" type="url" 
+                                                       class="input-focus"
+                                                       placeholder="https://facebook.com/yourusername">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- TikTok -->
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <div class="platform-header">
+                                            <i class="fab fa-tiktok text-gray-800"></i>
+                                            <h3>TikTok <span class="optional-label">(Optional)</span></h3>
+                                        </div>
+                                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <div>
+                                                <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                                <input id="tiktok" name="tiktok" type="text" 
+                                                       class="input-focus"
+                                                       placeholder="@yourusername">
+                                            </div>
+                                            <div>
+                                                <label for="tiktokFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
+                                                <input id="tiktokFollowers" name="tiktokFollowers" type="number" min="0" 
+                                                       class="input-focus"
+                                                       placeholder="0"
+                                                       oninput="calculateTotalFollowers()">
+                                            </div>
+                                            <div>
+                                                <label for="tiktokUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
+                                                <input id="tiktokUrl" name="tiktokUrl" type="url" 
+                                                       class="input-focus"
+                                                       placeholder="https://tiktok.com/@yourusername">
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Follower Summary -->
+                                    <div class="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg">
+                                        <div class="flex flex-col md:flex-row justify-between items-center">
+                                            <div class="mb-4 md:mb-0">
+                                                <h3 class="text-lg font-semibold text-gray-800">Your Reach</h3>
+                                                <p class="text-gray-600">Total followers across all platforms</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-3xl font-bold text-blue-600" id="totalFollowers">0</p>
+                                                <p class="text-sm text-gray-600">Total Followers</p>
+                                            </div>
+                                            <div class="text-center">
+                                                <p class="text-xl font-bold text-orange-600" id="category">Nano</p>
+                                                <p class="text-sm text-gray-600">Influencer Tier</p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="flex justify-between pt-4">
+                                        <button type="button" id="back-to-step1" class="px-6 py-3 rounded-full btn-secondary">
+                                            <i class="fas fa-arrow-left mr-2"></i> Back
+                                        </button>
+                                        <button type="button" id="next-to-step3" class="px-6 py-3 rounded-full btn-primary">
+                                            Continue <i class="fas fa-arrow-right ml-2"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 3: Niches Selection -->
+                <div class="step-container" id="step-3">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="md:flex">
+                            <!-- Left Panel -->
+                            <div class="md:w-2/5 header-gradient p-8 text-white">
+                                <div class="flex items-center mb-10">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-bold mb-4">Your Niches</h2>
+                                    <p class="opacity-90">Select up to 3 niches that best represent your content.</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Relevant brand matches</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Targeted campaigns</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Better engagement</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Higher conversion rates</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Form -->
+                            <div class="md:w-3/5 p-8">
+                                <div class="mb-8">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Select Your Niches</h2>
+                                    <p class="text-gray-600">Select up to 3 niches that best represent your content</p>
+                                </div>
+                                
+                                <form id="step3-form" class="space-y-6">
+                                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="lifestyle" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Lifestyle</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="tech" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Tech</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="fashion" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Fashion</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="travel" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Travel</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="food" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Food</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="fitness" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Fitness</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="beauty" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Beauty</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="gaming" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Gaming</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="music" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Music</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="sports" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Sports</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="art" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Art</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="photography" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Photography</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="education" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Education</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="business" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Business</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="finance" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Finance</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="health" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Health</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="wellness" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Wellness</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="parenting" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Parenting</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="pets" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Pets</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="diy" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">DIY</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 cursor-pointer">
+                                            <input type="checkbox" name="niches" value="sustainability" class="checkbox-custom rounded text-orange-500 focus:ring-orange-500" onchange="updateNiches()">
+                                            <span class="text-sm text-gray-700">Sustainability</span>
+                                        </label>
+                                    </div>
+                                    
+                                    <p id="nichesError" class="text-red-500 text-sm hidden">Please select at least one niche (max 3)</p>
+                                    
+                                    <div class="flex justify-between pt-4">
+                                        <button type="button" id="back-to-step2" class="px-6 py-3 rounded-full btn-secondary">
+                                            <i class="fas fa-arrow-left mr-2"></i> Back
+                                        </button>
+                                        <button type="button" id="next-to-step4" class="px-6 py-3 rounded-full btn-primary">
+                                            Continue <i class="fas fa-arrow-right ml-2"></i>
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Step 4: Review and Submit -->
+                <div class="step-container" id="step-4">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="md:flex">
+                            <!-- Left Panel -->
+                            <div class="md:w-2/5 header-gradient p-8 text-white">
+                                <div class="flex items-center mb-10">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-bold mb-4">Review Your Details</h2>
+                                    <p class="opacity-90">Almost done! Review your information before submitting.</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>24-hour verification</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Brand campaign access</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Weekly payments</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Dedicated support</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Form -->
+                            <div class="md:w-3/5 p-8">
+                                <div class="mb-8">
+                                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Review Your Details</h2>
+                                    <p class="text-gray-600">Almost done! Review your information before submitting</p>
+                                </div>
+
+                                <div class="space-y-6 mb-8">
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Account Information</h3>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                            <div>
+                                                <p class="text-sm text-gray-600">Full Name</p>
+                                                <p id="review-fullName" class="font-medium text-gray-800"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Email</p>
+                                                <p id="review-email" class="font-medium text-gray-800"></p>
+                                            </div>
+                                            <div>
+                                                <p class="text-sm text-gray-600">Phone</p>
+                                                <p id="review-phone" class="font-medium text-gray-800"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Social Media</h3>
+                                        <div id="social-media-review" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                            <!-- Social media platforms will be dynamically added here -->
+                                        </div>
+                                        <div class="mt-4 pt-4 border-t border-gray-200">
+                                            <div class="flex justify-between">
+                                                <p class="text-sm text-gray-600">Total Followers</p>
+                                                <p id="review-total-followers" class="font-medium text-gray-800"></p>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <p class="text-sm text-gray-600">Influencer Tier</p>
+                                                <p id="review-category" class="font-medium text-gray-800"></p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="bg-gray-50 p-4 rounded-lg">
+                                        <h3 class="text-lg font-semibold text-gray-800 mb-4">Selected Niches</h3>
+                                        <div id="review-niches" class="flex flex-wrap"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between pt-4">
+                                    <button type="button" id="back-to-step3" class="px-6 py-3 rounded-full btn-secondary">
+                                        <i class="fas fa-arrow-left mr-2"></i> Back
+                                    </button>
+                                    <button type="button" id="submit-form" class="px-6 py-3 rounded-full btn-primary">
+                                        Complete Signup <i class="fas fa-check ml-2"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Success Message -->
+                <div class="step-container" id="success-step">
+                    <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                        <div class="md:flex">
+                            <!-- Left Panel -->
+                            <div class="md:w-2/5 header-gradient p-8 text-white">
+                                <div class="flex items-center mb-10">
+                                    <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                    <span class="text-2xl font-bold">LiveX</span>
+                                </div>
+                                
+                                <div class="mb-8">
+                                    <h2 class="text-3xl font-bold mb-4">Welcome to LiveX!</h2>
+                                    <p class="opacity-90">Your influencer account has been created successfully.</p>
+                                </div>
+                                
+                                <div class="space-y-4">
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Profile verification</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Brand campaigns</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Weekly payments</span>
+                                    </div>
+                                    <div class="flex items-center">
+                                        <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                            <i class="fas fa-check"></i>
+                                        </div>
+                                        <span>Dedicated support</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Right Panel - Form -->
+                            <div class="md:w-3/5 p-8 text-center">
+                                <div class="w-24 h-24 bg-gradient-to-r from-green-400 to-green-500 rounded-full flex items-center justify-center mx-auto mb-6 success-animation">
+                                    <i class="fas fa-check text-white text-4xl"></i>
+                                </div>
+                                <h2 class="text-3xl font-bold text-gray-800 mb-4">Welcome to LiveX!</h2>
+                                <p class="text-gray-600 mb-6">Your influencer account has been created successfully. We'll review your profile and get back to you within 24 hours.</p>
+                                <div class="bg-blue-50 p-4 rounded-lg mb-6">
+                                    <h3 class="font-semibold text-blue-800 mb-2">What's Next?</h3>
+                                    <ul class="text-sm text-blue-700 text-left space-y-1">
+                                        <li><i class="fas fa-check-circle mr-2"></i> Profile verification within 24 hours</li>
+                                        <li><i class="fas fa-check-circle mr-2"></i> Access to brand campaigns</li>
+                                        <li><i class="fas fa-check-circle mr-2"></i> Weekly payment processing</li>
+                                    </ul>
+                                </div>
+                                <a href="InfluencerDashboard.html" class="inline-block px-6 py-3 rounded-full btn-primary">
+                                    Go to Dashboard <i class="fas fa-arrow-right ml-2"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li href="index.html#pricing" class="hover:text-white">Pricing</li>
+                        <li href="index.html#faqs" class="hover:text-white">FAQ</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
+                        <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" id="contact-link" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="https://www.instagram.com/livex.africa?igsh=MTNrejN0cGhmbGcwZw==" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/livex-africa/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/share/1Mi23Wv3Do/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                    <p class="text-gray-400">+254 111 388 499</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="src/infSign.js"></script>
+</body>
+</html>

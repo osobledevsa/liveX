@@ -17,10 +17,8 @@
     <!-- Custom Styles -->
     <style>
         :root {
+            --dark-azure: #0b3046;
             --light-azure: #d2e4ee;
-            --dull-orange: #e67e22;
-            --electric-blue: #00a8ff;
-            --neon-pink: #ff2e63;
         }
         
         * {
@@ -36,11 +34,11 @@
         }
         
         .gradient-bg {
-            background: linear-gradient(135deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+            background: linear-gradient(135deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
         }
         
         .hero-gradient {
-            background: linear-gradient(120deg, #d2e4ee 0%, #e8f2f7 50%, #d2e4ee 100%);
+            background: linear-gradient(120deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
         }
         
         .glass-effect {
@@ -50,7 +48,7 @@
         }
         
         .btn-primary {
-            background: linear-gradient(90deg, var(--dull-orange) 0%, #ff8c42 100%);
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
             color: white;
             transition: all 0.3s ease;
             position: relative;
@@ -74,30 +72,30 @@
         
         .btn-primary:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(230, 126, 34, 0.3);
+            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
         }
         
         .btn-secondary {
             background: transparent;
-            border: 2px solid var(--electric-blue);
-            color: var(--electric-blue);
+            border: 2px solid var(--dark-azure);
+            color: var(--dark-azure);
             transition: all 0.3s ease;
         }
         
         .btn-secondary:hover {
-            background: rgba(0, 168, 255, 0.1);
+            background: rgba(11, 48, 70, 0.1);
             transform: translateY(-3px);
         }
         
         .btn-demo {
-            background: linear-gradient(90deg, var(--electric-blue) 0%, #4dc9ff 100%);
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
             color: white;
             transition: all 0.3s ease;
         }
         
         .btn-demo:hover {
             transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0, 168, 255, 0.3);
+            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
         }
         
         .floating {
@@ -115,13 +113,13 @@
         }
         
         @keyframes pulse {
-            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0.7); }
-            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(0, 168, 255, 0); }
-            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(0, 168, 255, 0); }
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(11, 48, 70, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(11, 48, 70, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(11, 48, 70, 0); }
         }
         
         .glow {
-            box-shadow: 0 0 20px rgba(0, 168, 255, 0.5);
+            box-shadow: 0 0 20px rgba(11, 48, 70, 0.5);
         }
         
         .card-hover {
@@ -144,7 +142,7 @@
             left: 0;
             width: 0;
             height: 2px;
-            background: var(--electric-blue);
+            background: var(--dark-azure);
             transition: width 0.3s ease;
         }
         
@@ -164,7 +162,7 @@
             left: 0;
             width: 60px;
             height: 4px;
-            background: var(--dull-orange);
+            background: var(--dark-azure);
             border-radius: 2px;
         }
         
@@ -187,7 +185,7 @@
         
         .tier-card:hover {
             transform: translateY(-10px);
-            border-top: 4px solid var(--electric-blue);
+            border-top: 4px solid var(--dark-azure);
         }
         
         .platform-icon {
@@ -196,18 +194,18 @@
         
         .platform-icon:hover {
             transform: scale(1.2);
-            color: var(--electric-blue);
+            color: var(--dark-azure);
         }
         
         .stats-counter {
             font-weight: 700;
-            background: linear-gradient(90deg, #2c5e7a, var(--electric-blue));
+            background: linear-gradient(90deg, #2c5e7a, var(--dark-azure));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
         
         .gradient-text {
-            background: linear-gradient(90deg, var(--dull-orange), var(--neon-pink));
+            background: linear-gradient(90deg, var(--dark-azure), var(--light-azure));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
@@ -241,7 +239,7 @@
             left: 0;
             width: 100%;
             height: 5px;
-            background: linear-gradient(90deg, var(--dull-orange), var(--electric-blue));
+            background: linear-gradient(90deg, var(--dark-azure), #2c5e7a);
             transform: scaleX(0);
             transform-origin: left;
             transition: transform 0.4s ease;
@@ -317,11 +315,11 @@
         
         .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
             outline: none;
-            border-color: var(--electric-blue);
+            border-color: var(--dark-azure);
         }
         
         .header-gradient {
-            background: linear-gradient(120deg, var(--electric-blue) 0%, #2c5e7a 100%);
+            background: linear-gradient(120deg, var(--dark-azure) 0%, #2c5e7a 100%);
         }
         
         .form-section {
@@ -344,7 +342,7 @@
             left: 0;
             width: 40px;
             height: 3px;
-            background: var(--dull-orange);
+            background: var(--dark-azure);
             border-radius: 2px;
         }
         
@@ -365,14 +363,14 @@
         }
         
         .role-option:hover {
-            border-color: var(--electric-blue);
-            background: rgba(0, 168, 255, 0.05);
+            border-color: var(--dark-azure);
+            background: rgba(11, 48, 70, 0.05);
         }
         
         .role-option.active {
-            border-color: var(--electric-blue);
-            background: rgba(0, 168, 255, 0.1);
-            color: var(--electric-blue);
+            border-color: var(--dark-azure);
+            background: rgba(11, 48, 70, 0.1);
+            color: var(--dark-azure);
         }
         
         .role-option i {
@@ -431,7 +429,7 @@
         
         .modal-header i {
             font-size: 24px;
-            color: var(--electric-blue);
+            color: var(--dark-azure);
             margin-right: 10px;
         }
         
@@ -459,7 +457,7 @@
         }
         
         .modal-btn-primary {
-            background: var(--electric-blue);
+            background: var(--dark-azure);
             color: white;
             border: none;
         }
@@ -528,6 +526,8 @@
                 <a href="index.html#influencers" class="nav-link">For Influencers</a>
                 <a href="index.html#brands" class="nav-link">For Brands</a>
                 <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="blogs.html" class="nav-link">Blogs</a>
+                <a href="aboutUs.html" class="nav-link">About Us</a>
             </div>
             
             <!-- CTA Buttons -->
@@ -560,9 +560,11 @@
             <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
             <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
             <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+            <a href="aboutUs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">About Us</a>
             <div class="pt-4">
                 <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
-                <a href="InfluencerSignUp.html" class="w-full mb-3 px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
+                <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full btn-primary block text-center">Get Started</a>
             </div>
         </div>
     </div>
@@ -742,35 +744,35 @@
                     <ul class="space-y-2 text-gray-400">
                         <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
                         <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
-                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
-                        <li><a href="#" class="hover:text-white">FAQ</a></li>
+                        <li href="index.html#pricing" class="hover:text-white">Pricing</li>
+                        <li href="index.html#faqs" class="hover:text-white">FAQ</li>
                     </ul>
                 </div>
                 
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Company</h3>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white">About Us</a></li>
-                        <li><a href="#" class="hover:text-white">Careers</a></li>
-                        <li><a href="#" class="hover:text-white">Blog</a></li>
-                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                        <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
+                        <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" id="contact-link" class="hover:text-white">Contact</a></li>
                     </ul>
                 </div>
                 
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
                     <div class="flex space-x-4 mb-4">
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                        <a href="https://www.instagram.com/livex.africa?igsh=MTNrejN0cGhmbGcwZw==" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-instagram text-xl"></i>
                         </a>
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                        <a href="https://www.linkedin.com/company/livex-africa/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-linkedin text-xl"></i>
                         </a>
-                        <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                        <a href="https://www.facebook.com/share/1Mi23Wv3Do/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-facebook text-xl"></i>
                         </a>
                     </div>
                     <p class="text-gray-400">hello@livexafrica.co</p>
+                    <p class="text-gray-400">+254 111 388 499</p>
                 </div>
             </div>
             

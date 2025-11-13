@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brand Signup - LiveX</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-firestore-compat.js"></script>
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --dark-azure: #0b3046;
+            --light-azure: #d2e4ee;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background-color: #f8fafc;
+            overflow-x: hidden;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .hero-gradient {
+            background: linear-gradient(120deg, var(--light-azure) 0%, #e8f2f7 50%, var(--light-azure) 100%);
+        }
+        
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(90deg, var(--dark-azure) 0%, #2c5e7a 100%);
+            color: white;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(11, 48, 70, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--dark-azure);
+            color: var(--dark-azure);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(11, 48, 70, 0.1);
+            transform: translateY(-3px);
+        }
+        
+        .nav-link {
+            position: relative;
+        }
+        
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--dark-azure);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link:hover::after {
+            width: 100%;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--dark-azure);
+        }
+        
+        .header-gradient {
+            background: linear-gradient(120deg, var(--dark-azure) 0%, #2c5e7a 100%);
+        }
+        
+        .form-section {
+            margin-bottom: 30px;
+        }
+        
+        .form-section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #2c5e7a;
+            position: relative;
+            padding-bottom: 8px;
+        }
+        
+        .form-section-title::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: var(--dark-azure);
+            border-radius: 2px;
+        }
+        
+        .mobile-menu {
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .mobile-menu.open {
+            transform: translateX(0);
+        }
+        
+        .input-focus {
+            transition: all 0.3s ease;
+            border: 1px solid #ddd;
+            padding: 12px 16px;
+            border-radius: 8px;
+            width: 100%;
+        }
+        
+        .input-focus:focus {
+            outline: none;
+            border-color: var(--dark-azure);
+            box-shadow: 0 0 0 3px rgba(11, 48, 70, 0.1);
+            transform: translateY(-2px);
+        }
+        
+        .strength-bar {
+            transition: width 0.3s ease, background-color 0.3s ease;
+        }
+        
+        .success-animation {
+            animation: bounceIn 0.6s ease-out;
+        }
+        
+        @keyframes bounceIn {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); opacity: 1; }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Header -->
+    <header class="fixed w-full z-50 gradient-bg text-gray-800 shadow-sm">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <!-- Logo -->
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                <span class="text-xl font-bold">LiveX</span>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <div class="hidden md:flex space-x-8">
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#influencers" class="nav-link">For Influencers</a>
+                <a href="index.html#brands" class="nav-link">For Brands</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
+                <a href="blogs.html" class="nav-link">Blogs</a>
+                <a href="aboutUs.html" class="nav-link">About Us</a>
+            </div>
+            
+            <!-- CTA Buttons -->
+            <div class="hidden md:flex items-center space-x-4">
+                <a href="login.html" class="px-6 py-2 rounded-full btn-secondary">Login</a>
+                <a href="InfluencerSignUp.html" class="px-6 py-2 rounded-full btn-primary">Influencer Signup</a>
+            </div>
+            
+            <!-- Mobile Menu Button -->
+            <button id="mobile-menu-button" class="md:hidden text-gray-800">
+                <i class="fas fa-bars text-xl"></i>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Mobile Menu -->
+    <div id="mobile-menu" class="mobile-menu fixed top-0 right-0 w-64 h-full gradient-bg z-50 p-6">
+        <div class="flex justify-between items-center mb-10">
+            <div class="flex items-center">
+                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                <span class="text-lg font-bold">LiveX</span>
+            </div>
+            <button id="close-menu" class="text-gray-800">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="flex flex-col space-y-6">
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
+            <a href="aboutUs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">About Us</a>
+            <div class="pt-4">
+                <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full btn-secondary block text-center">Login</a>
+                <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full btn-primary block text-center">Influencer Signup</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="pt-32 pb-20 hero-gradient">
+        <div class="container mx-auto px-6">
+            <div class="max-w-3xl mx-auto">
+                <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+                    <div class="md:flex">
+                        <!-- Left Panel -->
+                        <div class="md:w-2/5 header-gradient p-8 text-white">
+                            <div class="flex items-center mb-10">
+                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-10 w-10 rounded-full mr-3">
+                                <span class="text-2xl font-bold">LiveX</span>
+                            </div>
+                            
+                            <div class="mb-8">
+                                <h2 class="text-3xl font-bold mb-4">Join as Brand</h2>
+                                <p class="opacity-90">Connect with influencers and grow your brand.</p>
+                            </div>
+                            
+                            <div class="space-y-4">
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Access to influencers</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Campaign management</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>Performance analytics</span>
+                                </div>
+                                <div class="flex items-center">
+                                    <div class="bg-white bg-opacity-20 p-2 rounded-full mr-3">
+                                        <i class="fas fa-check"></i>
+                                    </div>
+                                    <span>ROI tracking</span>
+                                </div>
+                            </div>
+                            
+                            <div class="mt-12">
+                                <p class="text-sm opacity-80">Already have an account?</p>
+                                <div class="mt-2">
+                                    <a href="login.html" class="block px-6 py-2 rounded-full bg-white bg-opacity-20 text-white font-medium hover:bg-opacity-30 transition">Sign In</a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right Panel - Form -->
+                        <div class="md:w-3/5 p-8">
+                            <div class="mb-8">
+                                <h2 class="text-2xl font-bold text-gray-800 mb-2">Create Brand Account</h2>
+                                <p class="text-gray-600">Enter your details to get started</p>
+                            </div>
+                            
+                            <form id="brand-signup-form" class="space-y-6">
+                                <!-- Account Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Account Information</h3>
+                                    <div class="space-y-4">
+                                        <div class="form-group">
+                                            <label for="email">Email Address</label>
+                                            <input type="email" id="email" name="email" required class="input-focus" placeholder="brand@company.com">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="password">Password</label>
+                                            <input type="password" id="password" name="password" required class="input-focus" placeholder="Create a strong password" oninput="checkPasswordStrength()">
+                                            <div class="mt-2">
+                                                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
+                                                    <div id="strengthBar" class="strength-bar h-full w-0"></div>
+                                                </div>
+                                                <p id="strengthText" class="text-xs mt-1 text-gray-600"></p>
+                                            </div>
+                                            <div class="mt-2 text-xs text-gray-600">
+                                                <p>Must contain:</p>
+                                                <ul class="list-disc list-inside mt-1">
+                                                    <li id="capital" class="text-gray-500">✓ Capital letter</li>
+                                                    <li id="special" class="text-gray-500">✓ Special character</li>
+                                                    <li id="number" class="text-gray-500">✓ Number</li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label for="confirmPassword">Confirm Password</label>
+                                            <input type="password" id="confirmPassword" name="confirmPassword" required class="input-focus" placeholder="Confirm your password" oninput="checkPasswordMatch()">
+                                            <p id="matchText" class="text-xs mt-1"></p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Brand Information -->
+                                <div class="form-section">
+                                    <h3 class="form-section-title">Brand Information</h3>
+                                    <div class="space-y-4">
+                                        <div class="form-group">
+                                            <label for="brandName">Brand Name</label>
+                                            <input type="text" id="brandName" name="brandName" required class="input-focus" placeholder="Your Brand Name">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Submit Button -->
+                                <div class="pt-4">
+                                    <button type="submit" class="w-full btn-primary font-medium py-3 px-4 rounded-lg flex items-center justify-center">
+                                        <span>Create Brand Account</span>
+                                        <i class="fas fa-arrow-right ml-2"></i>
+                                    </button>
+                                </div>
+                                
+                                <!-- Links -->
+                                <div class="text-center space-y-2">
+                                    <p class="text-sm text-gray-600">
+                                        Have an account? 
+                                        <a href="login.html" class="font-medium text-blue-600 hover:text-blue-800 transition-colors">Sign in</a>
+                                    </p>
+                                    <p class="text-sm text-gray-600">
+                                        Join us as an 
+                                        <a href="InfluencerSignup.html" class="font-medium text-blue-600 hover:text-blue-800 transition-colors">Influencer</a>
+                                    </p>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="container mx-auto px-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <div class="flex items-center mb-4">
+                        <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-8 w-8 rounded-full mr-2">
+                        <span class="text-xl font-bold">LiveX</span>
+                    </div>
+                    <p class="text-gray-400">Connecting brands with authentic influencers across Africa.</p>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Platform</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
+                        <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
+                        <li href="index.html#pricing" class="hover:text-white">Pricing</li>
+                        <li href="index.html#faqs" class="hover:text-white">FAQ</li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Company</h3>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
+                        <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
+                        <li><a href="#" id="contact-link" class="hover:text-white">Contact</a></li>
+                    </ul>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="https://www.instagram.com/livex.africa?igsh=MTNrejN0cGhmbGcwZw==" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-instagram text-xl"></i>
+                        </a>
+                        <a href="https://www.linkedin.com/company/livex-africa/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-linkedin text-xl"></i>
+                        </a>
+                        <a href="https://www.facebook.com/share/1Mi23Wv3Do/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
+                            <i class="fab fa-facebook text-xl"></i>
+                        </a>
+                    </div>
+                    <p class="text-gray-400">hello@livexafrica.co</p>
+                    <p class="text-gray-400">+254 111 388 499</p>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2025 LiveX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Configuration -->
+    <script src="src/brnSign.js"></script>
+</body>
+</html>
