@@ -187,6 +187,34 @@
             70% { transform: scale(0.9); }
             100% { transform: scale(1); opacity: 1; }
         }
+        
+        .platform-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .platform-header i {
+            font-size: 1.5rem;
+            margin-right: 0.75rem;
+        }
+        
+        .platform-header h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+        }
+        
+        .required-indicator {
+            color: #ef4444;
+            margin-left: 0.25rem;
+        }
+        
+        .optional-label {
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-left: 0.5rem;
+        }
     </style>
 </head>
 <body class="min-h-screen gradient-bg">
@@ -323,14 +351,15 @@
                             </div>
                             <h2 class="text-3xl font-bold text-gray-800 mb-2">Your Social Media</h2>
                             <p class="text-gray-600">Connect your social accounts to showcase your reach</p>
+                            <p class="text-sm text-gray-500 mt-2">Instagram is required, plus at least one other platform</p>
                         </div>
 
                         <form id="step2-form" class="space-y-6">
                             <!-- Instagram -->
                             <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="flex items-center mb-4">
-                                    <i class="fab fa-instagram text-2xl text-pink-600 mr-3"></i>
-                                    <h3 class="text-lg font-semibold text-gray-800">Instagram</h3>
+                                <div class="platform-header">
+                                    <i class="fab fa-instagram text-pink-600"></i>
+                                    <h3>Instagram <span class="required-indicator">*</span></h3>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
@@ -357,27 +386,27 @@
 
                             <!-- Facebook -->
                             <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="flex items-center mb-4">
-                                    <i class="fab fa-facebook text-2xl text-blue-600 mr-3"></i>
-                                    <h3 class="text-lg font-semibold text-gray-800">Facebook</h3>
+                                <div class="platform-header">
+                                    <i class="fab fa-facebook text-blue-600"></i>
+                                    <h3>Facebook <span class="optional-label">(Optional)</span></h3>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="facebook" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                        <input id="facebook" name="facebook" type="text" required 
+                                        <input id="facebook" name="facebook" type="text" 
                                                class="input-focus"
                                                placeholder="yourusername">
                                     </div>
                                     <div>
                                         <label for="facebookFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
-                                        <input id="facebookFollowers" name="facebookFollowers" type="number" min="0" required 
+                                        <input id="facebookFollowers" name="facebookFollowers" type="number" min="0" 
                                                class="input-focus"
                                                placeholder="0"
                                                oninput="calculateTotalFollowers()">
                                     </div>
                                     <div>
                                         <label for="facebookUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
-                                        <input id="facebookUrl" name="facebookUrl" type="url" required 
+                                        <input id="facebookUrl" name="facebookUrl" type="url" 
                                                class="input-focus"
                                                placeholder="https://facebook.com/yourusername">
                                     </div>
@@ -386,27 +415,27 @@
 
                             <!-- TikTok -->
                             <div class="bg-gray-50 p-4 rounded-lg">
-                                <div class="flex items-center mb-4">
-                                    <i class="fab fa-tiktok text-2xl text-gray-800 mr-3"></i>
-                                    <h3 class="text-lg font-semibold text-gray-800">TikTok</h3>
+                                <div class="platform-header">
+                                    <i class="fab fa-tiktok text-gray-800"></i>
+                                    <h3>TikTok <span class="optional-label">(Optional)</span></h3>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                                     <div>
                                         <label for="tiktok" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                        <input id="tiktok" name="tiktok" type="text" required 
+                                        <input id="tiktok" name="tiktok" type="text" 
                                                class="input-focus"
                                                placeholder="@yourusername">
                                     </div>
                                     <div>
                                         <label for="tiktokFollowers" class="block text-sm font-medium text-gray-700 mb-1">Followers</label>
-                                        <input id="tiktokFollowers" name="tiktokFollowers" type="number" min="0" required 
+                                        <input id="tiktokFollowers" name="tiktokFollowers" type="number" min="0" 
                                                class="input-focus"
                                                placeholder="0"
                                                oninput="calculateTotalFollowers()">
                                     </div>
                                     <div>
                                         <label for="tiktokUrl" class="block text-sm font-medium text-gray-700 mb-1">Profile URL</label>
-                                        <input id="tiktokUrl" name="tiktokUrl" type="url" required 
+                                        <input id="tiktokUrl" name="tiktokUrl" type="url" 
                                                class="input-focus"
                                                placeholder="https://tiktok.com/@yourusername">
                                     </div>
@@ -592,25 +621,8 @@
 
                             <div class="bg-gray-50 p-4 rounded-lg">
                                 <h3 class="text-lg font-semibold text-gray-800 mb-4">Social Media</h3>
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <p class="text-sm text-gray-600">Instagram</p>
-                                        <p id="review-instagram" class="font-medium text-gray-800"></p>
-                                        <p id="review-instagram-followers" class="text-xs text-gray-600"></p>
-                                        <a id="review-instagram-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">Facebook</p>
-                                        <p id="review-facebook" class="font-medium text-gray-800"></p>
-                                        <p id="review-facebook-followers" class="text-xs text-gray-600"></p>
-                                        <a id="review-facebook-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm text-gray-600">TikTok</p>
-                                        <p id="review-tiktok" class="font-medium text-gray-800"></p>
-                                        <p id="review-tiktok-followers" class="text-xs text-gray-600"></p>
-                                        <a id="review-tiktok-url" href="#" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
-                                    </div>
+                                <div id="social-media-review" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                    <!-- Social media platforms will be dynamically added here -->
                                 </div>
                                 <div class="mt-4 pt-4 border-t border-gray-200">
                                     <div class="flex justify-between">
@@ -676,397 +688,7 @@
     </footer>
 
     <!-- JavaScript -->
-    <script>
-        // Firebase configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
-            authDomain: "livex-b1c25.firebaseapp.com",
-            projectId: "livex-b1c25",
-            storageBucket: "livex-b1c25.firebasestorage.app",
-            messagingSenderId: "1025075596453",
-            appId: "1:1025075596453:web:686be2ebffa5c0f723114c",
-            measurementId: "G-GNQLPMEJWX"
-        };
-        
-
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
-
-        // Form navigation
-        let currentStep = 1;
-        const totalSteps = 4;
-
-        // Update progress bar
-        function updateProgress() {
-            const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
-            document.getElementById('progress-fill').style.width = `${progressPercentage}%`;
-            
-            // Update step indicators
-            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
-                const stepNumber = index + 1;
-                indicator.classList.remove('active', 'completed');
-                
-                if (stepNumber < currentStep) {
-                    indicator.classList.add('completed');
-                    indicator.innerHTML = '<i class="fas fa-check"></i>';
-                } else if (stepNumber === currentStep) {
-                    indicator.classList.add('active');
-                    indicator.textContent = stepNumber;
-                } else {
-                    indicator.textContent = stepNumber;
-                }
-            });
-        }
-
-        // Show step
-        function showStep(stepNumber) {
-            document.querySelectorAll('.step-container').forEach(container => {
-                container.classList.remove('active');
-            });
-            document.getElementById(`step-${stepNumber}`).classList.add('active');
-            currentStep = stepNumber;
-            updateProgress();
-        }
-
-        // Next and Back button event listeners
-        document.getElementById('next-to-step2').addEventListener('click', function() {
-            if (validateStep1()) {
-                showStep(2);
-            }
-        });
-
-        document.getElementById('back-to-step1').addEventListener('click', function() {
-            showStep(1);
-        });
-
-        document.getElementById('next-to-step3').addEventListener('click', function() {
-            if (validateStep2()) {
-                showStep(3);
-            }
-        });
-
-        document.getElementById('back-to-step2').addEventListener('click', function() {
-            showStep(2);
-        });
-
-        document.getElementById('next-to-step4').addEventListener('click', function() {
-            if (validateStep3()) {
-                updateReview();
-                showStep(4);
-            }
-        });
-
-        document.getElementById('back-to-step3').addEventListener('click', function() {
-            showStep(3);
-        });
-
-        // Form validation functions
-        function validateStep1() {
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const phone = document.getElementById('phone').value;
-            
-            if (!fullName || !email || !password || !confirmPassword || !phone) {
-                alert('Please fill in all fields');
-                return false;
-            }
-            
-            if (password !== confirmPassword) {
-                alert('Passwords do not match');
-                return false;
-            }
-            
-            // Password strength validation
-            const hasCapital = /[A-Z]/.test(password);
-            const hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-            const hasNumber = /[0-9]/.test(password);
-            
-            if (!hasCapital || !hasSpecial || !hasNumber) {
-                alert('Password must contain at least one capital letter, one special character, and one number.');
-                return false;
-            }
-            
-            return true;
-        }
-
-        function validateStep2() {
-            const instagram = document.getElementById('instagram').value;
-            const facebook = document.getElementById('facebook').value;
-            const tiktok = document.getElementById('tiktok').value;
-            const instagramUrl = document.getElementById('instagramUrl').value;
-            const facebookUrl = document.getElementById('facebookUrl').value;
-            const tiktokUrl = document.getElementById('tiktokUrl').value;
-            
-            if (!instagram || !facebook || !tiktok || !instagramUrl || !facebookUrl || !tiktokUrl) {
-                alert('Please fill in all social media fields');
-                return false;
-            }
-            
-            return true;
-        }
-
-        function validateStep3() {
-            const checkboxes = document.querySelectorAll('input[name="niches"]:checked');
-            
-            if (checkboxes.length === 0) {
-                document.getElementById('nichesError').classList.remove('hidden');
-                return false;
-            }
-            
-            document.getElementById('nichesError').classList.add('hidden');
-            return true;
-        }
-
-        // Update review section
-        function updateReview() {
-            document.getElementById('review-fullName').textContent = document.getElementById('fullName').value;
-            document.getElementById('review-email').textContent = document.getElementById('email').value;
-            document.getElementById('review-phone').textContent = document.getElementById('phone').value;
-            
-            document.getElementById('review-instagram').textContent = document.getElementById('instagram').value;
-            document.getElementById('review-instagram-followers').textContent = 
-                `${document.getElementById('instagramFollowers').value} followers`;
-            document.getElementById('review-instagram-url').href = document.getElementById('instagramUrl').value;
-            
-            document.getElementById('review-facebook').textContent = document.getElementById('facebook').value;
-            document.getElementById('review-facebook-followers').textContent = 
-                `${document.getElementById('facebookFollowers').value} followers`;
-            document.getElementById('review-facebook-url').href = document.getElementById('facebookUrl').value;
-            
-            document.getElementById('review-tiktok').textContent = document.getElementById('tiktok').value;
-            document.getElementById('review-tiktok-followers').textContent = 
-                `${document.getElementById('tiktokFollowers').value} followers`;
-            document.getElementById('review-tiktok-url').href = document.getElementById('tiktokUrl').value;
-            
-            document.getElementById('review-total-followers').textContent = document.getElementById('totalFollowers').textContent;
-            document.getElementById('review-category').textContent = document.getElementById('category').textContent;
-            
-            // Update niches
-            const nichesContainer = document.getElementById('review-niches');
-            nichesContainer.innerHTML = '';
-            const selectedNiches = document.querySelectorAll('input[name="niches"]:checked');
-            
-            selectedNiches.forEach(checkbox => {
-                const nicheTag = document.createElement('span');
-                nicheTag.className = 'niche-tag';
-                nicheTag.textContent = checkbox.value.charAt(0).toUpperCase() + checkbox.value.slice(1);
-                nichesContainer.appendChild(nicheTag);
-            });
-        }
-
-        // Form submission
-        document.getElementById('submit-form').addEventListener('click', function() {
-            // Collect form data
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const phone = document.getElementById('phone').value;
-            
-            const instagram = document.getElementById('instagram').value;
-            const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
-            const instagramUrl = document.getElementById('instagramUrl').value;
-            const facebook = document.getElementById('facebook').value;
-            const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
-            const facebookUrl = document.getElementById('facebookUrl').value;
-            const tiktok = document.getElementById('tiktok').value;
-            const tiktokFollowers = parseInt(document.getElementById('tiktokFollowers').value) || 0;
-            const tiktokUrl = document.getElementById('tiktokUrl').value;
-            
-            const totalFollowers = parseInt(document.getElementById('totalFollowers').textContent.replace(/,/g, ''));
-            const category = document.getElementById('category').textContent;
-            
-            const selectedNiches = Array.from(document.querySelectorAll('input[name="niches"]:checked')).map(cb => cb.value);
-            
-            // Create user with Firebase Auth
-            auth.createUserWithEmailAndPassword(email, password)
-                .then((userCredential) => {
-                    // User created successfully
-                    const user = userCredential.user;
-                    
-                    // Save additional user data to Firestore
-                    return db.collection('influencers').doc(user.uid).set({
-                        fullName: fullName,
-                        email: email,
-                        phone: phone,
-                        socialMedia: {
-                            instagram: {
-                                username: instagram,
-                                followers: instagramFollowers,
-                                url: instagramUrl
-                            },
-                            facebook: {
-                                username: facebook,
-                                followers: facebookFollowers,
-                                url: facebookUrl
-                            },
-                            tiktok: {
-                                username: tiktok,
-                                followers: tiktokFollowers,
-                                url: tiktokUrl
-                            }
-                        },
-                        totalFollowers: totalFollowers,
-                        category: category,
-                        niches: selectedNiches,
-                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'pending' // pending, approved, rejected
-                    });
-                })
-                .then(() => {
-                    // Show success step
-                    document.getElementById('step-4').classList.remove('active');
-                    document.getElementById('success-step').classList.add('active');
-                })
-                .catch((error) => {
-                    console.error('Error creating user:', error);
-                    alert('Error creating account: ' + error.message);
-                });
-        });
-
-        // Password strength checker (from original code)
-        function checkPasswordStrength() {
-            const password = document.getElementById('password').value;
-            const strengthBar = document.getElementById('strengthBar');
-            const strengthText = document.getElementById('strengthText');
-            const capitalCheck = document.getElementById('capital');
-            const specialCheck = document.getElementById('special');
-            const numberCheck = document.getElementById('number');
-            
-            let strength = 0;
-            let hasCapital = /[A-Z]/.test(password);
-            let hasSpecial = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-            let hasNumber = /[0-9]/.test(password);
-            
-            if (hasCapital) {
-                strength++;
-                capitalCheck.classList.remove('text-gray-500');
-                capitalCheck.classList.add('text-green-500');
-            } else {
-                capitalCheck.classList.remove('text-green-500');
-                capitalCheck.classList.add('text-gray-500');
-            }
-            
-            if (hasSpecial) {
-                strength++;
-                specialCheck.classList.remove('text-gray-500');
-                specialCheck.classList.add('text-green-500');
-            } else {
-                specialCheck.classList.remove('text-green-500');
-                specialCheck.classList.add('text-gray-500');
-            }
-            
-            if (hasNumber) {
-                strength++;
-                numberCheck.classList.remove('text-gray-500');
-                numberCheck.classList.add('text-green-500');
-            } else {
-                numberCheck.classList.remove('text-green-500');
-                numberCheck.classList.add('text-gray-500');
-            }
-            
-            if (password.length >= 8) {
-                strength++;
-            }
-            
-            const strengthPercentage = (strength / 4) * 100;
-            strengthBar.style.width = strengthPercentage + '%';
-            
-            if (strength === 0) {
-                strengthBar.style.backgroundColor = '#e5e7eb';
-                strengthText.textContent = '';
-            } else if (strength <= 1) {
-                strengthBar.style.backgroundColor = '#ef4444';
-                strengthText.textContent = 'Weak password';
-                strengthText.style.color = '#ef4444';
-            } else if (strength === 2) {
-                strengthBar.style.backgroundColor = '#f59e0b';
-                strengthText.textContent = 'Fair password';
-                strengthText.style.color = '#f59e0b';
-            } else if (strength === 3) {
-                strengthBar.style.backgroundColor = '#3b82f6';
-                strengthText.textContent = 'Good password';
-                strengthText.style.color = '#3b82f6';
-            } else {
-                strengthBar.style.backgroundColor = '#10b981';
-                strengthText.textContent = 'Strong password';
-                strengthText.style.color = '#10b981';
-            }
-        }
-
-        // Password match checker (from original code)
-        function checkPasswordMatch() {
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const matchText = document.getElementById('matchText');
-            
-            if (confirmPassword === '') {
-                matchText.textContent = '';
-            } else if (password === confirmPassword) {
-                matchText.textContent = '✓ Passwords match';
-                matchText.style.color = '#10b981';
-            } else {
-                matchText.textContent = '✗ Passwords do not match';
-                matchText.style.color = '#ef4444';
-            }
-        }
-
-        // Calculate total followers and determine category (from original code)
-        function calculateTotalFollowers() {
-            const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
-            const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
-            const tiktokFollowers = parseInt(document.getElementById('tiktokFollowers').value) || 0;
-            
-            const total = instagramFollowers + facebookFollowers + tiktokFollowers;
-            document.getElementById('totalFollowers').textContent = total.toLocaleString();
-            
-            let category = '';
-            if (total >= 500000) {
-                category = 'Mega Influencer';
-            } else if (total >= 100001) {
-                category = 'Macro Influencer';
-            } else if (total >= 10001) {
-                category = 'Micro Influencer';
-            } else if (total >= 1000) {
-                category = 'Nano Influencer';
-            } else {
-                category = 'Below minimum threshold';
-            }
-            
-            document.getElementById('category').textContent = category;
-        }
-
-        // Update niches selection (from original code)
-        function updateNiches() {
-            const checkboxes = document.querySelectorAll('input[name="niches"]:checked');
-            const nichesError = document.getElementById('nichesError');
-            
-            if (checkboxes.length > 3) {
-                // Uncheck the last checkbox
-                const lastChecked = checkboxes[checkboxes.length - 1];
-                lastChecked.checked = false;
-                nichesError.textContent = 'Maximum 3 niches allowed';
-                nichesError.classList.remove('hidden');
-                setTimeout(() => {
-                    nichesError.classList.add('hidden');
-                }, 3000);
-            } else if (checkboxes.length === 0) {
-                nichesError.textContent = 'Please select at least one niche';
-                nichesError.classList.remove('hidden');
-            } else {
-                nichesError.classList.add('hidden');
-            }
-        }
-
-        // Initialize on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            calculateTotalFollowers();
-            updateProgress();
-        });
-    </script>
+    <script src="src/infSign.js" type="modular"></script>
 </body>
 
 </html>
