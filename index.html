@@ -45,83 +45,58 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            transition: transform 0.5s cubic-bezier(0.25, 0.1, 0.25, 1);
+            transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
         
         .splash-screen.slide-up {
             transform: translateY(-100%);
         }
         
-        .character-container {
+        .logo-container {
             position: relative;
             width: 300px;
-            height: 300px;
+            height: 150px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             perspective: 1000px;
+            margin-bottom: 30px;
         }
         
-        .character {
+        .logo-flip {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 1.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform-style: preserve-3d;
+        }
+        
+        .logo-flip.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .logo-face {
             position: absolute;
             width: 100%;
             height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 200px;
-            font-weight: bold;
-            color: var(--dark-azure);
-            transition: transform 0.8s cubic-bezier(0.25, 0.1, 0.25, 1);
-            transform-style: preserve-3d;
             backface-visibility: hidden;
-        }
-        
-        .character-back {
-            transform: rotateY(180deg);
-        }
-        
-        .character-container.flipped .character {
-            transform: rotateY(180deg);
-        }
-        
-        .character-container.flipped .character-back {
-            transform: rotateY(0deg);
-        }
-        
-        .slide-screen {
-            position: fixed;
-            top: 0;
-            left: 100%;
-            width: 100%;
-            height: 100%;
-            background-color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            flex-direction: column;
-            z-index: 1000;
-            transition: left 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
-            box-shadow: -10px 0 30px rgba(0, 0, 0, 0.3);
-        }
-        
-        .slide-screen.slide-in {
-            left: 0;
-            box-shadow: -5px 0 20px rgba(0, 0, 0, 0.2);
-        }
-        
-        .livex-text {
+            font-size: 8rem;
+            font-weight: 600;
             color: var(--dark-azure);
-            font-size: 4rem;
-            font-weight: bold;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            margin-bottom: 20px;
+        }
+        
+        .logo-back {
+            transform: rotateY(180deg);
         }
         
         .job-text {
             font-size: 1.5rem;
             color: var(--dark-azure);
             opacity: 0;
-            transition: opacity 0.5s ease-in;
+            transition: opacity 0.4s ease-in;
             text-align: center;
             max-width: 80%;
             line-height: 1.5;
@@ -139,36 +114,10 @@
             opacity: 1;
         }
         
-        .down-arrow {
-            position: absolute;
-            bottom: 50px;
-            left: 50%;
-            transform: translateX(-50%);
-            opacity: 0;
-            transition: opacity 0.3s ease-in;
-            cursor: pointer;
-        }
-        
-        .down-arrow.show {
-            opacity: 1;
-        }
-        
-        .down-arrow i {
-            font-size: 2rem;
-            color: var(--dark-azure);
-            animation: bounce 2s infinite;
-        }
-        
-        @keyframes bounce {
-            0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-            40% {transform: translateY(-20px);}
-            60% {transform: translateY(-10px);}
-        }
-        
         /* Main Content Styles */
         .main-content {
             opacity: 0;
-            transition: opacity 1.5s ease-in;
+            transition: opacity 0.5s ease-in;
         }
         
         .main-content.show {
@@ -388,54 +337,123 @@
             100% { transform: translateX(calc(-250px * 6)); }
         }
         
-        /* Enhanced How It Works Section */
-        .step-card {
+        /* NEW How It Works Section - Roadmap Style */
+        .how-it-works-container {
             position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
+            padding: 40px 0;
         }
         
-        .step-card::before {
-            content: '';
+        .roadmap-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 0;
+        }
+        
+        .roadmap-line {
             position: absolute;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 5px;
-            background: linear-gradient(90deg, var(--dark-azure), #2c5e7a);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.4s ease;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background: linear-gradient(to bottom, var(--dark-azure), var(--light-azure));
+            transform: translateX(-50%);
+            z-index: 0;
         }
         
-        .step-card:hover::before {
-            transform: scaleX(1);
-        }
-        
-        .step-number {
-            width: 60px;
-            height: 60px;
+        .roadmap-step {
+            position: relative;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin: 0 auto 20px;
-            position: relative;
+            margin-bottom: 80px;
             z-index: 1;
         }
         
-        .step-number::after {
+        .roadmap-step:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+        
+        .roadmap-content {
+            width: 45%;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .roadmap-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .roadmap-step:nth-child(odd) .roadmap-content {
+            margin-left: auto;
+        }
+        
+        .roadmap-step:nth-child(even) .roadmap-content {
+            margin-right: auto;
+        }
+        
+        .roadmap-connector {
+            position: absolute;
+            top: 50%;
+            width: 100px;
+            height: 4px;
+            background: linear-gradient(to right, var(--dark-azure), var(--light-azure));
+            z-index: 0;
+        }
+        
+        .roadmap-step:nth-child(odd) .roadmap-connector {
+            right: -100px;
+        }
+        
+        .roadmap-step:nth-child(even) .roadmap-connector {
+            left: -100px;
+        }
+        
+        .roadmap-connector::before {
             content: '';
             position: absolute;
-            width: 100%;
-            height: 100%;
+            top: -8px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
-            background: inherit;
-            z-index: -1;
-            opacity: 0.2;
-            transform: scale(1.2);
+            background: var(--dark-azure);
+            z-index: 1;
+        }
+        
+        .roadmap-step:nth-child(odd) .roadmap-connector::before {
+            right: -10px;
+        }
+        
+        .roadmap-step:nth-child(even) .roadmap-connector::before {
+            left: -10px;
+        }
+        
+        .roadmap-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--dark-azure);
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .roadmap-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--dark-azure);
+        }
+        
+        .roadmap-content p {
+            color: #555;
+            line-height: 1.6;
         }
         
         /* Influencer Showcase */
@@ -521,51 +539,6 @@
             background: rgba(255, 255, 255, 0.9);
         }
         
-        /* Process Flow */
-        .process-flow {
-            position: relative;
-            margin: 40px 0;
-        }
-        
-        .process-flow::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, var(--dark-azure), #2c5e7a);
-            transform: translateY(-50%);
-            z-index: 0;
-        }
-        
-        .process-step {
-            position: relative;
-            z-index: 1;
-            background: white;
-            border-radius: 50%;
-            width: 80px;
-            height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
-        
-        .process-step i {
-            font-size: 1.8rem;
-            color: var(--dark-azure);
-        }
-        
-        .process-connector {
-            flex: 1;
-            height: 2px;
-            background: linear-gradient(90deg, var(--dark-azure), #2c5e7a);
-            margin: 0 10px;
-            align-self: center;
-        }
-        
         /* New Header Section */
         .header-card {
             background: var(--dark-azure);
@@ -573,32 +546,6 @@
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
-        
-        /* New How It Works Infographics */
-        .infographic-step {
-            position: relative;
-            padding: 40px 20px;
-            text-align: center;
-            transition: all 0.3s ease;
-        }
-        
-        .infographic-step:hover {
-            transform: translateY(-10px);
-        }
-        
-        .infographic-icon {
-            width: 120px;
-            height: 120px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, var(--dark-azure), #2c5e7a);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 48px;
-            box-shadow: 0 10px 30px rgba(11, 48, 70, 0.3);
         }
         
         /* Hawa Adam Section */
@@ -637,24 +584,184 @@
         .faq-question.active i {
             transform: rotate(180deg);
         }
+        
+        /* Contact Popup */
+        .contact-popup {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-popup.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .contact-popup-content {
+            background: white;
+            border-radius: 16px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            transform: scale(0.8);
+            transition: transform 0.3s ease;
+        }
+        
+        .contact-popup.active .contact-popup-content {
+            transform: scale(1);
+        }
+        
+        .close-popup {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 1.5rem;
+            color: #555;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+        
+        .close-popup:hover {
+            color: var(--dark-azure);
+        }
+        
+        .contact-info {
+            margin-top: 20px;
+        }
+        
+        .contact-info-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contact-info-item i {
+            font-size: 1.5rem;
+            color: var(--dark-azure);
+            margin-right: 15px;
+            width: 30px;
+            text-align: center;
+        }
+        
+        .contact-info-item a {
+            color: #333;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        
+        .contact-info-item a:hover {
+            color: var(--dark-azure);
+        }
+        
+        /* Profile picture styling */
+        .profile-pic {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, var(--dark-azure), #2c5e7a);
+            color: white;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .profile-pic img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        /* Mobile responsive fixes */
+        @media (max-width: 768px) {
+            /* Adjust partner logos for mobile */
+            .partner-logo {
+                width: 150px;
+                height: 100px;
+            }
+            
+            .partner-logo img {
+                max-width: 120px;
+                max-height: 80px;
+            }
+            
+            /* Adjust blog images for mobile */
+            .blog-image {
+                height: 200px;
+            }
+            
+            /* Adjust dashboard preview images for mobile */
+            .dashboard-preview img {
+                height: 200px;
+            }
+            
+            /* Adjust the influencer showcase image for mobile */
+            .hawa-adam-image img {
+                height: auto;
+                max-height: 300px;
+            }
+            
+            /* Adjust roadmap for mobile */
+            .roadmap-line {
+                left: 30px;
+            }
+            
+            .roadmap-step {
+                flex-direction: row !important;
+                margin-left: 60px;
+            }
+            
+            .roadmap-step:nth-child(odd) .roadmap-content,
+            .roadmap-step:nth-child(even) .roadmap-content {
+                width: 100%;
+                margin-left: 0;
+                margin-right: 0;
+            }
+            
+            .roadmap-connector {
+                display: none;
+            }
+            
+            /* Adjust header card image for mobile */
+            .header-card img {
+                height: 200px;
+                object-fit: cover;
+            }
+            
+            /* Adjust tier cards for mobile */
+            .tier-card {
+                margin-bottom: 20px;
+            }
+            
+            .macro-tier {
+                transform: scale(1);
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50">
     <!-- Splash Screen -->
     <div class="splash-screen" id="splashScreen">
-        <div class="character-container" id="characterContainer">
-            <div class="character" id="hashChar">#</div>
-            <div class="character character-back" id="atChar">@</div>
+        <div class="logo-container">
+            <div class="logo-flip" id="logoFlip">
+                <div class="logo-face logo-front">#</div>
+                <div class="logo-face logo-back">LiveX</div>
+            </div>
         </div>
-        
-        <div class="slide-screen" id="slideScreen">
-            <div class="livex-text" id="livexText">LiveX</div>
-            <p class="job-text" id="jobText">On the way to create <span class="highlight">100k jobs</span> in 2026</p>
-        </div>
-        
-        <div class="down-arrow" id="downArrow">
-            <i class="fas fa-chevron-down"></i>
-        </div>
+        <p class="job-text" id="jobText">On the way to create <span class="highlight">100k jobs</span> in 2026</p>
     </div>
 
     <!-- Main Content -->
@@ -748,73 +855,20 @@
                     </div>
                 </div>
                 
-                <div class="flex flex-col lg:flex-row items-center">
-                    <div class="lg:w-1/2 mb-10 lg:mb-0">
-                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                            The Future of <span class="gradient-text">Influencer Marketing</span> is Here
-                        </h1>
-                        <p class="text-xl mb-10 opacity-90">
-                            Connect with Africa's most authentic creators or find your perfect brand partners. All in one powerful platform.
-                        </p>
-                        <div class="flex flex-col sm:flex-row gap-4">
-                            <a href="InfluencerSignUp.html" class="px-8 py-4 rounded-full btn-primary text-lg font-semibold text-center">
-                                Join as Influencer
-                            </a>
-                            <a href="BrandSignUp.html" class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all text-lg text-center">
-                                Join as Brand
-                            </a>
-                        </div>
-                    </div>
-                    <div class="lg:w-1/2 flex justify-center">
-                        <div class="dashboard-preview w-full max-w-lg">
-                            <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
-                                <div class="flex space-x-2">
-                                    <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
-                                    <div class="w-3 h-3 rounded-full bg-green-500"></div>
-                                </div>
-                                <div class="flex-1 text-center text-white text-sm">LiveX Dashboard</div>
-                            </div>
-                            <div class="bg-white p-6">
-                                <div class="grid grid-cols-3 gap-4 mb-6">
-                                    <div class="bg-blue-50 p-4 rounded-lg text-center">
-                                        <i class="fab fa-instagram text-2xl text-pink-600 mb-2"></i>
-                                        <p class="text-xs text-gray-600">Instagram</p>
-                                        <p class="font-bold" style="color: black;">24.5K</p>
-                                    </div>
-                                    <div class="bg-blue-50 p-4 rounded-lg text-center">
-                                        <i class="fab fa-linkedin text-2xl text-blue-700 mb-2"></i>
-                                        <p class="text-xs text-gray-600">LinkedIn</p>
-                                        <p class="font-bold" style="color: black;">18.2K</p>
-                                    </div>
-                                    <div class="bg-blue-50 p-4 rounded-lg text-center">
-                                        <i class="fab fa-facebook text-2xl text-blue-600 mb-2"></i>
-                                        <p class="text-xs text-gray-600">Facebook</p>
-                                        <p class="font-bold" style="color: black;">12.7K</p>
-                                    </div>
-                                </div>
-                                <div class="mb-6">
-                                    <h3 class="font-bold mb-2">Available Campaigns</h3>
-                                    <div class="space-y-2">
-                                        <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
-                                            <div>
-                                                <p class="font-medium" style="color: #2c5e7a;">Tech Gadget Review</p>
-                                                <p class="text-xs text-gray-500">Technology • 3 days left</p>
-                                            </div>
-                                        </div>
-                                        <div class="flex justify-between items-center p-3 bg-gray-100 rounded-lg">
-                                            <div>
-                                                <p class="font-medium" style="color: green;">Fitness App Promotion</p>
-                                                <p class="text-xs text-gray-500">Fitness • 5 days left</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="bg-blue-600 text-white p-3 rounded-lg text-center">
-                                    <p class="font-semibold">Your Earnings This Week: Ksh10,240</p>
-                                </div>
-                            </div>
-                        </div>
+                <div class="text-center">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                        The Future of <span class="gradient-text">Influencer Marketing</span> is Here
+                    </h1>
+                    <p class="text-xl mb-10 opacity-90 max-w-2xl mx-auto">
+                        Connect with Africa's most authentic creators or find your perfect brand partners. All in one powerful platform.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                        <a href="InfluencerSignUp.html" class="px-8 py-4 rounded-full btn-primary text-lg font-semibold text-center">
+                            Join as Influencer
+                        </a>
+                        <a href="BrandSignUp.html" class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all text-lg text-center">
+                            Join as Brand
+                        </a>
                     </div>
                 </div>
             </div>
@@ -880,171 +934,91 @@
                     Our streamlined process makes influencer marketing simple and effective for both brands and creators.
                 </p>
                 
-                <!-- New Infographic Steps -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-                    <!-- Step 1 -->
-                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
-                        <div class="infographic-icon">
-                            <i class="fas fa-user-plus"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-4">Sign Up & Get Verified</h3>
-                        <p class="text-gray-600">Create your account and get verified based on your social media presence across platforms.</p>
-                    </div>
-                    
-                    <!-- Step 2 -->
-                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
-                        <div class="infographic-icon">
-                            <i class="fas fa-handshake"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-4">Connect & Collaborate</h3>
-                        <p class="text-gray-600">Brands post campaigns, influencers accept. Our platform makes collaboration seamless.</p>
-                    </div>
-                    
-                    <!-- Step 3 -->
-                    <div class="infographic-step bg-white rounded-2xl shadow-lg">
-                        <div class="infographic-icon">
-                            <i class="fas fa-rocket"></i>
-                        </div>
-                        <h3 class="text-xl font-bold mb-4">Create & Get Paid</h3>
-                        <p class="text-gray-600">Influencers create content, brands track performance. Payments processed every Saturday.</p>
-                    </div>
-                </div>
-                
-                <!-- Process Flow Visualization -->
-                <div class="process-flow flex justify-between items-center mb-16">
-                    <div class="process-step">
-                        <i class="fas fa-user-plus"></i>
-                    </div>
-                    <div class="process-connector"></div>
-                    <div class="process-step">
-                        <i class="fas fa-handshake"></i>
-                    </div>
-                    <div class="process-connector"></div>
-                    <div class="process-step">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                </div>
-                
-                <!-- Enhanced Comprehensive Process -->
-                <div class="bg-white rounded-2xl shadow-lg p-8">
-                    <h3 class="text-2xl font-bold mb-6 text-center">Our Comprehensive Process</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="text-xl font-semibold mb-4 text-blue-600">For Influencers</h4>
-                            <div class="space-y-4">
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-user-check"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Complete Your Profile</h5>
-                                        <p class="text-gray-600">Add your social media accounts and niche information</p>
-                                    </div>
+                <div class="how-it-works-container">
+                    <!-- New Roadmap Design -->
+                    <div class="roadmap-container">
+                        <div class="roadmap-line"></div>
+                        
+                        <!-- Step 1 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-bullhorn"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-shield-alt"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Get Verified</h5>
-                                        <p class="text-gray-600">Our team ensures authenticity and quality</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-search"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Browse Campaigns</h5>
-                                        <p class="text-gray-600">Find campaigns that match your audience and interests</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-handshake"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Apply & Collaborate</h5>
-                                        <p class="text-gray-600">Apply to campaigns and negotiate terms directly with brands</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-camera"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Create Content</h5>
-                                        <p class="text-gray-600">Create authentic content and submit for approval</p>
-                                    </div>
-                                </div>
-                                <div class="flex items-start">
-                                    <div class="bg-blue-100 text-blue-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-money-bill-wave"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Get Paid</h5>
-                                        <p class="text-gray-600">Receive payments every Saturday without delays</p>
-                                    </div>
-                                </div>
+                                <h3>Brand Creates Campaign</h3>
+                                <p>Brand sets up a campaign with requirements, budget, and goals. They pay for the campaign upfront.</p>
                             </div>
+                            <div class="roadmap-connector"></div>
                         </div>
-                        <div>
-                            <h4 class="text-xl font-semibold mb-4 text-green-600">For Brands</h4>
-                            <div class="space-y-4">
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-building"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Create Brand Profile</h5>
-                                        <p class="text-gray-600">Define your brand and target audience</p>
-                                    </div>
+                        
+                        <!-- Step 2 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-check-circle"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-bullhorn"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Post Campaigns</h5>
-                                        <p class="text-gray-600">Create campaigns with clear objectives and requirements</p>
-                                    </div>
+                                <h3>Admin Approves Campaign</h3>
+                                <p>Our team reviews and approves the campaign to ensure it meets platform standards and guidelines.</p>
+                            </div>
+                            <div class="roadmap-connector"></div>
+                        </div>
+                        
+                        <!-- Step 3 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-user-plus"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-search"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Browse Influencers</h5>
-                                        <p class="text-gray-600">Filter our verified database by niche, audience, and engagement</p>
-                                    </div>
+                                <h3>Right Influencer Joins</h3>
+                                <p>Influencers who match the campaign criteria are invited to join and accept the campaign requirements.</p>
+                            </div>
+                            <div class="roadmap-connector"></div>
+                        </div>
+                        
+                        <!-- Step 4 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-tasks"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-users"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Select Matches</h5>
-                                        <p class="text-gray-600">Review applications and select the best influencer matches</p>
-                                    </div>
+                                <h3>Influencer Does the Work</h3>
+                                <p>Influencer creates and submits content according to the campaign requirements and deadlines.</p>
+                            </div>
+                            <div class="roadmap-connector"></div>
+                        </div>
+                        
+                        <!-- Step 5 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-search"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-chart-line"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Track Performance</h5>
-                                        <p class="text-gray-600">Monitor campaign progress and performance in real-time</p>
-                                    </div>
+                                <h3>Admin Reviews Work</h3>
+                                <p>Our team reviews the submitted content to ensure it meets campaign requirements and quality standards.</p>
+                            </div>
+                            <div class="roadmap-connector"></div>
+                        </div>
+                        
+                        <!-- Step 6 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-check-double"></i>
                                 </div>
-                                <div class="flex items-start">
-                                    <div class="bg-green-100 text-green-600 rounded-full p-2 mr-4">
-                                        <i class="fas fa-chart-bar"></i>
-                                    </div>
-                                    <div>
-                                        <h5 class="font-semibold">Access Analytics</h5>
-                                        <p class="text-gray-600">Get detailed analytics and ROI reports for each campaign</p>
-                                    </div>
+                                <h3>Work Approved & Payment</h3>
+                                <p>If the work meets requirements, it's approved and the influencer gets paid on Saturday after a week has passed.</p>
+                            </div>
+                            <div class="roadmap-connector"></div>
+                        </div>
+                        
+                        <!-- Step 7 -->
+                        <div class="roadmap-step">
+                            <div class="roadmap-content">
+                                <div class="roadmap-icon">
+                                    <i class="fas fa-redo"></i>
                                 </div>
+                                <h3>Resubmit if Needed</h3>
+                                <p>If the work doesn't meet requirements, the influencer gets feedback and can resubmit for review.</p>
                             </div>
                         </div>
                     </div>
@@ -1063,7 +1037,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                     <!-- Blog 1 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
-                        <div class="h-48 overflow-hidden">
+                        <div class="blog-image h-48 overflow-hidden">
                             <img src="assets/images/blog1image.jpg" alt="The 100,000 Job Mission" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
@@ -1082,7 +1056,7 @@
                     
                     <!-- Blog 3 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
-                        <div class="h-48 overflow-hidden">
+                        <div class="blog-image h-48 overflow-hidden">
                             <img src="assets/images/blog3image.jpg" alt="The Somali Market" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
@@ -1101,7 +1075,7 @@
                     
                     <!-- Blog 6 -->
                     <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
-                        <div class="h-48 overflow-hidden">
+                        <div class="blog-image h-48 overflow-hidden">
                             <img src="assets/images/blog6image.jpg" alt="Why Brands Need Somali Creators" class="w-full h-full object-cover transition-transform duration-500 hover:scale-105">
                         </div>
                         <div class="p-6">
@@ -1165,26 +1139,26 @@
                                 </div>
                                 <div class="bg-white p-6">
                                     <div class="flex items-center mb-6">
-                                        <div class="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mr-4">
-                                            <i class="fas fa-user text-blue-600 text-2xl"></i>
+                                        <div class="profile-pic mr-4">
+                                            <img src="assets/images/3.jpg">
                                         </div>
                                         <div>
-                                            <h3 class="font-bold">Sarah M.</h3>
-                                            <p class="text-gray-600 text-sm">Micro Influencer • Fitness</p>
+                                            <h3 class="font-bold">Hawa Adam</h3>
+                                            <p class="text-gray-600 text-sm">Mega Influencer • Lifestyle</p>
                                         </div>
                                     </div>
                                     <div class="grid grid-cols-3 gap-4 mb-6">
                                         <div class="bg-blue-50 p-3 rounded-lg text-center">
                                             <p class="text-xs text-gray-600">Instagram</p>
-                                            <p class="font-bold">15.2K</p>
+                                            <p class="font-bold" style="color: black;">15.2K</p>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg text-center">
                                             <p class="text-xs text-gray-600">LinkedIn</p>
-                                            <p class="font-bold">8.7K</p>
+                                            <p class="font-bold" style="color: black;">8.7K</p>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg text-center">
                                             <p class="text-xs text-gray-600">Facebook</p>
-                                            <p class="font-bold">5.1K</p>
+                                            <p class="font-bold" style="color: black;">5.1K</p>
                                         </div>
                                     </div>
                                     <div class="mb-4">
@@ -1295,8 +1269,8 @@
                             </div>
                             <div class="bg-white p-6">
                                 <div class="flex items-center mb-6">
-                                    <div class="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mr-4">
-                                        <i class="fas fa-building text-gray-600 text-2xl"></i>
+                                    <div class="w-16 h-16 rounded-full bg-white-100 flex items-center justify-center mr-4">
+                                        <img src="assets/images/Brand3.jpg" alt="Ayaz Real Estate Logo">
                                     </div>
                                     <div>
                                         <h3 class="font-bold">AYAZ Real Estate</h3>
@@ -1317,27 +1291,25 @@
                                     </div>
                                 </div>
                                 <div class="mb-6">
-                                    <h4 class="font-semibold mb-2">Influencer Marketplace</h4>
+                                    <h4 class="font-semibold mb-2">Influencers on Your Campaigns:</h4>
                                     <div class="space-y-2">
                                         <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                                             <div>
-                                                <p class="font-medium">Sarah M.</p>
-                                                <p class="text-xs text-gray-500">Fitness • Micro Influencer</p>
+                                                <p class="font-medium">Amina Yussuf</p>
+                                                <p class="text-xs text-gray-500">Travel • Macro Influencer</p>
                                             </div>
                                             <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">View</button>
                                         </div>
                                         <div class="flex justify-between items-center p-2 bg-gray-50 rounded">
                                             <div>
-                                                <p class="font-medium">Tech Guru</p>
-                                                <p class="text-xs text-gray-500">Technology • Macro Influencer</p>
+                                                <p class="font-medium">Jamaal Khalid</p>
+                                                <p class="text-xs text-gray-500">Technology • Micro Influencer</p>
                                             </div>
                                             <button class="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">View</button>
                                         </div>
                                     </div>
                                 </div>
-                                <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                    <p class="text-blue-700 font-semibold">Campaign ROI: 312%</p>
-                                </div>
+                                
                             </div>
                         </div>
                     </div>
@@ -1349,7 +1321,7 @@
         <section class="py-16 bg-gray-50">
             <div class="container mx-auto px-6">
                 <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold mb-4 section-title">Influencer Marketplace</h2>
+                    <h2 class="text-3xl md:text-4xl font-bold mb-4 section-title">Influencer Section</h2>
                     <p class="text-gray-600 max-w-2xl mx-auto">Browse our curated selection of influencers across different tiers and categories.</p>
                 </div>
                 
@@ -1382,16 +1354,18 @@
                             <!-- Influencer Card 1 -->
                             <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
                                 <div class="flex items-center mb-4">
-                                    <img src="https://randomuser.me/api/portraits/women/32.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
+                                    <div class="profile-pic">
+                                        <img src="assets/images/Anzal.jpg">
+                                    </div>
                                     <div class="ml-3">
-                                        <h4 class="font-bold text-gray-800">@StyleByZara</h4>
+                                        <h4 class="font-bold text-gray-800">Anzal Bashir</h4>
                                         <span class="inline-block bg-pink-100 text-pink-700 text-xs px-2 py-1 rounded-full">Fashion</span>
                                     </div>
                                 </div>
                                 <div class="flex justify-between text-sm text-gray-600 mb-4">
                                     <div>
                                         <p class="font-medium">Followers</p>
-                                        <p class="text-gray-800 font-bold">8.5K</p>
+                                        <p class="text-gray-800 font-bold">12K</p>
                                     </div>
                                     <div>
                                         <p class="font-medium">Engagement</p>
@@ -1399,7 +1373,7 @@
                                     </div>
                                     <div>
                                         <p class="font-medium">Tier</p>
-                                        <p class="text-gray-800 font-bold">Nano</p>
+                                        <p class="text-gray-800 font-bold">Micro</p>
                                     </div>
                                 </div>
                                 <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" onclick="window.location.href='BrandSignUp.html'">View Profile</button>
@@ -1408,16 +1382,18 @@
                             <!-- Influencer Card 2 -->
                             <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
                                 <div class="flex items-center mb-4">
-                                    <img src="https://randomuser.me/api/portraits/men/54.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
+                                    <div class="profile-pic">
+                                        <img src="assets/images/Abdiaziz.jpg">
+                                    </div>
                                     <div class="ml-3">
-                                        <h4 class="font-bold text-gray-800">@TechWithTom</h4>
-                                        <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">Technology</span>
+                                        <h4 class="font-bold text-gray-800">Abdiaziz Hussein</h4>
+                                        <span class="inline-block bg-blue-100 text-blue-700 text-xs px-2 py-1 rounded-full">Lifestyle</span>
                                     </div>
                                 </div>
                                 <div class="flex justify-between text-sm text-gray-600 mb-4">
                                     <div>
                                         <p class="font-medium">Followers</p>
-                                        <p class="text-gray-800 font-bold">45.2K</p>
+                                        <p class="text-gray-800 font-bold">19.5K</p>
                                     </div>
                                     <div>
                                         <p class="font-medium">Engagement</p>
@@ -1434,16 +1410,18 @@
                             <!-- Influencer Card 3 -->
                             <div class="bg-gray-50 rounded-xl p-4 border border-gray-200 card-hover">
                                 <div class="flex items-center mb-4">
-                                    <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Influencer" class="w-12 h-12 rounded-full">
+                                    <div class="profile-pic">
+                                        <img src="assets/images/Musab.jpg">
+                                    </div>
                                     <div class="ml-3">
-                                        <h4 class="font-bold text-gray-800">@TravelWithJoy</h4>
+                                        <h4 class="font-bold text-gray-800">Musab Mursal</h4>
                                         <span class="inline-block bg-green-100 text-green-700 text-xs px-2 py-1 rounded-full">Travel</span>
                                     </div>
                                 </div>
                                 <div class="flex justify-between text-sm text-gray-600 mb-4">
                                     <div>
                                         <p class="font-medium">Followers</p>
-                                        <p class="text-gray-800 font-bold">125.7K</p>
+                                        <p class="text-gray-800 font-bold">11K</p>
                                     </div>
                                     <div>
                                         <p class="font-medium">Engagement</p>
@@ -1451,7 +1429,7 @@
                                     </div>
                                     <div>
                                         <p class="font-medium">Tier</p>
-                                        <p class="text-gray-800 font-bold">Macro</p>
+                                        <p class="text-gray-800 font-bold">Micro</p>
                                     </div>
                                 </div>
                                 <button class="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors" onclick="window.location.href='BrandSignUp.html'">View Profile</button>
@@ -1474,7 +1452,9 @@
                     <!-- Brand Testimonial 1 -->
                     <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                         <div class="flex items-center mb-6">
-                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonial" class="w-12 h-12 rounded-full">
+                            <div class="profile-pic mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
                             <div class="ml-4">
                                 <h4 class="font-bold">Daniel Wamuyu</h4>
                                 <p class="text-gray-600 text-sm">Sales Manager, AYAZ Real Estate</p>
@@ -1495,7 +1475,9 @@
                     <!-- Influencer Testimonial 1 -->
                     <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                         <div class="flex items-center mb-6">
-                            <img src="assets/images/3.jpg" alt="Testimonial" class="w-12 h-12 rounded-full">
+                            <div class="profile-pic mr-4">
+                                <img src="assets/images/3.jpg">
+                            </div>
                             <div class="ml-4">
                                 <h4 class="font-bold">Hawa Adam</h4>
                                 <p class="text-gray-600 text-sm">Lifestyle/Fashion Influencer</p>
@@ -1516,7 +1498,9 @@
                     <!-- Brand Testimonial 2 -->
                     <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                         <div class="flex items-center mb-6">
-                            <img src="https://randomuser.me/api/portraits/women/67.jpg" alt="Testimonial" class="w-12 h-12 rounded-full">
+                            <div class="profile-pic mr-4">
+                                <i class="fas fa-user"></i>
+                            </div>
                             <div class="ml-4">
                                 <h4 class="font-bold">Abdinasir</h4>
                                 <p class="text-gray-600 text-sm">COO, Takaful Insurance of Africa</p>
@@ -1537,7 +1521,9 @@
                     <!-- Influencer Testimonial 2 -->
                     <div class="testimonial-card bg-white p-8 rounded-2xl shadow-lg border border-gray-100">
                         <div class="flex items-center mb-6">
-                            <img src="https://randomuser.me/api/portraits/men/76.jpg" alt="Testimonial" class="w-12 h-12 rounded-full">
+                            <div class="profile-pic mr-4">
+                                <img src="assets/images/Fadhil.jpg">
+                            </div>
                             <div class="ml-4">
                                 <h4 class="font-bold">Abdulkadir Fadhil</h4>
                                 <p class="text-gray-600 text-sm">Sales Manager, Citipoint Consult</p>
@@ -1840,22 +1826,21 @@
                         <h3 class="text-lg font-semibold mb-4">Company</h3>
                         <ul class="space-y-2 text-gray-400">
                             <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
-                            <li><a href="#" class="hover:text-white">Careers</a></li>
                             <li><a href="#blogs" class="hover:text-white">Blog</a></li>
-                            <li><a href="#" class="hover:text-white">Contact</a></li>
+                            <li><a href="#" id="contact-link" class="hover:text-white">Contact</a></li>
                         </ul>
                     </div>
                     
                     <div>
                         <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
                         <div class="flex space-x-4 mb-4">
-                            <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <a href="https://www.instagram.com/livex.africa?igsh=MTNrejN0cGhmbGcwZw==" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                                 <i class="fab fa-instagram text-xl"></i>
                             </a>
-                            <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <a href="https://www.linkedin.com/company/livex-africa/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                                 <i class="fab fa-linkedin text-xl"></i>
                             </a>
-                            <a href="#" class="platform-icon text-gray-400 hover:text-white">
+                            <a href="https://www.facebook.com/share/1Mi23Wv3Do/" class="platform-icon text-gray-400 hover:text-white" target="_blank">
                                 <i class="fab fa-facebook text-xl"></i>
                             </a>
                         </div>
@@ -1870,66 +1855,59 @@
         </footer>
     </div>
 
+    <!-- Contact Popup -->
+    <div class="contact-popup" id="contact-popup">
+        <div class="contact-popup-content">
+            <span class="close-popup" id="close-popup">&times;</span>
+            <h2 class="text-2xl font-bold mb-6 text-center">Contact Us</h2>
+            <div class="contact-info">
+                <div class="contact-info-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:hello@livexafrica.co">hello@livexafrica.co</a>
+                </div>
+                <div class="contact-info-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+254700000000">+254 700 000 000</a>
+                </div>
+                <div class="contact-info-item">
+                    <i class="fab fa-whatsapp"></i>
+                    <a href="https://wa.me/254700000000">+254 700 000 000</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Splash Screen Animation
         document.addEventListener('DOMContentLoaded', function() {
-            const characterContainer = document.getElementById('characterContainer');
-            const slideScreen = document.getElementById('slideScreen');
-            const livexText = document.getElementById('livexText');
+            const logoFlip = document.getElementById('logoFlip');
             const jobText = document.getElementById('jobText');
             const splashScreen = document.getElementById('splashScreen');
             const mainContent = document.getElementById('mainContent');
-            const downArrow = document.getElementById('downArrow');
             
-            // Start the transformation after a short delay
+            // Animation sequence - 1.4 seconds total
             setTimeout(() => {
-                // Flip the container to transform # to @
-                characterContainer.classList.add('flipped');
+                // Step 1: Start the flip animation (1.2 seconds)
+                logoFlip.classList.add('flipped');
                 
-                // After transformation is complete, trigger the slide screen
+                // Step 2: Show job text after flip is mostly complete (0.8 seconds)
                 setTimeout(() => {
-                    slideScreen.classList.add('slide-in');
+                    jobText.classList.add('fade-in');
                     
-                    // Show the LiveX text after slide is in
+                    // Step 3: Slide up splash screen (0.4 seconds)
                     setTimeout(() => {
-                        livexText.classList.add('fade-in');
+                        splashScreen.classList.add('slide-up');
                         
-                        // Show the job text after LiveX text is visible
+                        // Show main content
                         setTimeout(() => {
-                            jobText.classList.add('fade-in');
+                            mainContent.classList.add('show');
                             
-                            // Show the down arrow after job text is visible
-                            setTimeout(() => {
-                                downArrow.classList.add('show');
-                                
-                                // Add click event to the down arrow
-                                downArrow.addEventListener('click', function() {
-                                    // Hide the down arrow
-                                    downArrow.classList.remove('show');
-                                    
-                                    // Slide up the splash screen
-                                    splashScreen.classList.add('slide-up');
-                                    
-                                    // Show the main content with fade-in effect
-                                    setTimeout(() => {
-                                        mainContent.classList.add('show');
-                                        
-                                        // Initialize landing page functionality
-                                        initLandingPage();
-                                    }, 300);
-                                });
-                                
-                                // Auto transition after 2 seconds if user doesn't click
-                                setTimeout(() => {
-                                    if (downArrow.classList.contains('show')) {
-                                        downArrow.click();
-                                    }
-                                }, 2000);
-                            }, 300);
-                        }, 200);
-                    }, 200);
-                }, 800);
-            }, 500);
+                            // Initialize landing page functionality
+                            initLandingPage();
+                        }, 400);
+                    }, 1400);
+                }, 900);
+            }, 200);
         });
 
         // Landing Page Functionality
@@ -1993,6 +1971,31 @@
                 });
             });
 
+            // Contact Popup
+            const contactLink = document.getElementById('contact-link');
+            const contactPopup = document.getElementById('contact-popup');
+            const closePopup = document.getElementById('close-popup');
+            
+            if (contactLink) {
+                contactLink.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    contactPopup.classList.add('active');
+                });
+            }
+            
+            if (closePopup) {
+                closePopup.addEventListener('click', function() {
+                    contactPopup.classList.remove('active');
+                });
+            }
+            
+            // Close popup when clicking outside
+            contactPopup.addEventListener('click', function(e) {
+                if (e.target === contactPopup) {
+                    contactPopup.classList.remove('active');
+                }
+            });
+
             // GSAP Animations (if available)
             if (typeof gsap !== 'undefined') {
                 // Register ScrollTrigger
@@ -2008,6 +2011,24 @@
                             duration: 0.8,
                             scrollTrigger: {
                                 trigger: card,
+                                start: "top 80%",
+                                end: "bottom 20%",
+                                toggleActions: "play none none reverse"
+                            }
+                        }
+                    );
+                });
+                
+                // Animate roadmap steps
+                gsap.utils.toArray('.roadmap-step').forEach(step => {
+                    gsap.fromTo(step, 
+                        { x: step.classList.contains('roadmap-step') && step.style.flexDirection === 'row-reverse' ? -100 : 100, opacity: 0 },
+                        {
+                            x: 0,
+                            opacity: 1,
+                            duration: 0.8,
+                            scrollTrigger: {
+                                trigger: step,
                                 start: "top 80%",
                                 end: "bottom 20%",
                                 toggleActions: "play none none reverse"
