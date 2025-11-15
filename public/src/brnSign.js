@@ -1,4 +1,5 @@
 
+
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
@@ -110,6 +111,7 @@
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
             const brandName = document.getElementById('brandName').value;
+            const contactPerson = document.getElementById('contactPerson').value;
             
             // Validate password requirements
             const hasCapital = /[A-Z]/.test(password);
@@ -135,6 +137,7 @@
                 await db.collection('brands').doc(user.uid).set({
                     email: email,
                     brandName: brandName,
+                    contactPerson: contactPerson,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp(),
                     status: 'active'
                 });
@@ -150,4 +153,5 @@
                 alert('Error creating account: ' + error.message);
             }
         });
+    
     

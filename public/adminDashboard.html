@@ -245,6 +245,18 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         
+        .user-card {
+            transition: all 0.3s ease;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .user-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        
         /* Custom Alert Styles */
         .custom-alert {
             position: fixed;
@@ -468,6 +480,9 @@
                         <button onclick="switchMainTab('payments')" class="main-tab-button py-2 font-medium text-gray-700" data-tab="payments">
                             Payments
                         </button>
+                        <button onclick="switchMainTab('users')" class="main-tab-button py-2 font-medium text-gray-700" data-tab="users">
+                            Users
+                        </button>
                     </div>
                 </div>
 
@@ -556,6 +571,30 @@
                         <!-- Approved payments will be loaded here -->
                     </div>
                 </div>
+
+                <!-- Users Tab Content -->
+                <div id="users-content" class="p-6 hidden">
+                    <div class="flex items-center justify-between mb-6">
+                        <h3 class="text-xl font-bold text-gray-800">User Management</h3>
+                        <div class="flex items-center space-x-4">
+                            <button onclick="switchUserTab('influencers')" class="user-tab-button active py-2 font-medium text-gray-700" data-tab="influencers">
+                                Influencers
+                            </button>
+                            <button onclick="switchUserTab('brands')" class="user-tab-button py-2 font-medium text-gray-700" data-tab="brands">
+                                Brands
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- User Lists -->
+                    <div id="influencers-container" class="grid gap-4">
+                        <!-- Influencers will be loaded here -->
+                    </div>
+                    
+                    <div id="brands-container" class="grid gap-4 hidden">
+                        <!-- Brands will be loaded here -->
+                    </div>
+                </div>
             </div>
         </div>
     </main>
@@ -616,6 +655,26 @@
 
                 <div id="payment-modal-content">
                     <!-- Payment modal content will be loaded here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- User Details Modal -->
+    <div id="user-modal" class="modal">
+        <div class="modal-content">
+            <div class="p-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 id="user-modal-title" class="text-2xl font-bold text-gray-800">User Details</h2>
+                    </div>
+                    <button onclick="closeUserModal()" class="p-3 hover:bg-gray-100 rounded-full transition-colors">
+                        <i class="fas fa-times text-gray-600"></i>
+                    </button>
+                </div>
+
+                <div id="user-modal-content">
+                    <!-- User modal content will be loaded here -->
                 </div>
             </div>
         </div>

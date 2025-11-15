@@ -468,12 +468,12 @@
             <!-- Desktop Navigation -->
             <div class="hidden md:flex space-x-8">
                 <a href="index.html" class="nav-link">Home</a>
-                <a href="#how-it-works" class="nav-link">How It Works</a>
-                <a href="#influencers" class="nav-link">For Influencers</a>
-                <a href="#brands" class="nav-link">For Brands</a>
-                <a href="#pricing" class="nav-link">Pricing</a>
+                <a href="index.html#how-it-works" class="nav-link">How It Works</a>
+                <a href="index.html#influencers" class="nav-link">For Influencers</a>
+                <a href="index.html#brands" class="nav-link">For Brands</a>
+                <a href="index.html#pricing" class="nav-link">Pricing</a>
                 <a href="blogs.html" class="nav-link">Blogs</a>
-                <a href="#faqs" class="nav-link">FAQs</a>
+                <a href="index.html#faqs" class="nav-link">FAQs</a>
             </div>
             
             <!-- CTA Buttons -->
@@ -503,12 +503,12 @@
         
         <div class="flex flex-col space-y-6">
             <a href="index.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Home</a>
-            <a href="#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
-            <a href="#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
-            <a href="#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
-            <a href="#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
+            <a href="index.html#how-it-works" class="text-gray-800 text-lg py-2 border-b border-gray-300">How It Works</a>
+            <a href="index.html#influencers" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Influencers</a>
+            <a href="index.html#brands" class="text-gray-800 text-lg py-2 border-b border-gray-300">For Brands</a>
+            <a href="index.html#pricing" class="text-gray-800 text-lg py-2 border-b border-gray-300">Pricing</a>
             <a href="blogs.html" class="text-gray-800 text-lg py-2 border-b border-gray-300">Blogs</a>
-            <a href="#faqs" class="text-gray-800 text-lg py-2 border-b border-gray-300">FAQs</a>
+            <a href="index.html#faqs" class="text-gray-800 text-lg py-2 border-b border-gray-300">FAQs</a>
             <div class="pt-4">
                 <a href="login.html" class="w-full mb-3 px-4 py-3 rounded-full border-2 border-gray-800 text-gray-800 block text-center">Login</a>
                 <a href="InfluencerSignUp.html" class="w-full px-4 py-3 rounded-full bg-gradient-to-r from-blue-800 to-blue-600 text-white block text-center">Get Started</a>
@@ -658,8 +658,8 @@
                     <ul class="space-y-2 text-gray-400">
                         <li><a href="InfluencerSignUp.html" class="hover:text-white">For Influencers</a></li>
                         <li><a href="BrandSignUp.html" class="hover:text-white">For Brands</a></li>
-                        <li><a href="#pricing" class="hover:text-white">Pricing</a></li>
-                        <li><a href="#faqs" class="hover:text-white">FAQ</a></li>
+                        <li><a href="index.html#pricing" class="hover:text-white">Pricing</a></li>
+                        <li><a href="index.html#faqs" class="hover:text-white">FAQ</a></li>
                     </ul>
                 </div>
                 
@@ -667,26 +667,26 @@
                     <h3 class="text-lg font-semibold mb-4">Company</h3>
                     <ul class="space-y-2 text-gray-400">
                         <li><a href="aboutUs.html" class="hover:text-white">About Us</a></li>
-                        <li><a href="#" class="hover:text-white">Careers</a></li>
                         <li><a href="blogs.html" class="hover:text-white">Blog</a></li>
-                        <li><a href="#" class="hover:text-white">Contact</a></li>
+                        <li><a href="#" id="contact-link" class="hover:text-white">Contact</a></li>
                     </ul>
                 </div>
                 
                 <div>
                     <h3 class="text-lg font-semibold mb-4">Connect With Us</h3>
                     <div class="flex space-x-4 mb-4">
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="https://www.instagram.com/livex.africa?igsh=MTNrejN0cGhmbGcwZw==" class="text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-instagram text-xl"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="https://www.linkedin.com/company/livex-africa/" class="text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-linkedin text-xl"></i>
                         </a>
-                        <a href="#" class="text-gray-400 hover:text-white">
+                        <a href="https://www.facebook.com/share/1Mi23Wv3Do/" class="text-gray-400 hover:text-white" target="_blank">
                             <i class="fab fa-facebook text-xl"></i>
                         </a>
                     </div>
                     <p class="text-gray-400">hello@livexafrica.co</p>
+                    <p class="text-gray-400">+254 111 388 499</p>
                 </div>
             </div>
             
@@ -695,6 +695,28 @@
             </div>
         </div>
     </footer>
+
+    <!-- Contact Popup -->
+    <div class="contact-popup" id="contact-popup">
+        <div class="contact-popup-content">
+            <span class="close-popup" id="close-popup">&times;</span>
+            <h2 class="text-2xl font-bold mb-6 text-center">Contact Us</h2>
+            <div class="contact-info">
+                <div class="contact-info-item">
+                    <i class="fas fa-envelope"></i>
+                    <a href="mailto:hello@livexafrica.co">hello@livexafrica.co</a>
+                </div>
+                <div class="contact-info-item">
+                    <i class="fas fa-phone"></i>
+                    <a href="tel:+254111388499">+254 111 388 499</a>
+                </div>
+                <div class="contact-info-item">
+                    <i class="fab fa-whatsapp"></i>
+                    <a href="https://wa.me/254111388499">+254 111 388 499</a>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Blog data
@@ -716,7 +738,7 @@
                     <h3>The Problem: Bridging the Talent-to-Career Gap</h3>
                     <p>The raw talent among Somali youth is undeniable. Whether they are tech reviewers, fashion vloggers, or cultural commentators, Somali creators are rapidly building massive, engaged audiences across East Africa (including Kenya and Somalia) and the global diaspora (USA, UK, Canada). Yet, a fundamental disconnect persists between achieving high "followers" and securing a reliable, professional "living."</p>
                     
-                    <p>As one creative, Mukhtar, articulated to the World Bank, "Working as a creative in Somalia is a risk because you don't get consistent work... Job security isn't there.”</p>
+                    <p>As one creative, Mukhtar, articulated to the World Bank, "Working as a creative in Somalia is a risk because you don't get consistent work... Job security isn't there."</p>
                     
                     <p>This professional precarity creates a critical market failure. Talented creators, whether based in Nairobi or Minneapolis, remain isolated, while potential brands, both local and international struggle to access this vibrant, high-growth market because they lack a trusted, formal connection point. This forces creators into the "view count" trap, often leading to a focus on controversial or shock content (as noted by Gorfayn.org) just to game the algorithm, rather than focusing on building a bankable, sustainable career.</p>
                     
@@ -995,6 +1017,9 @@
         const mobileMenu = document.getElementById('mobile-menu');
         const closeMenu = document.getElementById('close-menu');
         const shareButtons = document.querySelectorAll('.share-btn');
+        const contactLink = document.getElementById('contact-link');
+        const contactPopup = document.getElementById('contact-popup');
+        const closePopup = document.getElementById('close-popup');
 
         // Mobile menu toggle
         if (mobileMenuButton) {
@@ -1008,6 +1033,27 @@
                 mobileMenu.classList.remove('open');
             });
         }
+
+        // Contact popup functionality
+        if (contactLink) {
+            contactLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                contactPopup.classList.add('active');
+            });
+        }
+
+        if (closePopup) {
+            closePopup.addEventListener('click', function() {
+                contactPopup.classList.remove('active');
+            });
+        }
+
+        // Close contact popup when clicking outside
+        contactPopup.addEventListener('click', function(e) {
+            if (e.target === contactPopup) {
+                contactPopup.classList.remove('active');
+            }
+        });
 
         // Blog modal functionality
         function openBlogModal(blogId) {

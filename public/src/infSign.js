@@ -10,7 +10,6 @@
             measurementId: "G-GNQLPMEJWX"
         };
         
-
         // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -19,6 +18,8 @@
         // Form navigation
         let currentStep = 1;
         const totalSteps = 4;
+        let verificationCode = '';
+        let currentUser = null;
 
         // Update progress bar
         function updateProgress() {
@@ -50,6 +51,66 @@
             document.getElementById(`step-${stepNumber}`).classList.add('active');
             currentStep = stepNumber;
             updateProgress();
+            
+            // Scroll to top for mobile view
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        }
+
+        // Show verification step
+        function showVerificationStep() {
+            document.querySelectorAll('.step-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById('verification-step').classList.add('active');
+            
+            // Display email for verification
+            document.getElementById('verification-email').textContent = document.getElementById('email').value;
+            
+            // Focus on first code input
+            document.getElementById('code-1').focus();
+            
+            // Start countdown for resend
+            startCountdown();
+        }
+
+        // Generate random verification code
+        function generateVerificationCode() {
+            return Math.floor(100000 + Math.random() * 900000).toString();
+        }
+
+        // Send verification email
+        function sendVerificationEmail(user, code) {
+            // This is a simulation - in a real app, you would use Firebase Cloud Functions
+            // to send a custom email with the verification code
+            
+            // For demo purposes, we'll just show the code in a modal
+            showModal('Verification Code Sent', `We've sent a verification code to your email. For demo purposes, your code is: <strong>${code}</strong>`, 'info');
+            
+            // In a real implementation, you would store the code in Firestore and send it via email
+            db.collection('verificationCodes').doc(user.uid).set({
+                code: code,
+                createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                used: false
+            });
+        }
+
+        // Start countdown for resend code
+        function startCountdown() {
+            let timeLeft = 60;
+            const countdownElement = document.getElementById('countdown');
+            
+            const countdownInterval = setInterval(() => {
+                timeLeft--;
+                countdownElement.textContent = `Resend available in ${timeLeft}s`;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(countdownInterval);
+                    countdownElement.textContent = '';
+                }
+            }, 1000);
         }
 
         // Next and Back button event listeners
@@ -84,6 +145,10 @@
             showStep(3);
         });
 
+        document.getElementById('back-to-step4').addEventListener('click', function() {
+            showStep(4);
+        });
+
         // Form validation functions
         function validateStep1() {
             const fullName = document.getElementById('fullName').value;
@@ -93,12 +158,12 @@
             const phone = document.getElementById('phone').value;
             
             if (!fullName || !email || !password || !confirmPassword || !phone) {
-                alert('Please fill in all fields');
+                showModal('Missing Information', 'Please fill in all fields', 'error');
                 return false;
             }
             
             if (password !== confirmPassword) {
-                alert('Passwords do not match');
+                showModal('Password Mismatch', 'Passwords do not match', 'error');
                 return false;
             }
             
@@ -108,7 +173,7 @@
             const hasNumber = /[0-9]/.test(password);
             
             if (!hasCapital || !hasSpecial || !hasNumber) {
-                alert('Password must contain at least one capital letter, one special character, and one number.');
+                showModal('Weak Password', 'Password must contain at least one capital letter, one special character, and one number.', 'error');
                 return false;
             }
             
@@ -130,7 +195,7 @@
             
             // Instagram is required
             if (!instagram || !instagramFollowers || !instagramUrl) {
-                alert('Please fill in all Instagram fields (required)');
+                showModal('Missing Information', 'Please fill in all Instagram fields (required)', 'error');
                 return false;
             }
             
@@ -139,14 +204,14 @@
             const hasTikTok = tiktok && tiktokFollowers && tiktokUrl;
             
             if (!hasFacebook && !hasTikTok) {
-                alert('Please provide at least one additional social media platform (Facebook or TikTok)');
+                showModal('Missing Information', 'Please provide at least one additional social media platform (Facebook or TikTok)', 'error');
                 return false;
             }
             
             // If Facebook is partially filled, all fields must be filled
             if (facebook || facebookFollowers || facebookUrl) {
                 if (!hasFacebook) {
-                    alert('Please fill in all Facebook fields or leave them all empty');
+                    showModal('Incomplete Information', 'Please fill in all Facebook fields or leave them all empty', 'error');
                     return false;
                 }
             }
@@ -154,7 +219,7 @@
             // If TikTok is partially filled, all fields must be filled
             if (tiktok || tiktokFollowers || tiktokUrl) {
                 if (!hasTikTok) {
-                    alert('Please fill in all TikTok fields or leave them all empty');
+                    showModal('Incomplete Information', 'Please fill in all TikTok fields or leave them all empty', 'error');
                     return false;
                 }
             }
@@ -278,6 +343,13 @@
                 .then((userCredential) => {
                     // User created successfully
                     const user = userCredential.user;
+                    currentUser = user;
+                    
+                    // Generate verification code
+                    verificationCode = generateVerificationCode();
+                    
+                    // Send verification email (simulated)
+                    sendVerificationEmail(user, verificationCode);
                     
                     // Prepare social media data
                     const socialMedia = {
@@ -316,21 +388,132 @@
                         category: category,
                         niches: selectedNiches,
                         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                        status: 'pending' // pending, approved, rejected
+                        emailVerified: false
                     });
                 })
                 .then(() => {
-                    // Show success step
-                    document.getElementById('step-4').classList.remove('active');
-                    document.getElementById('success-step').classList.add('active');
+                    // Show verification step
+                    showVerificationStep();
                 })
                 .catch((error) => {
                     console.error('Error creating user:', error);
-                    alert('Error creating account: ' + error.message);
+                    showModal('Signup Error', `Error creating account: ${error.message}`, 'error');
                 });
         });
 
-        // Password strength checker (from original code)
+        // Verification code input handling
+        const codeInputs = document.querySelectorAll('.code-input');
+        
+        codeInputs.forEach((input, index) => {
+            input.addEventListener('input', function() {
+                if (this.value.length === 1) {
+                    if (index < codeInputs.length - 1) {
+                        codeInputs[index + 1].focus();
+                    }
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && this.value === '' && index > 0) {
+                    codeInputs[index - 1].focus();
+                }
+            });
+        });
+
+        // Verify code button
+        document.getElementById('verify-code').addEventListener('click', function() {
+            let enteredCode = '';
+            codeInputs.forEach(input => {
+                enteredCode += input.value;
+            });
+            
+            if (enteredCode.length !== 6) {
+                showModal('Invalid Code', 'Please enter the complete 6-digit verification code', 'error');
+                return;
+            }
+            
+            if (enteredCode === verificationCode) {
+                // Mark email as verified in Firestore
+                db.collection('influencers').doc(currentUser.uid).update({
+                    emailVerified: true
+                }).then(() => {
+                    // Show success step
+                    document.getElementById('verification-step').classList.remove('active');
+                    document.getElementById('success-step').classList.add('active');
+                }).catch(error => {
+                    console.error('Error updating user:', error);
+                    showModal('Verification Error', 'Error verifying your account. Please try again.', 'error');
+                });
+            } else {
+                showModal('Invalid Code', 'The verification code you entered is incorrect. Please try again.', 'error');
+            }
+        });
+
+        // Resend code button
+        document.getElementById('resend-code').addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Generate new verification code
+            verificationCode = generateVerificationCode();
+            
+            // Send verification email (simulated)
+            sendVerificationEmail(currentUser, verificationCode);
+            
+            // Start countdown
+            startCountdown();
+            
+            // Clear code inputs
+            codeInputs.forEach(input => {
+                input.value = '';
+            });
+            codeInputs[0].focus();
+        });
+
+        // Modal functions
+        function showModal(title, message, type = 'info') {
+            const modal = document.getElementById('notification-modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalMessage = document.getElementById('modal-message');
+            const modalBtn = document.getElementById('modal-btn');
+            
+            // Set modal content
+            modalTitle.textContent = title;
+            modalMessage.innerHTML = message;
+            
+            // Set modal icon based on type
+            let icon = '';
+            if (type === 'error') {
+                icon = '<i class="fas fa-exclamation-circle error-icon"></i>';
+            } else if (type === 'success') {
+                icon = '<i class="fas fa-check-circle success-icon"></i>';
+            } else {
+                icon = '<i class="fas fa-info-circle info-icon"></i>';
+            }
+            
+            modalMessage.innerHTML = icon + message;
+            
+            // Show modal
+            modal.style.display = 'block';
+        }
+
+        // Close modal when clicking the close button or OK button
+        document.getElementById('modal-close').addEventListener('click', function() {
+            document.getElementById('notification-modal').style.display = 'none';
+        });
+
+        document.getElementById('modal-btn').addEventListener('click', function() {
+            document.getElementById('notification-modal').style.display = 'none';
+        });
+
+        // Close modal when clicking outside of it
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('notification-modal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Password strength checker
         function checkPasswordStrength() {
             const password = document.getElementById('password').value;
             const strengthBar = document.getElementById('strengthBar');
@@ -400,7 +583,7 @@
             }
         }
 
-        // Password match checker (from original code)
+        // Password match checker
         function checkPasswordMatch() {
             const password = document.getElementById('password').value;
             const confirmPassword = document.getElementById('confirmPassword').value;
@@ -417,7 +600,7 @@
             }
         }
 
-        // Calculate total followers and determine category (from original code)
+        // Calculate total followers and determine category
         function calculateTotalFollowers() {
             const instagramFollowers = parseInt(document.getElementById('instagramFollowers').value) || 0;
             const facebookFollowers = parseInt(document.getElementById('facebookFollowers').value) || 0;
@@ -442,7 +625,7 @@
             document.getElementById('category').textContent = category;
         }
 
-        // Update niches selection (from original code)
+        // Update niches selection
         function updateNiches() {
             const checkboxes = document.querySelectorAll('input[name="niches"]:checked');
             const nichesError = document.getElementById('nichesError');
@@ -464,9 +647,18 @@
             }
         }
 
+        // Mobile menu toggle
+        document.getElementById('mobile-menu-button').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.add('open');
+        });
+
+        document.getElementById('close-menu').addEventListener('click', function() {
+            document.getElementById('mobile-menu').classList.remove('open');
+        });
+
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', function() {
             calculateTotalFollowers();
             updateProgress();
         });
-    
+   

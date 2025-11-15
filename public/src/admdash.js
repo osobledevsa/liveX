@@ -1,4 +1,5 @@
 
+
         // Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyBT3OWo_bdJtcnmqVVX_tNndSCe9gyEA_k",
@@ -19,13 +20,17 @@
         let currentUser = null;
         let allCampaigns = [];
         let allSubmissions = [];
+        let allInfluencers = [];
+        let allBrands = [];
         let currentMainTab = 'campaigns';
         let currentCampaignTab = 'pending';
         let currentSubmissionTab = 'pending';
         let currentPaymentTab = 'pending';
+        let currentUserTab = 'influencers';
         let selectedCampaign = null;
         let selectedSubmission = null;
         let selectedPayment = null;
+        let selectedUser = null;
 
         // Check authentication on page load
         auth.onAuthStateChanged(async (user) => {
@@ -33,6 +38,7 @@
                 currentUser = user;
                 await loadCampaigns();
                 await loadSubmissions();
+                await loadUsers();
                 document.getElementById('loading-screen').style.display = 'none';
             } else {
                 window.location.href = 'login.html';
@@ -106,6 +112,29 @@
                 displayPayments();
             } catch (error) {
                 console.error('Error loading submissions:', error);
+            }
+        }
+
+        // Load users (influencers and brands)
+        async function loadUsers() {
+            try {
+                // Load influencers
+                const influencersSnapshot = await db.collection('influencers').get();
+                allInfluencers = influencersSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                // Load brands
+                const brandsSnapshot = await db.collection('brands').get();
+                allBrands = brandsSnapshot.docs.map(doc => ({
+                    id: doc.id,
+                    ...doc.data()
+                }));
+                
+                displayUsers();
+            } catch (error) {
+                console.error('Error loading users:', error);
             }
         }
 
@@ -278,6 +307,44 @@
             } else {
                 approvedSubmissions.forEach(submission => {
                     approvedContainer.appendChild(createPaymentCard(submission));
+                });
+            }
+        }
+
+        // Display users
+        function displayUsers() {
+            const influencersContainer = document.getElementById('influencers-container');
+            const brandsContainer = document.getElementById('brands-container');
+            
+            // Clear existing content
+            influencersContainer.innerHTML = '';
+            brandsContainer.innerHTML = '';
+            
+            // Display influencers
+            if (allInfluencers.length === 0) {
+                influencersContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-user-friends text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500">No influencers found</p>
+                    </div>
+                `;
+            } else {
+                allInfluencers.forEach(influencer => {
+                    influencersContainer.appendChild(createInfluencerCard(influencer));
+                });
+            }
+            
+            // Display brands
+            if (allBrands.length === 0) {
+                brandsContainer.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fas fa-building text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-gray-500">No brands found</p>
+                    </div>
+                `;
+            } else {
+                allBrands.forEach(brand => {
+                    brandsContainer.appendChild(createBrandCard(brand));
                 });
             }
         }
@@ -498,6 +565,95 @@
             return card;
         }
 
+        // Create influencer card
+        function createInfluencerCard(influencer) {
+            const card = document.createElement('div');
+            card.className = 'user-card bg-white p-5';
+            
+            // Format niches for display
+            const niches = influencer.niches ? influencer.niches.join(', ') : 'None';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${influencer.fullName || 'Unknown'}</h3>
+                        <p class="text-gray-600 text-sm mb-2">Influencer</p>
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="status-badge status-active">${influencer.status || 'Active'}</span>
+                            <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                                ${influencer.category || 'Nano'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-lg font-bold text-blue-600">${influencer.totalFollowers || 0}</p>
+                        <p class="text-xs text-gray-500">Followers</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Phone Number</p>
+                        <p class="font-medium text-gray-800">${influencer.phone || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Category</p>
+                        <p class="font-medium text-gray-800">${influencer.category || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600">Niches</p>
+                    <p class="font-medium text-gray-800">${niches}</p>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button onclick="viewInfluencerDetails('${influencer.id}')" class="flex-1 btn-secondary py-2 rounded-lg text-sm">
+                        <i class="fas fa-eye mr-1"></i> View Details
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        // Create brand card
+        function createBrandCard(brand) {
+            const card = document.createElement('div');
+            card.className = 'user-card bg-white p-5';
+            
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div class="flex-1">
+                        <h3 class="text-lg font-semibold text-gray-800 mb-1">${brand.brandName || 'Unknown'}</h3>
+                        <p class="text-gray-600 text-sm mb-2">Brand</p>
+                        <div class="flex items-center space-x-2 mb-3">
+                            <span class="status-badge status-active">${brand.status || 'Active'}</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div>
+                        <p class="text-sm text-gray-600">Email</p>
+                        <p class="font-medium text-gray-800">${brand.email || 'N/A'}</p>
+                    </div>
+                    <div>
+                        <p class="text-sm text-gray-600">Contact Person</p>
+                        <p class="font-medium text-gray-800">${brand.contactPerson || 'N/A'}</p>
+                    </div>
+                </div>
+                
+                <div class="flex space-x-2">
+                    <button onclick="viewBrandDetails('${brand.id}')" class="flex-1 btn-secondary py-2 rounded-lg text-sm">
+                        <i class="fas fa-eye mr-1"></i> View Details
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+
         // Switch main tabs
         function switchMainTab(tab) {
             currentMainTab = tab;
@@ -514,6 +670,7 @@
             document.getElementById('campaigns-content').classList.toggle('hidden', tab !== 'campaigns');
             document.getElementById('submissions-content').classList.toggle('hidden', tab !== 'submissions');
             document.getElementById('payments-content').classList.toggle('hidden', tab !== 'payments');
+            document.getElementById('users-content').classList.toggle('hidden', tab !== 'users');
         }
 
         // Switch campaign tabs
@@ -567,6 +724,23 @@
             // Show/hide content
             document.getElementById('pending-payments-container').classList.toggle('hidden', tab !== 'pending');
             document.getElementById('approved-payments-container').classList.toggle('hidden', tab !== 'approved');
+        }
+
+        // Switch user tabs
+        function switchUserTab(tab) {
+            currentUserTab = tab;
+            
+            // Update tab buttons
+            document.querySelectorAll('.user-tab-button').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.tab === tab) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Show/hide content
+            document.getElementById('influencers-container').classList.toggle('hidden', tab !== 'influencers');
+            document.getElementById('brands-container').classList.toggle('hidden', tab !== 'brands');
         }
 
         // View campaign details
@@ -831,6 +1005,147 @@
             }
         }
 
+        // View influencer details
+        function viewInfluencerDetails(influencerId) {
+            const influencer = allInfluencers.find(i => i.id === influencerId);
+            if (!influencer) return;
+            
+            const modal = document.getElementById('user-modal');
+            const modalContent = document.getElementById('user-modal-content');
+            
+            document.getElementById('user-modal-title').textContent = 'Influencer Details';
+            
+            // Format niches for display
+            const niches = influencer.niches ? influencer.niches.join(', ') : 'None';
+            
+            const modalContentHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Full Name</p>
+                            <p class="font-medium text-gray-800">${influencer.fullName || 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-medium text-gray-800">${influencer.email || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Phone Number</p>
+                            <p class="font-medium text-gray-800">${influencer.phone || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Category</p>
+                            <p class="font-medium text-gray-800">${influencer.category || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Total Followers</p>
+                            <p class="font-medium text-gray-800">${influencer.totalFollowers || 0}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-medium text-gray-800">${influencer.status || 'Active'}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">Niches</p>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <p class="font-medium text-gray-800">${niches}</p>
+                        </div>
+                    </div>
+                    
+                    ${influencer.instagram ? `
+                        <div>
+                            <p class="text-sm text-gray-600">Instagram</p>
+                            <div class="flex items-center space-x-2">
+                                <i class="fab fa-instagram text-pink-600"></i>
+                                <p class="font-medium text-gray-800">${influencer.instagram}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${influencer.facebook ? `
+                        <div>
+                            <p class="text-sm text-gray-600">Facebook</p>
+                            <div class="flex items-center space-x-2">
+                                <i class="fab fa-facebook text-blue-600"></i>
+                                <p class="font-medium text-gray-800">${influencer.facebook}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${influencer.tiktok ? `
+                        <div>
+                            <p class="text-sm text-gray-600">TikTok</p>
+                            <div class="flex items-center space-x-2">
+                                <i class="fab fa-tiktok text-gray-800"></i>
+                                <p class="font-medium text-gray-800">${influencer.tiktok}</p>
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">Joined</p>
+                        <p class="font-medium text-gray-800">${influencer.createdAt ? new Date(influencer.createdAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
+                    </div>
+                </div>
+            `;
+            
+            modalContent.innerHTML = modalContentHTML;
+            modal.classList.add('active');
+        }
+
+        // View brand details
+        function viewBrandDetails(brandId) {
+            const brand = allBrands.find(b => b.id === brandId);
+            if (!brand) return;
+            
+            const modal = document.getElementById('user-modal');
+            const modalContent = document.getElementById('user-modal-content');
+            
+            document.getElementById('user-modal-title').textContent = 'Brand Details';
+            
+            const modalContentHTML = `
+                <div class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Brand Name</p>
+                            <p class="font-medium text-gray-800">${brand.brandName || 'Unknown'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Email</p>
+                            <p class="font-medium text-gray-800">${brand.email || 'N/A'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <p class="text-sm text-gray-600">Contact Person</p>
+                            <p class="font-medium text-gray-800">${brand.contactPerson || 'N/A'}</p>
+                        </div>
+                        <div>
+                            <p class="text-sm text-gray-600">Status</p>
+                            <p class="font-medium text-gray-800">${brand.status || 'Active'}</p>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        <p class="text-sm text-gray-600">Joined</p>
+                        <p class="font-medium text-gray-800">${brand.createdAt ? new Date(brand.createdAt.toDate()).toLocaleDateString() : 'Unknown'}</p>
+                    </div>
+                </div>
+            `;
+            
+            modalContent.innerHTML = modalContentHTML;
+            modal.classList.add('active');
+        }
+
         // Close modal
         function closeModal() {
             document.getElementById('campaign-modal').classList.remove('active');
@@ -844,6 +1159,11 @@
         // Close payment modal
         function closePaymentModal() {
             document.getElementById('payment-modal').classList.remove('active');
+        }
+
+        // Close user modal
+        function closeUserModal() {
+            document.getElementById('user-modal').classList.remove('active');
         }
 
         // Approve campaign
@@ -1140,3 +1460,4 @@
             }
         }
    
+    

@@ -780,10 +780,43 @@
                 height: 36px !important;
             }
             
+            /* FIXED: Dashboard logo images for mobile */
+            .dashboard-preview img.h-12.w-12 {
+                width: 36px !important;
+                height: 36px !important;
+                object-fit: contain !important;
+            }
+            
             /* FIXED: Influencer showcase image */
             .hawa-adam-image img {
                 max-height: 250px !important;
                 object-fit: cover !important;
+            }
+            
+            /* Hero section adjustments for mobile */
+            .hero-dashboards {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .hero-dashboards .dashboard-preview {
+                margin-bottom: 20px;
+                max-width: 100%;
+            }
+            
+            /* Center content adjustments for mobile */
+            .hero-dashboards .lg\:w-1\/3 {
+                width: 100%;
+                margin-bottom: 30px;
+            }
+            
+            /* Adjust dashboard content for mobile */
+            .dashboard-preview {
+                transform: none !important;
+            }
+            
+            .dashboard-preview:hover {
+                transform: none !important;
             }
         }
     </style>
@@ -891,20 +924,84 @@
                     </div>
                 </div>
                 
-                <div class="text-center">
-                    <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-                        The Future of <span class="gradient-text">Influencer Marketing</span> is Here
-                    </h1>
-                    <p class="text-xl mb-10 opacity-90 max-w-2xl mx-auto">
-                        Connect with Africa's most authentic creators or find your perfect brand partners. All in one powerful platform.
-                    </p>
-                    <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                        <a href="InfluencerSignUp.html" class="px-8 py-4 rounded-full btn-primary text-lg font-semibold text-center">
-                            Join as Influencer
-                        </a>
-                        <a href="BrandSignUp.html" class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all text-lg text-center">
-                            Join as Brand
-                        </a>
+                <!-- Hero Section with Dashboards -->
+                <div class="hero-dashboards flex flex-col lg:flex-row items-center justify-between gap-8">
+                    <!-- Left Dashboard -->
+                    <div class="dashboard-preview max-w-md w-full lg:w-1/3">
+                        <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="flex-1 text-center text-white text-sm">LiveX Dashboard</div>
+                        </div>
+                        <div class="bg-white p-6">
+                            <div class="flex items-center justify-center mb-6">
+                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-12 w-12 rounded-full mr-3">
+                                <h3 class="font-bold text-xl">LiveX Platform</h3>
+                            </div>
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                    <span class="font-medium">Campaigns Created</span>
+                                    <span class="font-bold text-blue-600">100k</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                    <span class="font-medium">Influencers Signed Up</span>
+                                    <span class="font-bold text-green-600">10k</span>
+                                </div>
+                                <div class="p-3 bg-purple-50 rounded-lg">
+                                    <div class="font-medium mb-1">Upcoming Update</div>
+                                    <div class="font-bold text-purple-600">"Community Uplifting Done Right!!!"</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Center Content -->
+                    <div class="text-center lg:text-left lg:w-1/3">
+                        <h1 class="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+                            The Future of <span class="gradient-text">Influencer Marketing</span> is Here
+                        </h1>
+                        <p class="text-xl mb-10 opacity-90 max-w-2xl mx-auto lg:mx-0">
+                            Connect with Africa's most authentic creators or find your perfect brand partners. All in one powerful platform.
+                        </p>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                            <a href="InfluencerSignUp.html" class="px-8 py-4 rounded-full btn-primary text-lg font-semibold text-center">
+                                Join as Influencer
+                            </a>
+                            <a href="BrandSignUp.html" class="px-8 py-4 rounded-full bg-white text-gray-800 font-semibold border border-gray-300 hover:bg-gray-100 transition-all text-lg text-center">
+                                Join as Brand
+                            </a>
+                        </div>
+                    </div>
+                    
+                    <!-- Right Dashboard -->
+                    <div class="dashboard-preview max-w-md w-full lg:w-1/3">
+                        <div class="bg-gray-800 rounded-t-lg p-4 flex items-center">
+                            <div class="flex space-x-2">
+                                <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-yellow-500"></div>
+                                <div class="w-3 h-3 rounded-full bg-green-500"></div>
+                            </div>
+                            <div class="flex-1 text-center text-white text-sm">LiveX Dashboard</div>
+                        </div>
+                        <div class="bg-white p-6">
+                            <div class="flex items-center justify-center mb-6">
+                                <img src="assets/images/logo.jpg" alt="LiveX Logo" class="h-12 w-12 rounded-full mr-3">
+                                <h3 class="font-bold text-xl">Platform Stats</h3>
+                            </div>
+                            <div class="space-y-4 mb-6">
+                                <div class="flex justify-between items-center p-3 bg-blue-50 rounded-lg">
+                                    <span class="font-medium">Active Brands</span>
+                                    <span class="font-bold text-blue-600">10+</span>
+                                </div>
+                                <div class="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                                    <span class="font-medium">Successful Campaigns</span>
+                                    <span class="font-bold text-green-600">95%</span>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1189,11 +1286,11 @@
                                             <p class="font-bold" style="color: black;">141K</p>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                            <p class="text-xs text-gray-600">LinkedIn</p>
+                                            <p class="text-xs text-gray-600">Facebook</p>
                                             <p class="font-bold" style="color: black;">141K</p>
                                         </div>
                                         <div class="bg-blue-50 p-3 rounded-lg text-center">
-                                            <p class="text-xs text-gray-600">Facebook</p>
+                                            <p class="text-xs text-gray-600">TikTok</p>
                                             <p class="font-bold" style="color: black;">485.6K</p>
                                         </div>
                                     </div>
@@ -1593,8 +1690,8 @@
                     <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
                         <h3 class="text-2xl font-bold mb-2">Nano</h3>
                         <p class="text-gray-600 mb-6">1K - 10K followers</p>
-                        <div class="text-4xl font-bold mb-2">Ksh50,000</div>
-                        <p class="text-gray-600 text-sm mb-6">+ Ksh5,000 campaign management</p>
+                        <div class="text-4xl font-bold mb-2">Sign Up</div>
+                        <p class="text-gray-600 text-sm mb-6">For custom pricing</p>
                         <ul class="space-y-3 mb-8">
                             <li>High engagement rates</li>
                             <li>Niche audiences</li>
@@ -1608,8 +1705,8 @@
                     <div class="tier-card bg-white border border-gray-200 rounded-2xl p-8 text-center">
                         <h3 class="text-2xl font-bold mb-2">Micro</h3>
                         <p class="text-gray-600 mb-6">10K+ - 100K followers</p>
-                        <div class="text-4xl font-bold mb-2">Ksh100,000</div>
-                        <p class="text-gray-600 text-sm mb-6">+ Ksh10,000 campaign management</p>
+                        <div class="text-4xl font-bold mb-2">Sign Up</div>
+                        <p class="text-gray-600 text-sm mb-6">For custom pricing</p>
                         <ul class="space-y-3 mb-8">
                             <li>Balanced reach & engagement</li>
                             <li>Established credibility</li>
@@ -1623,8 +1720,8 @@
                     <div class="tier-card macro-tier bg-white rounded-2xl p-8 text-center">
                         <h3 class="text-2xl font-bold mb-2">Macro</h3>
                         <p class="text-gray-600 mb-6">100K+ - 500K followers</p>
-                        <div class="text-4xl font-bold mb-2">Ksh250,000</div>
-                        <p class="text-gray-600 text-sm mb-6">+ Ksh15,000 campaign management</p>
+                        <div class="text-4xl font-bold mb-2">Sign Up</div>
+                        <p class="text-gray-600 text-sm mb-6">For custom pricing</p>
                         <ul class="space-y-3 mb-8">
                             <li>Significant reach</li>
                             <li>Professional content</li>
