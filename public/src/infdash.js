@@ -23,15 +23,25 @@
         let selectedCampaign = null;
         let myCampaigns = [];
         let mySubmissions = [];
+        let profileCompletionStep = 1;
 
         // Check authentication on page load
         auth.onAuthStateChanged(async (user) => {
             if (user) {
                 currentUser = user;
                 await loadProfile();
-                await loadCampaigns();
-                await loadMyCampaigns();
-                document.getElementById('loading-screen').style.display = 'none';
+                
+                // Check if profile is completed
+                if (currentProfile && currentProfile.profileCompleted === false) {
+                    // Show profile completion overlay
+                    document.getElementById('profile-completion-overlay').style.display = 'flex';
+                    document.getElementById('loading-screen').style.display = 'none';
+                } else {
+                    // Profile is completed, load dashboard
+                    await loadCampaigns();
+                    await loadMyCampaigns();
+                    document.getElementById('loading-screen').style.display = 'none';
+                }
             } else {
                 // Redirect to login if not authenticated
                 window.location.href = 'login.html';
@@ -49,6 +59,8 @@
                     // Ensure required fields exist with defaults
                     currentProfile.fullName = currentProfile.fullName || 'Influencer';
                     currentProfile.phone = currentProfile.phone || '';
+                    currentProfile.city = currentProfile.city || '';
+                    currentProfile.profileCompleted = currentProfile.profileCompleted || false;
                     currentProfile.socialMedia = currentProfile.socialMedia || {};
                     currentProfile.socialMedia.instagram = currentProfile.socialMedia.instagram || {};
                     currentProfile.socialMedia.instagram.username = currentProfile.socialMedia.instagram.username || 'username';
@@ -101,6 +113,7 @@
         function displayProfile() {
             // Use fullName instead of name
             document.getElementById('profile-name').textContent = currentProfile.fullName || 'Influencer';
+            document.getElementById('profile-city').textContent = currentProfile.city || 'Unknown';
             
             // Display social media links
             const socialMediaContainer = document.getElementById('social-media-links');
@@ -139,6 +152,476 @@
                 profilePic.innerHTML = '';
             }
         }
+
+        // Profile completion step navigation
+        function showProfileCompletionStep(stepNumber) {
+            document.querySelectorAll('#profile-completion-form .step-container').forEach(container => {
+                container.classList.remove('active');
+            });
+            document.getElementById(`profile-step-${stepNumber}`).classList.add('active');
+            profileCompletionStep = stepNumber;
+            
+            // Update progress bar
+            const progressPercentage = ((stepNumber - 1) / 2) * 100;
+            document.getElementById('profile-progress-fill').style.width = `${progressPercentage}%`;
+            
+            // Update step indicators
+            document.querySelectorAll('#profile-completion-form .step-indicator').forEach((indicator, index) => {
+                const stepNum = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNum < stepNumber) {
+                    indicator.classList.add('completed');
+                    indicator.innerHTML = '<i class="fas fa-check"></i>';
+                } else if (stepNum === stepNumber) {
+                    indicator.classList.add('active');
+                    indicator.textContent = stepNum;
+                } else {
+                    indicator.textContent = stepNum;
+                }
+            });
+        }
+
+        // Profile completion form navigation
+        document.getElementById('profile-next-to-step2').addEventListener('click', function() {
+            if (validateProfileStep1()) {
+                showProfileCompletionStep(2);
+            }
+        });
+
+        document.getElementById('profile-back-to-step1').addEventListener('click', function() {
+            showProfileCompletionStep(1);
+        });
+
+        document.getElementById('profile-next-to-step3').addEventListener('click', function() {
+            if (validateProfileStep2()) {
+                updateProfileReview();
+                showProfileCompletionStep(3);
+            }
+        });
+
+        document.getElementById('profile-back-to-step2').addEventListener('click', function() {
+            showProfileCompletionStep(2);
+        });
+
+        // Profile completion form validation
+        function validateProfileStep1() {
+            const instagram = document.getElementById('profile-instagram').value;
+            const instagramFollowers = document.getElementById('profile-instagramFollowers').value;
+            const instagramUrl = document.getElementById('profile-instagramUrl').value;
+            
+            const facebook = document.getElementById('profile-facebook').value;
+            const facebookFollowers = document.getElementById('profile-facebookFollowers').value;
+            const facebookUrl = document.getElementById('profile-facebookUrl').value;
+            
+            const tiktok = document.getElementById('profile-tiktok').value;
+            const tiktokFollowers = document.getElementById('profile-tiktokFollowers').value;
+            const tiktokUrl = document.getElementById('profile-tiktokUrl').value;
+            
+            // Instagram is required
+            if (!instagram || !instagramFollowers || !instagramUrl) {
+                alert('Please fill in all Instagram fields (required)');
+                return false;
+            }
+            
+            // At least one other platform (Facebook or TikTok) is required
+            const hasFacebook = facebook && facebookFollowers && facebookUrl;
+            const hasTikTok = tiktok && tiktokFollowers && tiktokUrl;
+            
+            if (!hasFacebook && !hasTikTok) {
+                alert('Please provide at least one additional social media platform (Facebook or TikTok)');
+                return false;
+            }
+            
+            // If Facebook is partially filled, all fields must be filled
+            if (facebook || facebookFollowers || facebookUrl) {
+                if (!hasFacebook) {
+                    alert('Please fill in all Facebook fields or leave them all empty');
+                    return false;
+                }
+            }
+            
+            // If TikTok is partially filled, all fields must be filled
+            if (tiktok || tiktokFollowers || tiktokUrl) {
+                if (!hasTikTok) {
+                    alert('Please fill in all TikTok fields or leave them all empty');
+                    return false;
+                }
+            }
+            
+            return true;
+        }
+
+        function validateProfileStep2() {
+            const checkboxes = document.querySelectorAll('input[name="profile-niches"]:checked');
+            
+            if (checkboxes.length === 0) {
+                document.getElementById('profile-nichesError').classList.remove('hidden');
+                return false;
+            }
+            
+            document.getElementById('profile-nichesError').classList.add('hidden');
+            return true;
+        }
+
+        // Update profile review section
+        function updateProfileReview() {
+            // Clear previous social media review
+            const socialMediaReview = document.getElementById('profile-social-media-review');
+            socialMediaReview.innerHTML = '';
+            
+            // Add Instagram to review
+            const instagram = document.getElementById('profile-instagram').value;
+            const instagramFollowers = document.getElementById('profile-instagramFollowers').value;
+            const instagramUrl = document.getElementById('profile-instagramUrl').value;
+            
+            if (instagram && instagramFollowers && instagramUrl) {
+                const instagramDiv = document.createElement('div');
+                instagramDiv.innerHTML = `
+                    <p class="text-sm text-gray-600">Instagram</p>
+                    <p class="font-medium text-gray-800">${instagram}</p>
+                    <p class="text-xs text-gray-600">${parseInt(instagramFollowers).toLocaleString()} followers</p>
+                    <a href="${instagramUrl}" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
+                `;
+                socialMediaReview.appendChild(instagramDiv);
+            }
+            
+            // Add Facebook to review if provided
+            const facebook = document.getElementById('profile-facebook').value;
+            const facebookFollowers = document.getElementById('profile-facebookFollowers').value;
+            const facebookUrl = document.getElementById('profile-facebookUrl').value;
+            
+            if (facebook && facebookFollowers && facebookUrl) {
+                const facebookDiv = document.createElement('div');
+                facebookDiv.innerHTML = `
+                    <p class="text-sm text-gray-600">Facebook</p>
+                    <p class="font-medium text-gray-800">${facebook}</p>
+                    <p class="text-xs text-gray-600">${parseInt(facebookFollowers).toLocaleString()} followers</p>
+                    <a href="${facebookUrl}" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
+                `;
+                socialMediaReview.appendChild(facebookDiv);
+            }
+            
+            // Add TikTok to review if provided
+            const tiktok = document.getElementById('profile-tiktok').value;
+            const tiktokFollowers = document.getElementById('profile-tiktokFollowers').value;
+            const tiktokUrl = document.getElementById('profile-tiktokUrl').value;
+            
+            if (tiktok && tiktokFollowers && tiktokUrl) {
+                const tiktokDiv = document.createElement('div');
+                tiktokDiv.innerHTML = `
+                    <p class="text-sm text-gray-600">TikTok</p>
+                    <p class="font-medium text-gray-800">${tiktok}</p>
+                    <p class="text-xs text-gray-600">${parseInt(tiktokFollowers).toLocaleString()} followers</p>
+                    <a href="${tiktokUrl}" target="_blank" class="text-xs text-blue-600 hover:underline">View Profile</a>
+                `;
+                socialMediaReview.appendChild(tiktokDiv);
+            }
+            
+            document.getElementById('profile-review-total-followers').textContent = document.getElementById('profile-totalFollowers').textContent;
+            document.getElementById('profile-review-category').textContent = document.getElementById('profile-category').textContent;
+            
+            // Update niches
+            const nichesContainer = document.getElementById('profile-review-niches');
+            nichesContainer.innerHTML = '';
+            const selectedNiches = document.querySelectorAll('input[name="profile-niches"]:checked');
+            
+            selectedNiches.forEach(checkbox => {
+                const nicheTag = document.createElement('span');
+                nicheTag.className = 'niche-tag';
+                nicheTag.textContent = checkbox.value.charAt(0).toUpperCase() + checkbox.value.slice(1);
+                nichesContainer.appendChild(nicheTag);
+            });
+        }
+
+        // Calculate total followers and determine category for profile completion
+        function calculateProfileTotalFollowers() {
+            const instagramFollowers = parseInt(document.getElementById('profile-instagramFollowers').value) || 0;
+            const facebookFollowers = parseInt(document.getElementById('profile-facebookFollowers').value) || 0;
+            const tiktokFollowers = parseInt(document.getElementById('profile-tiktokFollowers').value) || 0;
+            
+            const total = instagramFollowers + facebookFollowers + tiktokFollowers;
+            document.getElementById('profile-totalFollowers').textContent = total.toLocaleString();
+            
+            let category = '';
+            if (total >= 500000) {
+                category = 'Mega Influencer';
+            } else if (total >= 100001) {
+                category = 'Macro Influencer';
+            } else if (total >= 10001) {
+                category = 'Micro Influencer';
+            } else if (total >= 1000) {
+                category = 'Nano Influencer';
+            } else {
+                category = 'Below minimum threshold';
+            }
+            
+            document.getElementById('profile-category').textContent = category;
+        }
+
+        // Update niches selection for profile completion
+        function updateProfileNiches() {
+            const checkboxes = document.querySelectorAll('input[name="profile-niches"]:checked');
+            const nichesError = document.getElementById('profile-nichesError');
+            
+            if (checkboxes.length > 3) {
+                // Uncheck the last checkbox
+                const lastChecked = checkboxes[checkboxes.length - 1];
+                lastChecked.checked = false;
+                nichesError.textContent = 'Maximum 3 niches allowed';
+                nichesError.classList.remove('hidden');
+                setTimeout(() => {
+                    nichesError.classList.add('hidden');
+                }, 3000);
+            } else if (checkboxes.length === 0) {
+                nichesError.textContent = 'Please select at least one niche';
+                nichesError.classList.remove('hidden');
+            } else {
+                nichesError.classList.add('hidden');
+            }
+        }
+
+        // Submit profile completion form
+        document.getElementById('profile-submit-form').addEventListener('click', async function() {
+            try {
+                // Collect form data
+                const instagram = document.getElementById('profile-instagram').value;
+                const instagramFollowers = parseInt(document.getElementById('profile-instagramFollowers').value) || 0;
+                const instagramUrl = document.getElementById('profile-instagramUrl').value;
+                
+                const facebook = document.getElementById('profile-facebook').value;
+                const facebookFollowers = parseInt(document.getElementById('profile-facebookFollowers').value) || 0;
+                const facebookUrl = document.getElementById('profile-facebookUrl').value;
+                
+                const tiktok = document.getElementById('profile-tiktok').value;
+                const tiktokFollowers = parseInt(document.getElementById('profile-tiktokFollowers').value) || 0;
+                const tiktokUrl = document.getElementById('profile-tiktokUrl').value;
+                
+                const totalFollowers = parseInt(document.getElementById('profile-totalFollowers').textContent.replace(/,/g, ''));
+                const category = document.getElementById('profile-category').textContent;
+                
+                const selectedNiches = Array.from(document.querySelectorAll('input[name="profile-niches"]:checked')).map(cb => cb.value);
+                
+                // Prepare social media data
+                const socialMedia = {
+                    instagram: {
+                        username: instagram,
+                        followers: instagramFollowers,
+                        url: instagramUrl
+                    }
+                };
+                
+                // Add Facebook if provided
+                if (facebook && facebookFollowers && facebookUrl) {
+                    socialMedia.facebook = {
+                        username: facebook,
+                        followers: facebookFollowers,
+                        url: facebookUrl
+                    };
+                }
+                
+                // Add TikTok if provided
+                if (tiktok && tiktokFollowers && tiktokUrl) {
+                    socialMedia.tiktok = {
+                        username: tiktok,
+                        followers: tiktokFollowers,
+                        url: tiktokUrl
+                    };
+                }
+                
+                // Update user profile in Firestore
+                await db.collection('influencers').doc(currentUser.uid).update({
+                    socialMedia: socialMedia,
+                    totalFollowers: totalFollowers,
+                    category: category,
+                    niches: selectedNiches,
+                    profileCompleted: true,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current profile object
+                currentProfile.socialMedia = socialMedia;
+                currentProfile.totalFollowers = totalFollowers;
+                currentProfile.category = category;
+                currentProfile.niches = selectedNiches;
+                currentProfile.profileCompleted = true;
+                
+                // Hide profile completion overlay
+                document.getElementById('profile-completion-overlay').style.display = 'none';
+                
+                // Load dashboard data
+                await loadCampaigns();
+                await loadMyCampaigns();
+                
+                // Display updated profile
+                displayProfile();
+                
+                alert('Profile completed successfully! You now have access to all dashboard features.');
+            } catch (error) {
+                console.error('Error completing profile:', error);
+                alert('Error completing profile. Please try again.');
+            }
+        });
+
+        // Open edit profile modal
+        function openEditProfile() {
+            // Populate form with current profile data
+            document.getElementById('edit-fullName').value = currentProfile.fullName || '';
+            document.getElementById('edit-phone').value = currentProfile.phone || '';
+            document.getElementById('edit-city').value = currentProfile.city || '';
+            
+            // Populate social media data
+            if (currentProfile.socialMedia && currentProfile.socialMedia.instagram) {
+                document.getElementById('edit-instagram').value = currentProfile.socialMedia.instagram.username || '';
+                document.getElementById('edit-instagramFollowers').value = currentProfile.socialMedia.instagram.followers || 0;
+                document.getElementById('edit-instagramUrl').value = currentProfile.socialMedia.instagram.url || '';
+            }
+            
+            if (currentProfile.socialMedia && currentProfile.socialMedia.facebook) {
+                document.getElementById('edit-facebook').value = currentProfile.socialMedia.facebook.username || '';
+                document.getElementById('edit-facebookFollowers').value = currentProfile.socialMedia.facebook.followers || 0;
+                document.getElementById('edit-facebookUrl').value = currentProfile.socialMedia.facebook.url || '';
+            }
+            
+            if (currentProfile.socialMedia && currentProfile.socialMedia.tiktok) {
+                document.getElementById('edit-tiktok').value = currentProfile.socialMedia.tiktok.username || '';
+                document.getElementById('edit-tiktokFollowers').value = currentProfile.socialMedia.tiktok.followers || 0;
+                document.getElementById('edit-tiktokUrl').value = currentProfile.socialMedia.tiktok.url || '';
+            }
+            
+            // Calculate total followers
+            calculateEditTotalFollowers();
+            
+            // Populate niches
+            const nicheCheckboxes = document.querySelectorAll('input[name="edit-niches"]');
+            nicheCheckboxes.forEach(checkbox => {
+                checkbox.checked = currentProfile.niches && currentProfile.niches.includes(checkbox.value);
+            });
+            
+            // Show modal
+            document.getElementById('edit-profile-modal').classList.add('active');
+        }
+
+        // Close edit profile modal
+        function closeEditProfileModal() {
+            document.getElementById('edit-profile-modal').classList.remove('active');
+        }
+
+        // Calculate total followers for edit profile
+        function calculateEditTotalFollowers() {
+            const instagramFollowers = parseInt(document.getElementById('edit-instagramFollowers').value) || 0;
+            const facebookFollowers = parseInt(document.getElementById('edit-facebookFollowers').value) || 0;
+            const tiktokFollowers = parseInt(document.getElementById('edit-tiktokFollowers').value) || 0;
+            
+            const total = instagramFollowers + facebookFollowers + tiktokFollowers;
+            document.getElementById('edit-totalFollowers').textContent = total.toLocaleString();
+            
+            let category = '';
+            if (total >= 500000) {
+                category = 'Mega Influencer';
+            } else if (total >= 100001) {
+                category = 'Macro Influencer';
+            } else if (total >= 10001) {
+                category = 'Micro Influencer';
+            } else if (total >= 1000) {
+                category = 'Nano Influencer';
+            } else {
+                category = 'Below minimum threshold';
+            }
+            
+            document.getElementById('edit-category').textContent = category;
+        }
+
+        // Submit edit profile form
+        document.getElementById('edit-profile-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            try {
+                // Collect form data
+                const fullName = document.getElementById('edit-fullName').value;
+                const phone = document.getElementById('edit-phone').value;
+                const city = document.getElementById('edit-city').value;
+                
+                const instagram = document.getElementById('edit-instagram').value;
+                const instagramFollowers = parseInt(document.getElementById('edit-instagramFollowers').value) || 0;
+                const instagramUrl = document.getElementById('edit-instagramUrl').value;
+                
+                const facebook = document.getElementById('edit-facebook').value;
+                const facebookFollowers = parseInt(document.getElementById('edit-facebookFollowers').value) || 0;
+                const facebookUrl = document.getElementById('edit-facebookUrl').value;
+                
+                const tiktok = document.getElementById('edit-tiktok').value;
+                const tiktokFollowers = parseInt(document.getElementById('edit-tiktokFollowers').value) || 0;
+                const tiktokUrl = document.getElementById('edit-tiktokUrl').value;
+                
+                const totalFollowers = parseInt(document.getElementById('edit-totalFollowers').textContent.replace(/,/g, ''));
+                const category = document.getElementById('edit-category').textContent;
+                
+                const selectedNiches = Array.from(document.querySelectorAll('input[name="edit-niches"]:checked')).map(cb => cb.value);
+                
+                // Prepare social media data
+                const socialMedia = {
+                    instagram: {
+                        username: instagram,
+                        followers: instagramFollowers,
+                        url: instagramUrl
+                    }
+                };
+                
+                // Add Facebook if provided
+                if (facebook && facebookFollowers && facebookUrl) {
+                    socialMedia.facebook = {
+                        username: facebook,
+                        followers: facebookFollowers,
+                        url: facebookUrl
+                    };
+                }
+                
+                // Add TikTok if provided
+                if (tiktok && tiktokFollowers && tiktokUrl) {
+                    socialMedia.tiktok = {
+                        username: tiktok,
+                        followers: tiktokFollowers,
+                        url: tiktokUrl
+                    };
+                }
+                
+                // Update user profile in Firestore
+                await db.collection('influencers').doc(currentUser.uid).update({
+                    fullName: fullName,
+                    phone: phone,
+                    city: city,
+                    socialMedia: socialMedia,
+                    totalFollowers: totalFollowers,
+                    category: category,
+                    niches: selectedNiches,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                
+                // Update current profile object
+                currentProfile.fullName = fullName;
+                currentProfile.phone = phone;
+                currentProfile.city = city;
+                currentProfile.socialMedia = socialMedia;
+                currentProfile.totalFollowers = totalFollowers;
+                currentProfile.category = category;
+                currentProfile.niches = selectedNiches;
+                
+                // Close modal
+                closeEditProfileModal();
+                
+                // Display updated profile
+                displayProfile();
+                
+                // Reload campaigns to reflect any changes in matching
+                await loadCampaigns();
+                
+                alert('Profile updated successfully!');
+            } catch (error) {
+                console.error('Error updating profile:', error);
+                alert('Error updating profile. Please try again.');
+            }
+        });
 
         // Load available campaigns
         async function loadCampaigns() {
@@ -537,7 +1020,7 @@
                     <div class="flex justify-between items-center">
                         <div>
                             <h4 class="font-medium text-gray-800">${payment.campaignName || 'Unnamed Campaign'}</h4>
-                            <p class="text-sm text-gray-600">${payment.campaignBrand || 'Unknown Brand'}</p>
+                            <p class="text-gray-600">${payment.campaignBrand || 'Unknown Brand'}</p>
                             <span class="status-badge ${statusClass} text-xs">${statusText}</span>
                         </div>
                         <div class="text-right">
@@ -572,6 +1055,24 @@
                 'rejected': '<span class="status-badge status-rejected">Rejected</span>'
             };
             return badges[status] || '<span class="status-badge status-pending">' + (status || 'Unknown') + '</span>';
+        }
+
+        // Function to copy text to clipboard
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Show a temporary success message
+                const toast = document.createElement('div');
+                toast.className = 'fixed bottom-4 right-4 bg-green-500 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+                toast.textContent = 'Copied to clipboard!';
+                document.body.appendChild(toast);
+                
+                // Remove the toast after 2 seconds
+                setTimeout(() => {
+                    document.body.removeChild(toast);
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
         }
 
         // Show campaign details
@@ -634,8 +1135,11 @@
                     ${selectedCampaign.caption ? `
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Caption</h3>
-                            <div class="bg-gray-50 p-3 rounded-lg">
-                                <p class="text-gray-700">${selectedCampaign.caption}</p>
+                            <div class="bg-gray-50 p-3 rounded-lg flex items-center justify-between">
+                                <p class="orange-text flex-1">${selectedCampaign.caption}</p>
+                                <button onclick="copyToClipboard('${selectedCampaign.caption.replace(/'/g, "\\'")}')" class="copy-button">
+                                    <i class="fas fa-copy"></i>
+                                </button>
                             </div>
                         </div>
                     ` : ''}
@@ -643,12 +1147,14 @@
                     ${selectedCampaign.hashtags && selectedCampaign.hashtags.length > 0 ? `
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Hashtags</h3>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="space-y-2">
                                 ${selectedCampaign.hashtags.map(tag => `
-                                    <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                        <i class="fas fa-hash text-xs"></i>
-                                        <span>${tag.replace('#', '')}</span>
-                                    </span>
+                                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                                        <span class="orange-text flex-1">${tag}</span>
+                                        <button onclick="copyToClipboard('${tag.replace(/'/g, "\\'")}')" class="copy-button">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
                                 `).join('')}
                             </div>
                         </div>
@@ -657,12 +1163,14 @@
                     ${selectedCampaign.mentions && selectedCampaign.mentions.length > 0 ? `
                         <div>
                             <h3 class="text-lg font-semibold text-gray-800 mb-2">Accounts to Tag</h3>
-                            <div class="flex flex-wrap gap-2">
+                            <div class="space-y-2">
                                 ${selectedCampaign.mentions.map(mention => `
-                                    <span class="inline-flex items-center space-x-1 px-3 py-1 bg-gray-100 rounded-full text-sm">
-                                        <i class="fas fa-at text-xs"></i>
-                                        <span>${mention.replace('@', '')}</span>
-                                    </span>
+                                    <div class="flex items-center justify-between bg-gray-50 p-2 rounded-lg">
+                                        <span class="orange-text flex-1">${mention}</span>
+                                        <button onclick="copyToClipboard('${mention.replace(/'/g, "\\'")}')" class="copy-button">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
                                 `).join('')}
                             </div>
                         </div>
